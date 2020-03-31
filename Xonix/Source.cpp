@@ -70,20 +70,20 @@ int main(void)
 
 	//images 
 	Texture image;
-	if (image.loadFromFile("borders.png") == false)
+	if (image.loadFromFile("Data/borders.png") == false)
 	{
 		cout << "image is not here";
 		return 1; // end the program 
 	}
 	Texture image2;
-	if (image2.loadFromFile("borders1.png") == false)
+	if (image2.loadFromFile("Data/borders1.png") == false)
 	{
 		cout << "image is not here";
 		return 1; // end the program 
 	}
 	//font 
 	Font number_font;
-	if (number_font.loadFromFile("numbers_font.ttf") == false)
+	if (number_font.loadFromFile("Data/numbers_font.ttf") == false)
 	{
 		cout << "font is not here";
 		return 1; // end the program 

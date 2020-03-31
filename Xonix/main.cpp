@@ -1,5 +1,5 @@
 /*
-
+ 
 using namespace std;
 using namespace sf;
 int main(void)
@@ -347,7 +347,7 @@ int main()
 	return 0;
 }
 */
-
+///////////////////////// IGNORE This file :) 
 /*
 #include <SFML/Graphics.hpp>
 #include<SFML/Audio.hpp>
