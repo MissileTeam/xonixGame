@@ -3,16 +3,17 @@
 #include <iostream> // to use input and output functions 
 #include <ctime> //to use time functions 
 #include <sstream> 
+#include<string>
 #define ScreenWidth 820
-#define ScreenHeight 620
-#define Rows 82
-#define Coulmns 62
- enum { Down, Up, Left, Right };
+#define ScreenHeight 680
+#define W 82
+#define H 62
+enum { Down, Up, Left, Right };
 using namespace std;
 using namespace sf;
-
 //global varibles
-int grid[Rows][Coulmns] = {}; // window scale 
+int grid[W][H] = {};// window scale 
+
 struct enemy {
 	//e=enemy
 	// we put the function in the struct to make varibles of struct idientfied in the functions
@@ -20,8 +21,8 @@ struct enemy {
 	enemy() {
 		expostion = 400;
 		eypostion = 300;
-			exvelocity = 4 - rand() % 8;
-			eyvelocity = 4 - rand() % 8;
+		exvelocity = 4 - rand() % 8;
+		eyvelocity = 4 - rand() % 8;
 	}
 	void motion() {
 		expostion += exvelocity;
@@ -40,25 +41,15 @@ struct enemy {
 void rules_of_draw(int x, int y)
 {
 	if (grid[x][y] == 0)
-
 		grid[x][y] = -1;
-
 	if (grid[x - 1][y] == 0)
-
 		rules_of_draw(x - 1, y);
-
 	if (grid[x + 1][y] == 0)
-
 		rules_of_draw(x + 1, y);
-
 	if (grid[x][y + 1] == 0)
-
 		rules_of_draw(x, y + 1);
-
 	if (grid[x][y - 1] == 0)
-
 		rules_of_draw(x, y - 1);
-
 }
 int main(void)
 {
@@ -66,8 +57,7 @@ int main(void)
 	window.setFramerateLimit(60);//set frames to 60 per second 
 	bool play = true; // play variable 
 	int xpos = 0, ypos = 0; //playes position
-	short dir = -1;//direction of the player  -1 means no direction in the start it can be anything
-
+	short dir = -1; //direction of the player  -1 means no direction in the start it can be anything
 	//images 
 	Texture image;
 	if (image.loadFromFile("Data/borders.png") == false)
@@ -88,6 +78,12 @@ int main(void)
 		cout << "font is not here";
 		return 1; // end the program 
 	}
+	Font Arial_font;
+	if (Arial_font.loadFromFile("Data/Arial.ttf") == false)
+	{
+		cout << "font is not here";
+		return 1; // end the program 
+	}
 	RectangleShape enemies_shapes[8];
 	for (int i = 0; i < 8; i++) {
 		enemies_shapes[i].setSize(Vector2f(10, 10));
@@ -98,11 +94,16 @@ int main(void)
 	time(&first_second);
 	int second = 0, minute = 0;
 	//time text
-	Text time_text;
+	Text time_text, PercentText;
 	time_text.setFont(number_font);
 	time_text.setFillColor(Color::Red);
 	time_text.setPosition(0, 640);
 	time_text.setCharacterSize(20);
+	//Percent Text
+	PercentText.setFont(Arial_font);
+	PercentText.setFillColor(Color::Green);
+	PercentText.setPosition(330, 630);
+	PercentText.setCharacterSize(30);
 	//player rectangle 
 	RectangleShape player;
 	player.setFillColor(Color::Magenta);
@@ -117,18 +118,32 @@ int main(void)
 	Event event;
 	//sound
 	SoundBuffer sound;
-	Sound collisionSound;
-	if (sound.loadFromFile("collision.wav"))  cout << "ERROR Loading sound: collision.wav ";
-	collisionSound.setBuffer(sound);
+	Sound completion_sound;
+	if (sound.loadFromFile("Data/completion_sound.wav")==false)  cout << "ERROR Loading sound: completion_sound.wav ";
+	completion_sound.setBuffer(sound);
 	while (play)
 	{
 		Sprite Sgrid;
+		int percent = 0;
 		for (int i = 0; i < 82; i++)
+		{
 			for (int j = 0; j < 62; j++)
+			{
 				if (i == 0 || i == 81 || j == 0 || j == 61 || i == 1 || i == 80 || j == 1 || j == 60)
+				{
 					grid[i][j] = 1;
+				}
+				else if (grid[i][j] == 1)
+				{
+					percent++;
+				}
+			}
+		}
+		percent = percent / (44);
 		// time string 
-		stringstream time_string;
+		stringstream time_string, areaString;
+		areaString << "You Finished " << percent << "%";
+		PercentText.setString(areaString.str());
 		time(&this_second);
 		if (second < 60)
 		{
@@ -137,6 +152,8 @@ int main(void)
 		else if (second % 60 == 0)
 		{
 			minute++;
+			
+
 			time(&first_second);
 			second = 0;
 		}
@@ -173,15 +190,10 @@ int main(void)
 				play = false;
 			}
 			if (Keyboard::isKeyPressed(Keyboard::Up)) 		dir = Up;
-
 			else if (Keyboard::isKeyPressed(Keyboard::Down))	dir = Down;
-
 			else if (Keyboard::isKeyPressed(Keyboard::Right))	dir = Right;
-
 			else if (Keyboard::isKeyPressed(Keyboard::Left))	dir = Left;
-
 		}
-
 		//enemy move
 		int numberofenemy = 7;
 		for (int i = 1; i <= numberofenemy; i++) {
@@ -193,24 +205,18 @@ int main(void)
 		{
 			grid[xpos][ypos] = 2;
 		}
-		 if (grid[xpos][ypos] == 1)
+		if (grid[xpos][ypos] == 1)
 		{
 			if (Keyboard::isKeyPressed(Keyboard::Up))				ypos -= 1;
-
 			else if (Keyboard::isKeyPressed(Keyboard::Down))		ypos += 1;
-
 			else if (Keyboard::isKeyPressed(Keyboard::Right))		xpos += 1;
-
 			else if (Keyboard::isKeyPressed(Keyboard::Left))		xpos -= 1;
 		}
 		else
 		{
 			if (dir == Up)	ypos -= 1;
-
 			else if (dir == Down)	ypos += 1;
-
 			else if (dir == Right)	xpos += 1;
-
 			else if (dir == Left)	xpos -= 1;
 		}
 		// boundaries that anything can't go after it like player
@@ -224,6 +230,8 @@ int main(void)
 			ypos += 1;
 		player.setPosition(xpos * 10, ypos * 10);
 		time_text.setString(time_string.str());
+		PercentText.setString(areaString.str());
+		//PercentText.setString("Area Percent :")
 		for (int i = 0; i <= numberofenemy; i++)
 		{
 			enemies_shapes[i].setPosition(enemies_struct[i].expostion, enemies_struct[i].eypostion);
@@ -233,17 +241,14 @@ int main(void)
 			if (grid[enemies_struct[i].expostion / 10][enemies_struct[i].eypostion / 10] == 2)
 			{
 				play = false;
-				//collisionSound.play();
-				
 			}
 		}
 		for (int i = 0; i < 82; i++)
 			for (int j = 0; j < 62; j++)
 				if (grid[i][j] == -1)
 					grid[i][j] = 0;
-				else  
+				else
 					grid[i][j] = 1;
-
 		//draw 
 		window.clear();
 		for (int i = 0; i < 82; i++)
@@ -255,7 +260,9 @@ int main(void)
 				}
 				if (grid[i][j] == 1)
 				{
+					
 					Sgrid.setTexture(image2);
+
 				}
 				if (grid[i][j] == 2)
 				{
@@ -263,6 +270,8 @@ int main(void)
 				}
 				Sgrid.setPosition(i * 10, j * 10);
 				window.draw(Sgrid);
+				
+
 			}
 		window.draw(player);
 		window.draw(bound);
@@ -270,7 +279,7 @@ int main(void)
 			window.draw(enemies_shapes[i]);
 		}
 		window.draw(time_text);
+		window.draw(PercentText);
 		window.display();
 	}
 }
-
