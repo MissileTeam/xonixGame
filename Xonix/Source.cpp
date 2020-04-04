@@ -4,16 +4,18 @@
 #include <ctime> //to use time functions 
 #include <sstream> 
 #include<string>
+#include <chrono>
+#include <thread>
 #define ScreenWidth 820
 #define ScreenHeight 680
-#define W 82
-#define H 62
+#define Rows 82
+#define Coulmns 62
 enum { Down, Up, Left, Right };
 using namespace std;
 using namespace sf;
 //global varibles
-int grid[W][H] = {};// window scale 
-
+int grid[Rows][Coulmns] = {};// window scale 
+short counter = 0;
 struct enemy {
 	//e=enemy
 	// we put the function in the struct to make varibles of struct idientfied in the functions
@@ -79,7 +81,7 @@ int main(void)
 		return 1; // end the program 
 	}
 	Font Arial_font;
-	if (Arial_font.loadFromFile("Data/Arial.ttf") == false)
+	if (Arial_font.loadFromFile("Data/arial.ttf") == false)
 	{
 		cout << "font is not here";
 		return 1; // end the program 
@@ -101,7 +103,7 @@ int main(void)
 	time_text.setCharacterSize(20);
 	//Percent Text
 	PercentText.setFont(Arial_font);
-	PercentText.setFillColor(Color::Green);
+	PercentText.setFillColor(Color::Red);
 	PercentText.setPosition(330, 630);
 	PercentText.setCharacterSize(30);
 	//player rectangle 
@@ -117,10 +119,17 @@ int main(void)
 	// event
 	Event event;
 	//sound
+	// sound track while the game is playing
+	Music music;
+	if (!music.openFromFile("Data/soundtrack.ogg"))
+		return -1;
+	music.play();
 	SoundBuffer sound;
-	Sound completion_sound;
-	if (sound.loadFromFile("Data/completion_sound.wav")==false)  cout << "ERROR Loading sound: completion_sound.wav ";
-	completion_sound.setBuffer(sound);
+	Sound collisionSound;
+	if (sound.loadFromFile("Data/impact.wav"))
+		cout << "collision done " << endl;
+	collisionSound.setBuffer(sound);
+	menu menuu(ScreenWidth, ScreenHeight); //to take object from class
 	while (play)
 	{
 		Sprite Sgrid;
@@ -152,8 +161,6 @@ int main(void)
 		else if (second % 60 == 0)
 		{
 			minute++;
-			
-
 			time(&first_second);
 			second = 0;
 		}
@@ -189,14 +196,10 @@ int main(void)
 			{
 				play = false;
 			}
-			if (Keyboard::isKeyPressed(Keyboard::Up)) 		dir = Up;
-			else if (Keyboard::isKeyPressed(Keyboard::Down))	dir = Down;
-			else if (Keyboard::isKeyPressed(Keyboard::Right))	dir = Right;
-			else if (Keyboard::isKeyPressed(Keyboard::Left))	dir = Left;
 		}
 		//enemy move
 		int numberofenemy = 7;
-		for (int i = 1; i <= numberofenemy; i++) {
+		for (int i = 0; i < numberofenemy; i++) {
 			enemies_struct[i].motion();
 			rules_of_draw(enemies_struct[i].expostion / 10, enemies_struct[i].eypostion / 10);
 		}
@@ -214,6 +217,10 @@ int main(void)
 		}
 		else
 		{
+			if (Keyboard::isKeyPressed(Keyboard::Up)) 			dir = Up;
+			else if (Keyboard::isKeyPressed(Keyboard::Down))	dir = Down;
+			else if (Keyboard::isKeyPressed(Keyboard::Right))	dir = Right;
+			else if (Keyboard::isKeyPressed(Keyboard::Left))	dir = Left;
 			if (dir == Up)	ypos -= 1;
 			else if (dir == Down)	ypos += 1;
 			else if (dir == Right)	xpos += 1;
@@ -232,23 +239,38 @@ int main(void)
 		time_text.setString(time_string.str());
 		PercentText.setString(areaString.str());
 		//PercentText.setString("Area Percent :")
-		for (int i = 0; i <= numberofenemy; i++)
+		for (int i = 0; i < numberofenemy; i++)
 		{
 			enemies_shapes[i].setPosition(enemies_struct[i].expostion, enemies_struct[i].eypostion);
 		}
-		for (int i = 0; i <= numberofenemy; i++)
+		for (int i = 0; i < numberofenemy; i++)
 		{
 			if (grid[enemies_struct[i].expostion / 10][enemies_struct[i].eypostion / 10] == 2)
 			{
+				collisionSound.play();
+				this_thread::sleep_for(0.2s);
 				play = false;
+				
 			}
 		}
 		for (int i = 0; i < 82; i++)
 			for (int j = 0; j < 62; j++)
-				if (grid[i][j] == -1)
-					grid[i][j] = 0;
+				if (grid[xpos][ypos] == 1)
+				{
+					if (grid[i][j] == -1)
+						grid[i][j] = 0;
+					else
+						grid[i][j] = 1;
+				}
 				else
-					grid[i][j] = 1;
+				{
+					if (grid[i][j] == -1)
+						grid[i][j] = 0;
+					else if (grid[i][j] == 2)
+						grid[i][j] = 2;
+					else
+						grid[i][j] = 1;
+				}
 		//draw 
 		window.clear();
 		for (int i = 0; i < 82; i++)
@@ -260,9 +282,8 @@ int main(void)
 				}
 				if (grid[i][j] == 1)
 				{
-					
+					counter++;
 					Sgrid.setTexture(image2);
-
 				}
 				if (grid[i][j] == 2)
 				{
@@ -270,12 +291,10 @@ int main(void)
 				}
 				Sgrid.setPosition(i * 10, j * 10);
 				window.draw(Sgrid);
-				
-
 			}
 		window.draw(player);
 		window.draw(bound);
-		for (int i = 1; i <= numberofenemy; i++) {
+		for (int i = 0; i <= numberofenemy; i++) {
 			window.draw(enemies_shapes[i]);
 		}
 		window.draw(time_text);
