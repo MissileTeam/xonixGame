@@ -19,10 +19,12 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="levels.cpp" />
     <ClCompile Include="menu.cpp" />
     <ClCompile Include="Source.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="levels.h" />
     <ClInclude Include="menu.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
