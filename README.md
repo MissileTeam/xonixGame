@@ -43,7 +43,7 @@ Play
 Options 
 Exit 
 
-Play includes :
+Play includes:
 3 Levels which we will add it soon
 So we have made menu class and levels class but it’s code need some time to make it works propelly
 
