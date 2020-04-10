@@ -12,7 +12,7 @@
 #define Rows 82
 #define Coulmns 62
 int  page_number = -1;
-int  page_number2 = -1;
+int  level_number = -1;
 
 enum { Down, Up, Left, Right };
 using namespace std;
@@ -43,7 +43,46 @@ struct enemy {
 		}
 	}
 }enemies_struct[10];
-// Function to check the area around enemies and set it to (-1) and check the area to be  filled which is (0) bounded by (2) in the matrix
+// Function to check the area around enemies and set it to (-1) and check the area to be  filled which is (0) bounded by (2) in the matrix which is player lines
+
+void movePlayer(int &xpos,int &ypos,int dir)
+{
+	if (grid[xpos][ypos] != 1)
+	{
+		grid[xpos][ypos] = 2;
+	}
+	if (grid[xpos][ypos] == 1)
+	{
+		if (Keyboard::isKeyPressed(Keyboard::Up))				ypos -= 1;
+
+		else if (Keyboard::isKeyPressed(Keyboard::Down))		ypos += 1;
+
+		else if (Keyboard::isKeyPressed(Keyboard::Right))		xpos += 1;
+
+		else if (Keyboard::isKeyPressed(Keyboard::Left))		xpos -= 1;
+	}
+	else
+	{
+		if (dir == Up)	ypos -= 1;
+
+		else if (dir == Down)	ypos += 1;
+
+		else if (dir == Right)	xpos += 1;
+
+		else if (dir == Left)	xpos -= 1;
+	}
+
+	//check_bounderies
+	if (xpos >= 82)
+		xpos -= 1;
+	else if (xpos < 0)
+		xpos += 1;
+	if (ypos >= 62)
+		ypos -= 1;
+	else if (ypos < 0)
+		ypos += 1;
+
+}
 void rules_of_draw(int x, int y)
 {
 	if (grid[x][y] == 0)
@@ -67,6 +106,81 @@ void rules_of_draw(int x, int y)
 		rules_of_draw(x, y - 1);
 
 }
+void moveEnemy()
+{
+	int numberofenemy = 7;
+	for (int i = 1; i <= numberofenemy; i++) {
+		enemies_struct[i].motion();
+		rules_of_draw(enemies_struct[i].expostion / 10, enemies_struct[i].eypostion / 10);
+	}
+}
+void setsBrush(int& xpos, int& ypos)
+{
+	for (int i = 0; i < 82; i++)
+		for (int j = 0; j < 62; j++)
+			if (grid[xpos][ypos] == 1)
+			{
+				if (grid[i][j] == -1)
+					grid[i][j] = 0;
+				else
+					grid[i][j] = 1;
+			}
+			else
+			{
+				if (grid[i][j] == -1)
+					grid[i][j] = 0;
+
+				else if (grid[i][j] == 2)
+					grid[i][j] = 2;
+				else
+					grid[i][j] = 1;
+			}
+}
+void drawArea(Sprite& Sgrid, RenderWindow& window,Texture & image,Texture &image2)
+{
+	for (int i = 0; i < 82; i++)
+		for (int j = 0; j < 62; j++)
+		{
+			if (grid[i][j] == 0)
+			{
+				continue;
+			}
+			if (grid[i][j] == 1)
+			{
+				Sgrid.setTexture(image2);
+			}
+			if (grid[i][j] == 2)
+			{
+				Sgrid.setTexture(image);
+			}
+			Sgrid.setPosition(i * 10, j * 10);
+			window.draw(Sgrid);
+		}
+
+}
+int checkBoundaries()
+{
+	int percent = 0;
+	for (int i = 0; i < 82; i++)
+	{
+		for (int j = 0; j < 62; j++)
+		{
+			if (i == 0 || i == 81 || j == 0 || j == 61 || i == 1 || i == 80 || j == 1 || j == 60)
+			{
+				grid[i][j] = 1;
+			}
+			else if (grid[i][j] == 1)
+			{
+				percent++;
+			}
+
+		}
+	}
+	return percent;
+}
+
+
+
 int main()
 {
 	while (true)   //this move on all pages
@@ -155,18 +269,18 @@ int main()
 								if (Levels.mainlevelsPressed() == 0)    //  level 1
 								{
 									window_Levels.close();				//close the main window and open window.1
-									page_number2 = 0;
+									level_number = 0;
 								}
 								if (Levels.mainlevelsPressed() == 1)    //  level 2
 								{
 									window_Levels.close();				//close the main window and open window.2
-									page_number2 = 1;
+									level_number = 1;
 
 								}
 								if (Levels.mainlevelsPressed() == 2)    //  level 3
 								{
 									window_Levels.close();				//close the main window and open window.3
-									page_number2 = 2;
+									level_number = 2;
 								}
 							}
 						}
@@ -175,7 +289,7 @@ int main()
 						Levels.draw(window_Levels);
 						window_Levels.display();
 					}
-					if (page_number2 == 0)
+					if (level_number == 0)
 					{
 						//level one  
 
@@ -261,22 +375,7 @@ int main()
 						{
 							Sprite Sgrid;
 							int percent = 0;
-							for (int i = 0; i < 82; i++)
-							{
-								for (int j = 0; j < 62; j++)
-								{
-									if (i == 0 || i == 81 || j == 0 || j == 61 || i == 1 || i == 80 || j == 1 || j == 60)
-									{
-										grid[i][j] = 1;
-									}
-									else if (grid[i][j] == 1)
-									{
-										percent++;
-									}
-
-								}
-							}
-							percent = percent / (44);
+							percent = checkBoundaries() / (44);
 							// time string 
 							stringstream time_string, areaString;
 							areaString << "You Finished " << percent << "%";
@@ -327,7 +426,7 @@ int main()
 								{
 									window_Level_one.close();
 									play = false;
-									endgame = true;
+									//endgame = true;
 								}
 
 								if (Keyboard::isKeyPressed(Keyboard::Escape))
@@ -348,52 +447,19 @@ int main()
 
 
 							//enemy move
-							int numberofenemy = 7;
-							for (int i = 1; i <= numberofenemy; i++) {
-								enemies_struct[i].motion();
-								rules_of_draw(enemies_struct[i].expostion / 10, enemies_struct[i].eypostion / 10);
-							}
-							//player movement in the Grid 
-							if (grid[xpos][ypos] != 1)
-							{
-								grid[xpos][ypos] = 2;
-							}
-							if (grid[xpos][ypos] == 1)
-							{
-								if (Keyboard::isKeyPressed(Keyboard::Up))				ypos -= 1;
-
-								else if (Keyboard::isKeyPressed(Keyboard::Down))		ypos += 1;
-
-								else if (Keyboard::isKeyPressed(Keyboard::Right))		xpos += 1;
-
-								else if (Keyboard::isKeyPressed(Keyboard::Left))		xpos -= 1;
-							}
-							else
-							{
-								if (dir == Up)	ypos -= 1;
-
-								else if (dir == Down)	ypos += 1;
-
-								else if (dir == Right)	xpos += 1;
-
-								else if (dir == Left)	xpos -= 1;
-							}
+							moveEnemy();
 							// boundaries that anything can't go after it like player
-							if (xpos >= 82)
-								xpos -= 1;
-							if (xpos < 0)
-								xpos += 1;
-							if (ypos >= 62)
-								ypos -= 1;
-							if (ypos < 0)
-								ypos += 1;
+							//player movement in the Grid 
+							movePlayer(xpos,ypos,dir);
+							
+							short nEnemy = 7;
 							player.setPosition(xpos * 10, ypos * 10);
 							time_text.setString(time_string.str());
-							for (int i = 0; i <= numberofenemy; i++)
+							for (int i = 0; i <= nEnemy; i++)
 							{
 								enemies_shapes[i].setPosition(enemies_struct[i].expostion, enemies_struct[i].eypostion);
 							}
-							for (int i = 0; i <= numberofenemy; i++)
+							for (int i = 0; i <=nEnemy; i++)
 							{
 								if (grid[enemies_struct[i].expostion / 10][enemies_struct[i].eypostion / 10] == 2)
 								{
@@ -405,48 +471,17 @@ int main()
 
 								}
 							}
-							for (int i = 0; i < 82; i++)
-								for (int j = 0; j < 62; j++)
-									if (grid[xpos][ypos] == 1)
-									{
-										if (grid[i][j] == -1)
-											grid[i][j] = 0;
-										else
-											grid[i][j] = 1;
-									}
-									else
-									{
-										if (grid[i][j] == -1)
-											grid[i][j] = 0;
-										else if (grid[i][j] == 2)
-											grid[i][j] = 2;
-										else
-											grid[i][j] = 1;
-									}
+							setsBrush(xpos, ypos);
+							
 
 							//draw 
 							window_Level_one.clear();
-							for (int i = 0; i < 82; i++)
-								for (int j = 0; j < 62; j++)
-								{
-									if (grid[i][j] == 0)
-									{
-										continue;
-									}
-									if (grid[i][j] == 1)
-									{
-										Sgrid.setTexture(image2);
-									}
-									if (grid[i][j] == 2)
-									{
-										Sgrid.setTexture(image);
-									}
-									Sgrid.setPosition(i * 10, j * 10);
-									window_Level_one.draw(Sgrid);
-								}
+							
+							drawArea(Sgrid, window_Level_one,image,image2);
+
 							window_Level_one.draw(player);
 							window_Level_one.draw(bound);
-							for (int i = 1; i <= numberofenemy; i++) {
+							for (int i = 1; i <= nEnemy; i++) {
 								window_Level_one.draw(enemies_shapes[i]);
 							}
 							window_Level_one.draw(time_text);
@@ -455,7 +490,7 @@ int main()
 						}
 
 					}
-					if (page_number2 == 1)
+					if (level_number == 1)
 					{
 						//level two 
 						RenderWindow window_Level_two(VideoMode(ScreenWidth, ScreenHeight), "Level two");//render window_option 
@@ -474,7 +509,7 @@ int main()
 						}
 
 					}
-					if (page_number2 == 2)
+					if (level_number == 2)
 					{
 						//level three  
 						RenderWindow  window_Level_three(VideoMode(ScreenWidth, ScreenHeight), "Level three");//render window_option 

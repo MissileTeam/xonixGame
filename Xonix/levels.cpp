@@ -50,6 +50,8 @@ void levels::moveDown()
 {
 	if (mainlevelsSelected + 1 <= Max_main_levels) //check if not on the last item (level3)    
 	{
+		if (mainlevelsSelected == -1)
+			mainlevelsSelected++;
 		mainlevels[mainlevelsSelected].setFillColor(Color::White);			// لو في بعديها وانا دوست علي دون يبقي اللي انا واقف عليها ابيض ووهيحركني علي اللي بعدي
 
 		mainlevelsSelected++; //move to the lower item 
@@ -64,7 +66,7 @@ void levels::moveDown()
 //move up 
 void levels::moveup()
 {
-	if (mainlevelsSelected - 1 <= -1) //check if not on the first item (level 1)
+	if (mainlevelsSelected - 1 == -1) //check if not on the first item (level 1)
 	{
 		mainlevels[mainlevelsSelected].setFillColor(Color::White); //change the pervious item's color
 
@@ -73,7 +75,11 @@ void levels::moveup()
 		{
 			mainlevelsSelected = 2;
 		}
-		mainlevels[mainlevelsSelected].setFillColor(Color::Blue); //change the new item's color
+		
+			mainlevels[mainlevelsSelected].setFillColor(Color::Blue); //change the new item's color
+	
+
+	
 	}
 }
 
