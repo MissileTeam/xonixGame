@@ -17,7 +17,7 @@ it controls how the player will move in the borders and in the grid itself.
 It uses recursion to check for the enemies’ position as all the grid is 0 at first when the player moves it gives the cells 2  and  when we complete the route of the player to the border we need to fill this area with 1 so we give any near position of the enemy -1 and give any 2 or 0 cells a 1 so the area can be filled 
 Cell (1) = colored, cell(0)= not drawn ,cell(-1)= don’t do anything
 -**moveEnemy():
-This function moves enemy objects in the grid and  call the function rules_of_draw() to make sure that the area is filled right every time the enemy is moving
+This function moves enemy objects in the grid and  call the function rules_of_draw() to make sure that the area is filled right every time the enemy is moving.
 -**setsBrush(xpos,ypos of the player):
 it check if the cells is filled with 1 then : 
 if cells have been given -1 because the enemy it make it 0 again 
