@@ -7,34 +7,39 @@
 #include <chrono>
 #include <thread>
 #include "levels.h"
+#include "Custom.h"
+#include "FilesHandler.h"
+#include <string>
 #define ScreenWidth 820
 #define ScreenHeight 680
 #define Rows 82
 #define Coulmns 62
 int  page_number = -1;
-int  level_number = -1;
+int  level_number = 0;
+int page_Custom = 0;
 int grid[Rows][Coulmns] = {};
+bool start = 0;
 
 enum { Down, Up, Left, Right };
 using namespace std;
 using namespace sf;
-  //tell me i did selelction to which window
+//tell me i did selelction to which window
 //global varibles
- // window scale 
+// window scale  
 struct enemy {
 	//e=enemy
 	// we put the function in the struct to make varibles of struct idientfied in the functions
 	short expostion, eypostion, exvelocity, eyvelocity;
 	enemy() {
-		expostion =400-rand()%100;
-		eypostion = 400-rand()%50;
-		
+		expostion = 400 - rand() % 100;
+		eypostion = 400 - rand() % 50;
+
 		exvelocity = 1 - rand() % 10;
 		if (exvelocity == 0)
 			exvelocity = 1 - rand() % 10;
-		eyvelocity =1 - rand() % 10;
-		if (eyvelocity == 0)
 		eyvelocity = 1 - rand() % 10;
+		if (eyvelocity == 0)
+			eyvelocity = 1 - rand() % 10;
 	}
 	void motion() {
 		expostion += exvelocity;
@@ -51,7 +56,9 @@ struct enemy {
 }enemies_struct[10];
 // Function to check the area around enemies and set it to (-1) and check the area to be  filled which is (0) bounded by (2) in the matrix which is player lines
 
-void movePlayer(int &xpos,int &ypos,int dir)
+void player_rectangle(RectangleShape& player);
+
+void movePlayer(int& xpos, int& ypos, int dir)
 {
 	if (grid[xpos][ypos] != 1)
 	{
@@ -92,8 +99,10 @@ void movePlayer(int &xpos,int &ypos,int dir)
 void rules_of_draw(int x, int y)
 {
 	if (grid[x][y] == 0)
-	
+
 		grid[x][y] = -1; //strange error happens here becuase the random position of the enemy  y =- number;
+
+
 
 	if (grid[x - 1][y] == 0)
 
@@ -114,7 +123,7 @@ void rules_of_draw(int x, int y)
 }
 void moveEnemy(int numberofenemy)
 {
-	
+
 	for (int i = 0; i < numberofenemy; i++) {
 		enemies_struct[i].motion();
 		rules_of_draw(enemies_struct[i].expostion / 10, enemies_struct[i].eypostion / 10);
@@ -142,7 +151,7 @@ void setsBrush(int& xpos, int& ypos)
 					grid[i][j] = 1;
 			}
 }
-void drawArea(Sprite& Sgrid, RenderWindow& window,Texture & image,Texture &image2)
+void drawArea(Sprite& Sgrid, RenderWindow& window, Texture& image, Texture& image2)
 {
 	for (int i = 0; i < 82; i++)
 		for (int j = 0; j < 62; j++)
@@ -184,16 +193,45 @@ int checkBoundaries()
 	}
 	return percent;
 }
+void check_images_borders_load(Texture& image, Texture& image2);
 
+void check_font_load(Font& number_font, Font& Arial_font);
+void set_grid_0();
 
+void part_level_one(int number_level);
+
+void part_level_two(int number_level);
+
+void part_level_three(int number_level);
+void part_level_four(int level_number);
+void part_level_five(int level_number);
+void part_level_six(int level_number);
+void part_level_seven(int level_number);
+void part_level_eight(int level_number);
+void part_level_Custom(int level_number);
+int Custom_make_level(int page_Custom);
+int Custom_load_levels(int page_Custom);
+void part_play(int page_number);
+
+void part_Credits(int page_number);
+void part_option(int page_number);
 
 int main()
 {
+	bool end_levels = true, end_levels_2 = true;
 	while (true)   //this move on all pages
 	{
 
-		RenderWindow window(VideoMode(ScreenWidth, ScreenHeight), "Xonix");//render window 
-		menu menuu(ScreenWidth, ScreenHeight);  //to take object from class  
+		RenderWindow window(VideoMode(ScreenWidth, ScreenHeight), "Xonix", Style::Close);//render window 
+		menu menuu(ScreenWidth, ScreenHeight);  //to take object from class 
+		// background of game 
+		Texture background;
+		if (!background.loadFromFile("Data/14.jpg"))
+			cout << "error in load photo of shape" << endl;
+		RectangleShape photo;
+		photo.setSize(Vector2f(820, 680));
+		photo.setPosition(0, 0);
+		photo.setTexture(&background);
 		while (window.isOpen())
 		{
 			Event event;
@@ -222,685 +260,2304 @@ int main()
 						window.close();				//close the main window and open window.play
 						page_number = 0;
 					}
-					if (menuu.mainmenuPressed() == 1)    //  options
+					if (menuu.mainmenuPressed() == 1)    //  credits
 					{
-						window.close();				//close the main window and open window.option
+						window.close();				//close the main window and open window.credits
 						page_number = 1;
 
 					}
-					if (menuu.mainmenuPressed() == 2)    //  exit
+					if (menuu.mainmenuPressed() == 2)    //  options
+					{
+						window.close();				//close the main window and open window.option
+						page_number = 2;
+
+					}
+					if (menuu.mainmenuPressed() == 3)    //  exit
 					{
 						window.close();				//close the main window and open window.exit
-						page_number = 2;
+						page_number = 3;
 					}
 				}
 			}
 
 			window.clear();
+			window.draw(photo);
 			menuu.draw(window);
+
 			window.display();
 		}
-		if (page_number == 0)
+		part_play(page_number);
+		if (end_levels == false)
+			continue;
+		if (end_levels_2 == false)
+			continue;
+		part_Credits(page_number);
+		part_option(page_number);
+		if (page_number == 3)
+			break; // exit
+
+	}
+	return 0;
+}
+
+
+
+
+
+
+
+void part_level_one(int number_level)
+{
+	if (level_number == 0)
+	{
+		//level one  --- 
+		set_grid_0();
+		short nEnemy = 4;//number of enemy of selected level
+		//level one  
+		RenderWindow window_Level_one(VideoMode(ScreenWidth, ScreenHeight), "level one", Style::Close);//render window_play 
+		window_Level_one.setFramerateLimit(60);//set frames to 60 per second 
+		bool play = true;   // play variable 
+		int xpos = 0, ypos = 0; //playes position
+		short dir = -1;//direction of the player  -1 means no direction in the start it can be anything
+
+		//images 
+		Texture image, image2;
+		check_images_borders_load(image, image2);
+
+		//font 
+		Font number_font, Arial_font;
+		check_font_load(number_font, Arial_font);
+		RectangleShape enemies_shapes[10];
+		for (int i = 0; i < nEnemy; i++) {
+			enemies_shapes[i].setSize(Vector2f(10, 10));
+			enemies_shapes[i].setPosition(enemies_struct[i].expostion, enemies_struct[i].eypostion);
+			enemies_shapes[i].setFillColor(Color::Red);//Se7aaaaaaaaaa
+		}
+		// time 
+		time_t first_second, this_second;
+		time(&first_second);
+		int second = 0, minute = 0;
+		//time text
+		Text time_text, PercentText;
+		time_text.setFont(number_font);
+		time_text.setFillColor(Color::Red);
+		time_text.setPosition(0, 640);
+		time_text.setCharacterSize(20);
+		//Percent Text
+		PercentText.setFont(Arial_font);
+		PercentText.setFillColor(Color::Green);
+		PercentText.setPosition(500, 630);
+		PercentText.setCharacterSize(30);
+		//player rectangle
+		RectangleShape player;
+		player_rectangle(player);
+		//under bound rectangle 
+		RectangleShape bound;
+		bound.setFillColor(Color::Red);
+		bound.setPosition(0, 620);
+		bound.setSize(Vector2f(820, 5));
+		// event
+		Event event;
+		//sound
+		// sound track while the game is playing
+		Music music;
+		if (!music.openFromFile("Data/soundtrack.ogg"))
+			cout << "error in load sound";
+		music.play();
+		SoundBuffer sound;
+		Sound collisionSound;
+		if (sound.loadFromFile("Data/impact.wav"))
+			cout << "collision done " << endl;
+		collisionSound.setBuffer(sound);
+		while (play)     //this move one page
 		{
-			while (true)   //this move on all levels
+			Sprite Sgrid;
+			int percent = 0;
+			percent = checkBoundaries() / (44);
+			// time string 
+			stringstream time_string, areaString;
+			areaString << "You Finished " << percent << "%";
+			PercentText.setString(areaString.str());
+			time(&this_second);
+			if (second < 60)
 			{
-				//play levels
-				RenderWindow window_Levels(VideoMode(ScreenWidth, ScreenHeight), "Levels");//render window_play 
-				levels Levels(ScreenWidth, ScreenHeight);  //to take object from class  
-				while (window_Levels.isOpen())
+				second = this_second - first_second;
+			}
+			else if (second % 60 == 0)
+			{
+				minute++;
+				time(&first_second);
+				second = 0;
+			}
+			if (minute < 10)
+			{
+				if ((second) < 10)
+				{
+					time_string.clear();
+					time_string << "Time " << "0" << minute << " : " << "0" << second;
+				}
+				else
+				{
+					time_string.clear();
+					time_string << "Time " << "0" << minute << " : " << second;
+				}
+			}
+			else
+			{
+				if ((this_second - first_second) < 10)
+				{
+					time_string.clear();
+					time_string << "Time " << minute << " : " << "0" << second;
+				}
+				else
+				{
+					time_string.clear();
+					time_string << "Time " << minute << " : " << second;
+				}
+			}
+			while (window_Level_one.pollEvent(event))
+			{
+				if (event.type == Event::Closed)
+				{
+					window_Level_one.close();
+					start = 0;
+					play = false;
+				}
+				if (Keyboard::isKeyPressed(Keyboard::Escape))
+				{
+					play = false;
+				}
+				if (Keyboard::isKeyPressed(Keyboard::Up)) 		dir = Up;
+				else if (Keyboard::isKeyPressed(Keyboard::Down))	dir = Down;
+				else if (Keyboard::isKeyPressed(Keyboard::Right))	dir = Right;
+				else if (Keyboard::isKeyPressed(Keyboard::Left))	dir = Left;
+				for (int l = 0; l < nEnemy; l++)
+				{
+					for (int k = 1; k < nEnemy; k++)
+						if (enemies_shapes[l].getGlobalBounds().intersects(enemies_shapes[k].getGlobalBounds()))
+						{
+							enemies_struct[l].expostion = -enemies_struct[l].expostion;
+							enemies_struct[l].eypostion = -enemies_struct[l].eypostion;
+							enemies_struct[k].expostion = -enemies_struct[k].expostion;
+							enemies_struct[k].eypostion = -enemies_struct[k].eypostion;
+						}
+				}
+			}
+			//enemy move
+			//	moveEnemy(nEnemy); activate it when you want to cut pieces of the pink line and remove it below :)
+			// boundaries that anything can't go after it like player
+			//player movement in the Grid 
+			movePlayer(xpos, ypos, dir);
+			player.setPosition(xpos * 10, ypos * 10);
+			time_text.setString(time_string.str());
+			for (int i = 0; i < nEnemy; i++)
+			{
+				enemies_shapes[i].setPosition(enemies_struct[i].expostion, enemies_struct[i].eypostion);
+			}
+			for (int i = 0; i < nEnemy; i++)
+			{
+				if (grid[enemies_struct[i].expostion / 10][enemies_struct[i].eypostion / 10] == 2)
+				{
+					collisionSound.play();
+					//this_thread::sleep_for(.2s);
+					for (int i = 0; i < 82; i++)
+						for (int j = 0; j < 62; j++)
+							if (grid[i][j] == 2)
+								grid[i][j] = 0;
+
+					//play = false;
+				}
+			}
+			moveEnemy(nEnemy);
+
+			for (int i = 0; i < 82; i++)
+			{
+				for (int j = 0; j < 62; j++)
+				{
+					if (player.getPosition().x == grid[i][j] == 2 || player.getPosition().y == grid[i][j] == 2)
+						play = false;
+				}
+			}
+			setsBrush(xpos, ypos);
+			//draw 
+			window_Level_one.clear();
+			drawArea(Sgrid, window_Level_one, image, image2);
+			window_Level_one.draw(player);
+			window_Level_one.draw(bound);
+			for (int i = 0; i < nEnemy; i++) {
+				window_Level_one.draw(enemies_shapes[i]);
+			}
+			window_Level_one.draw(time_text);
+			window_Level_one.draw(PercentText);
+			window_Level_one.display();
+		}
+
+	}
+}
+
+void part_level_two(int number_level)
+{
+	if (level_number == 1)
+	{
+		//level two  
+		set_grid_0();
+		short nEnemy = 6;//number of enemy of selected level
+		//level one  
+		RenderWindow window_Level_two(VideoMode(ScreenWidth, ScreenHeight), "level two", Style::Close);//render window_play 
+		window_Level_two.setFramerateLimit(60);//set frames to 60 per second 
+		bool play = true; // play variable 
+		int xpos = 0, ypos = 0; //playes position
+		short dir = -1;//direction of the player  -1 means no direction in the start it can be anything
+		//images 
+		Texture image, image2;
+		check_images_borders_load(image, image2);
+
+		//font
+		Font number_font, Arial_font;
+		check_font_load(number_font, Arial_font);
+
+		Texture texture;
+		if (!texture.loadFromFile("Data/enemy.png"))
+			cout << "error in load photo of enemy ";
+		RectangleShape enemies_shapes[10];
+		for (int i = 0; i < nEnemy; i++) {
+			enemies_shapes[i].setSize(Vector2f(20, 20));
+			enemies_shapes[i].setPosition(enemies_struct[i].expostion, enemies_struct[i].eypostion);
+			//enemies_shapes[i].setFillColor(Color::Yellow);//Se7aaaaaaaaaa
+			enemies_shapes[i].setTexture(&texture);
+
+		}
+		// time 
+		time_t first_second, this_second;
+		time(&first_second);
+		int second = 0, minute = 0;
+		//time text
+		Text time_text, PercentText;
+		time_text.setFont(number_font);
+		time_text.setFillColor(Color::Red);
+		time_text.setPosition(0, 640);
+		time_text.setCharacterSize(20);
+		//Percent Text
+		PercentText.setFont(Arial_font);
+		PercentText.setFillColor(Color::Green);
+		PercentText.setPosition(500, 630);
+		PercentText.setCharacterSize(30);
+		//player rectangle 
+		RectangleShape player;
+		player_rectangle(player);
+		//under bound rectangle 
+		RectangleShape bound;
+		bound.setFillColor(Color::Red);
+		bound.setPosition(0, 620);
+		bound.setSize(Vector2f(820, 5));
+		// event
+		Event event;
+		//sound
+		// sound track while the game is playing
+		Music music;
+		if (!music.openFromFile("Data/soundtrack.ogg"))
+			cout << "error in load sound";
+		music.play();
+		SoundBuffer sound;
+		Sound collisionSound;
+		if (sound.loadFromFile("Data/impact.wav"))
+			cout << "collision done " << endl;
+		collisionSound.setBuffer(sound);
+		while (play)     //this move one page
+		{
+			Sprite Sgrid;
+			int percent = 0;
+			percent = checkBoundaries() / (44);
+			// time string 
+			stringstream time_string, areaString;
+			areaString << "You Finished " << percent << "%";
+			PercentText.setString(areaString.str());
+			time(&this_second);
+			if (second < 60)
+			{
+				second = this_second - first_second;
+			}
+			else if (second % 60 == 0)
+			{
+				minute++;
+				time(&first_second);
+				second = 0;
+			}
+			if (minute < 10)
+			{
+				if ((second) < 10)
+				{
+					time_string.clear();
+					time_string << "Time " << "0" << minute << " : " << "0" << second;
+				}
+				else
+				{
+					time_string.clear();
+					time_string << "Time " << "0" << minute << " : " << second;
+				}
+			}
+			else
+			{
+				if ((this_second - first_second) < 10)
+				{
+					time_string.clear();
+					time_string << "Time " << minute << " : " << "0" << second;
+				}
+				else
+				{
+					time_string.clear();
+					time_string << "Time " << minute << " : " << second;
+				}
+			}
+			while (window_Level_two.pollEvent(event))
+			{
+				if (event.type == Event::Closed)
+				{
+					window_Level_two.close();
+					play = false;
+				}
+				if (Keyboard::isKeyPressed(Keyboard::Escape))
+				{
+					window_Level_two.close();
+					play = false;
+				}
+				if (Keyboard::isKeyPressed(Keyboard::Up)) 		dir = Up;
+				else if (Keyboard::isKeyPressed(Keyboard::Down))	dir = Down;
+				else if (Keyboard::isKeyPressed(Keyboard::Right))	dir = Right;
+				else if (Keyboard::isKeyPressed(Keyboard::Left))	dir = Left;
+
+			}
+			//enemy move
+			moveEnemy(nEnemy);
+			// boundaries that anything can't go after it like player
+			//player movement in the Grid 
+			movePlayer(xpos, ypos, dir);
+			player.setPosition(xpos * 10, ypos * 10);
+			time_text.setString(time_string.str());
+			for (int i = 0; i < nEnemy; i++)
+			{
+				enemies_shapes[i].setPosition(enemies_struct[i].expostion, enemies_struct[i].eypostion);
+			}
+			for (int i = 0; i < nEnemy; i++)
+			{
+				if (grid[enemies_struct[i].expostion / 10][enemies_struct[i].eypostion / 10] == 2)
+				{
+					collisionSound.play();
+					//this_thread::sleep_for(.2s);
+
+
+					play = false;
+
+				}
+				for (int i = 0; i < 82; i++)
+				{
+					for (int j = 0; j < 62; j++)
+					{
+						if (player.getPosition().x == grid[i][j] == 2 || player.getPosition().y == grid[i][j] == 2)
+							play = false;
+					}
+				}
+			}
+			setsBrush(xpos, ypos);
+			//draw 
+			window_Level_two.clear();
+			drawArea(Sgrid, window_Level_two, image, image2);
+			window_Level_two.draw(player);
+			window_Level_two.draw(bound);
+			for (int i = 0; i < nEnemy; i++) {
+				window_Level_two.draw(enemies_shapes[i]);
+			}
+			window_Level_two.draw(time_text);
+			window_Level_two.draw(PercentText);
+			window_Level_two.display();
+		}
+	}
+}
+
+void part_level_three(int number_level)
+{
+	if (level_number == 2)
+	{//level three
+		set_grid_0();
+		short nEnemy = 4;//number of enemy of selected level
+		//level one  
+		RenderWindow window_Level_Three(VideoMode(ScreenWidth, ScreenHeight), "level three", Style::Close);//render window_play 
+		window_Level_Three.setFramerateLimit(60);//set frames to 60 per second 
+		bool play = true, endgame = false;; // play variable 
+		int xpos = 0, ypos = 0; //playes position
+		short dir = -1;//direction of the player  -1 means no direction in the start it can be anything
+		//images 
+		Texture image, image2;
+		check_images_borders_load(image, image2);
+		//font 
+		Font number_font, Arial_font;
+		check_font_load(number_font, Arial_font);
+		RectangleShape enemies_shapes[10];
+		for (int i = 0; i < nEnemy; i++) {
+			enemies_shapes[i].setSize(Vector2f(20, 20));
+			enemies_shapes[i].setPosition(enemies_struct[i].expostion, enemies_struct[i].eypostion);
+			enemies_shapes[i].setFillColor(Color::Yellow);//Se7aaaaaaaaaa
+		}
+		// time 
+		time_t first_second, this_second;
+		time(&first_second);
+		int second = 0, minute = 0;
+		//time text
+		Text time_text, PercentText;
+		time_text.setFont(number_font);
+		time_text.setFillColor(Color::Red);
+		time_text.setPosition(0, 640);
+		time_text.setCharacterSize(20);
+		//Percent Text
+		PercentText.setFont(Arial_font);
+		PercentText.setFillColor(Color::Green);
+		PercentText.setPosition(500, 630);
+		PercentText.setCharacterSize(30);
+		//player rectangle 
+		RectangleShape player;
+		player_rectangle(player);
+		//under bound rectangle 
+		RectangleShape bound;
+		bound.setFillColor(Color::Red);
+		bound.setPosition(0, 620);
+		bound.setSize(Vector2f(820, 5));
+		// event
+		Event event;
+		//sound
+		// sound track while the game is playing
+		Music music;
+		if (!music.openFromFile("Data/soundtrack.ogg"))
+			cout << "error in load sound";
+		music.play();
+		SoundBuffer sound;
+		Sound collisionSound;
+		if (sound.loadFromFile("Data/impact.wav"))
+			cout << "collision done " << endl;
+		collisionSound.setBuffer(sound);
+		while (play)     //this move one page
+		{
+			Sprite Sgrid;
+			int percent = 0;
+			percent = checkBoundaries() / (44);
+			// time string 
+			stringstream time_string, areaString;
+			areaString << "You Finished " << percent << "%";
+			PercentText.setString(areaString.str());
+			time(&this_second);
+			if (second < 60)
+			{
+				second = this_second - first_second;
+			}
+			else if (second % 60 == 0)
+			{
+				minute++;
+				time(&first_second);
+				second = 0;
+			}
+			if (minute < 10)
+			{
+				if ((second) < 10)
+				{
+					time_string.clear();
+					time_string << "Time " << "0" << minute << " : " << "0" << second;
+				}
+				else
+				{
+					time_string.clear();
+					time_string << "Time " << "0" << minute << " : " << second;
+				}
+			}
+			else
+			{
+				if ((this_second - first_second) < 10)
+				{
+					time_string.clear();
+					time_string << "Time " << minute << " : " << "0" << second;
+				}
+				else
+				{
+					time_string.clear();
+					time_string << "Time " << minute << " : " << second;
+				}
+			}
+			while (window_Level_Three.pollEvent(event))
+			{
+				if (event.type == Event::Closed)
+				{
+					window_Level_Three.close();
+					play = false;
+					//endgame = true;
+				}
+				if (Keyboard::isKeyPressed(Keyboard::Escape))
+				{
+					window_Level_Three.close();
+					play = false;
+				}
+				if (Keyboard::isKeyPressed(Keyboard::Up)) 		dir = Up;
+				else if (Keyboard::isKeyPressed(Keyboard::Down))	dir = Down;
+				else if (Keyboard::isKeyPressed(Keyboard::Right))	dir = Right;
+				else if (Keyboard::isKeyPressed(Keyboard::Left))	dir = Left;
+
+			}
+			//enemy move
+			moveEnemy(nEnemy);
+			// boundaries that anything can't go after it like player
+			//player movement in the Grid 
+			movePlayer(xpos, ypos, dir);
+			player.setPosition(xpos * 10, ypos * 10);
+			time_text.setString(time_string.str());
+			for (int i = 0; i < nEnemy; i++)
+			{
+				enemies_shapes[i].setPosition(enemies_struct[i].expostion, enemies_struct[i].eypostion);
+			}
+			for (int i = 0; i < nEnemy; i++)
+			{
+				if (grid[enemies_struct[i].expostion / 10][enemies_struct[i].eypostion / 10] == 2)
+				{
+					collisionSound.play();
+					//this_thread::sleep_for(.2s);
+
+
+					play = false;
+
+				}
+				for (int i = 0; i < 82; i++)
+				{
+					for (int j = 0; j < 62; j++)
+					{
+						if (player.getPosition().x == grid[i][j] == 2 || player.getPosition().y == grid[i][j] == 2)
+							play = false;
+					}
+				}
+			}
+			setsBrush(xpos, ypos);
+			//draw 
+			window_Level_Three.clear();
+			drawArea(Sgrid, window_Level_Three, image, image2);
+			window_Level_Three.draw(player);
+			window_Level_Three.draw(bound);
+			for (int i = 0; i < nEnemy; i++) {
+				window_Level_Three.draw(enemies_shapes[i]);
+			}
+			window_Level_Three.draw(time_text);
+			window_Level_Three.draw(PercentText);
+			window_Level_Three.display();
+		}
+	}
+}
+void part_level_four(int level_number) {
+
+	{
+		if (level_number == 2)
+		{//level three
+			set_grid_0();
+			short nEnemy = 4;//number of enemy of selected level
+			//level one  
+			RenderWindow window_Level_Three(VideoMode(ScreenWidth, ScreenHeight), "level three", Style::Close);//render window_play 
+			window_Level_Three.setFramerateLimit(60);//set frames to 60 per second 
+			bool play = true, endgame = false;; // play variable 
+			int xpos = 0, ypos = 0; //playes position
+			short dir = -1;//direction of the player  -1 means no direction in the start it can be anything
+			//images 
+			Texture image, image2;
+			check_images_borders_load(image, image2);
+			//font 
+			Font number_font, Arial_font;
+			check_font_load(number_font, Arial_font);
+			RectangleShape enemies_shapes[10];
+			for (int i = 0; i < nEnemy; i++) {
+				enemies_shapes[i].setSize(Vector2f(20, 20));
+				enemies_shapes[i].setPosition(enemies_struct[i].expostion, enemies_struct[i].eypostion);
+				enemies_shapes[i].setFillColor(Color::Yellow);//Se7aaaaaaaaaa
+			}
+			// time 
+			time_t first_second, this_second;
+			time(&first_second);
+			int second = 0, minute = 0;
+			//time text
+			Text time_text, PercentText;
+			time_text.setFont(number_font);
+			time_text.setFillColor(Color::Red);
+			time_text.setPosition(0, 640);
+			time_text.setCharacterSize(20);
+			//Percent Text
+			PercentText.setFont(Arial_font);
+			PercentText.setFillColor(Color::Green);
+			PercentText.setPosition(500, 630);
+			PercentText.setCharacterSize(30);
+			//player rectangle 
+			RectangleShape player;
+			player_rectangle(player);
+			//under bound rectangle 
+			RectangleShape bound;
+			bound.setFillColor(Color::Red);
+			bound.setPosition(0, 620);
+			bound.setSize(Vector2f(820, 5));
+			// event
+			Event event;
+			//sound
+			// sound track while the game is playing
+			Music music;
+			if (!music.openFromFile("Data/soundtrack.ogg"))
+				cout << "error in load sound";
+			music.play();
+			SoundBuffer sound;
+			Sound collisionSound;
+			if (sound.loadFromFile("Data/impact.wav"))
+				cout << "collision done " << endl;
+			collisionSound.setBuffer(sound);
+			while (play)     //this move one page
+			{
+				Sprite Sgrid;
+				int percent = 0;
+				percent = checkBoundaries() / (44);
+				// time string 
+				stringstream time_string, areaString;
+				areaString << "You Finished " << percent << "%";
+				PercentText.setString(areaString.str());
+				time(&this_second);
+				if (second < 60)
+				{
+					second = this_second - first_second;
+				}
+				else if (second % 60 == 0)
+				{
+					minute++;
+					time(&first_second);
+					second = 0;
+				}
+				if (minute < 10)
+				{
+					if ((second) < 10)
+					{
+						time_string.clear();
+						time_string << "Time " << "0" << minute << " : " << "0" << second;
+					}
+					else
+					{
+						time_string.clear();
+						time_string << "Time " << "0" << minute << " : " << second;
+					}
+				}
+				else
+				{
+					if ((this_second - first_second) < 10)
+					{
+						time_string.clear();
+						time_string << "Time " << minute << " : " << "0" << second;
+					}
+					else
+					{
+						time_string.clear();
+						time_string << "Time " << minute << " : " << second;
+					}
+				}
+				while (window_Level_Three.pollEvent(event))
+				{
+					if (event.type == Event::Closed)
+					{
+						window_Level_Three.close();
+						play = false;
+						//endgame = true;
+					}
+					if (Keyboard::isKeyPressed(Keyboard::Escape))
+					{
+						window_Level_Three.close();
+						play = false;
+					}
+					if (Keyboard::isKeyPressed(Keyboard::Up)) 		dir = Up;
+					else if (Keyboard::isKeyPressed(Keyboard::Down))	dir = Down;
+					else if (Keyboard::isKeyPressed(Keyboard::Right))	dir = Right;
+					else if (Keyboard::isKeyPressed(Keyboard::Left))	dir = Left;
+
+				}
+				//enemy move
+				moveEnemy(nEnemy);
+				// boundaries that anything can't go after it like player
+				//player movement in the Grid 
+				movePlayer(xpos, ypos, dir);
+				player.setPosition(xpos * 10, ypos * 10);
+				time_text.setString(time_string.str());
+				for (int i = 0; i < nEnemy; i++)
+				{
+					enemies_shapes[i].setPosition(enemies_struct[i].expostion, enemies_struct[i].eypostion);
+				}
+				for (int i = 0; i < nEnemy; i++)
+				{
+					if (grid[enemies_struct[i].expostion / 10][enemies_struct[i].eypostion / 10] == 2)
+					{
+						collisionSound.play();
+						//this_thread::sleep_for(.2s);
+
+
+						play = false;
+
+					}
+					for (int i = 0; i < 82; i++)
+					{
+						for (int j = 0; j < 62; j++)
+						{
+							if (player.getPosition().x == grid[i][j] == 2 || player.getPosition().y == grid[i][j] == 2)
+								play = false;
+						}
+					}
+				}
+				setsBrush(xpos, ypos);
+				//draw 
+				window_Level_Three.clear();
+				drawArea(Sgrid, window_Level_Three, image, image2);
+				window_Level_Three.draw(player);
+				window_Level_Three.draw(bound);
+				for (int i = 0; i < nEnemy; i++) {
+					window_Level_Three.draw(enemies_shapes[i]);
+				}
+				window_Level_Three.draw(time_text);
+				window_Level_Three.draw(PercentText);
+				window_Level_Three.display();
+			}
+		}
+	}
+}
+void part_level_five(int level_number) {
+
+	{
+		if (level_number == 2)
+		{//level three
+			set_grid_0();
+			short nEnemy = 4;//number of enemy of selected level
+			//level one  
+			RenderWindow window_Level_Three(VideoMode(ScreenWidth, ScreenHeight), "level three", Style::Close);//render window_play 
+			window_Level_Three.setFramerateLimit(60);//set frames to 60 per second 
+			bool play = true, endgame = false;; // play variable 
+			int xpos = 0, ypos = 0; //playes position
+			short dir = -1;//direction of the player  -1 means no direction in the start it can be anything
+			//images 
+			Texture image, image2;
+			check_images_borders_load(image, image2);
+			//font 
+			Font number_font, Arial_font;
+			check_font_load(number_font, Arial_font);
+			RectangleShape enemies_shapes[10];
+			for (int i = 0; i < nEnemy; i++) {
+				enemies_shapes[i].setSize(Vector2f(20, 20));
+				enemies_shapes[i].setPosition(enemies_struct[i].expostion, enemies_struct[i].eypostion);
+				enemies_shapes[i].setFillColor(Color::Yellow);//Se7aaaaaaaaaa
+			}
+			// time 
+			time_t first_second, this_second;
+			time(&first_second);
+			int second = 0, minute = 0;
+			//time text
+			Text time_text, PercentText;
+			time_text.setFont(number_font);
+			time_text.setFillColor(Color::Red);
+			time_text.setPosition(0, 640);
+			time_text.setCharacterSize(20);
+			//Percent Text
+			PercentText.setFont(Arial_font);
+			PercentText.setFillColor(Color::Green);
+			PercentText.setPosition(500, 630);
+			PercentText.setCharacterSize(30);
+			//player rectangle 
+			RectangleShape player;
+			player_rectangle(player);
+			//under bound rectangle 
+			RectangleShape bound;
+			bound.setFillColor(Color::Red);
+			bound.setPosition(0, 620);
+			bound.setSize(Vector2f(820, 5));
+			// event
+			Event event;
+			//sound
+			// sound track while the game is playing
+			Music music;
+			if (!music.openFromFile("Data/soundtrack.ogg"))
+				cout << "error in load sound";
+			music.play();
+			SoundBuffer sound;
+			Sound collisionSound;
+			if (sound.loadFromFile("Data/impact.wav"))
+				cout << "collision done " << endl;
+			collisionSound.setBuffer(sound);
+			while (play)     //this move one page
+			{
+				Sprite Sgrid;
+				int percent = 0;
+				percent = checkBoundaries() / (44);
+				// time string 
+				stringstream time_string, areaString;
+				areaString << "You Finished " << percent << "%";
+				PercentText.setString(areaString.str());
+				time(&this_second);
+				if (second < 60)
+				{
+					second = this_second - first_second;
+				}
+				else if (second % 60 == 0)
+				{
+					minute++;
+					time(&first_second);
+					second = 0;
+				}
+				if (minute < 10)
+				{
+					if ((second) < 10)
+					{
+						time_string.clear();
+						time_string << "Time " << "0" << minute << " : " << "0" << second;
+					}
+					else
+					{
+						time_string.clear();
+						time_string << "Time " << "0" << minute << " : " << second;
+					}
+				}
+				else
+				{
+					if ((this_second - first_second) < 10)
+					{
+						time_string.clear();
+						time_string << "Time " << minute << " : " << "0" << second;
+					}
+					else
+					{
+						time_string.clear();
+						time_string << "Time " << minute << " : " << second;
+					}
+				}
+				while (window_Level_Three.pollEvent(event))
+				{
+					if (event.type == Event::Closed)
+					{
+						window_Level_Three.close();
+						play = false;
+						//endgame = true;
+					}
+					if (Keyboard::isKeyPressed(Keyboard::Escape))
+					{
+						window_Level_Three.close();
+						play = false;
+					}
+					if (Keyboard::isKeyPressed(Keyboard::Up)) 		dir = Up;
+					else if (Keyboard::isKeyPressed(Keyboard::Down))	dir = Down;
+					else if (Keyboard::isKeyPressed(Keyboard::Right))	dir = Right;
+					else if (Keyboard::isKeyPressed(Keyboard::Left))	dir = Left;
+
+				}
+				//enemy move
+				moveEnemy(nEnemy);
+				// boundaries that anything can't go after it like player
+				//player movement in the Grid 
+				movePlayer(xpos, ypos, dir);
+				player.setPosition(xpos * 10, ypos * 10);
+				time_text.setString(time_string.str());
+				for (int i = 0; i < nEnemy; i++)
+				{
+					enemies_shapes[i].setPosition(enemies_struct[i].expostion, enemies_struct[i].eypostion);
+				}
+				for (int i = 0; i < nEnemy; i++)
+				{
+					if (grid[enemies_struct[i].expostion / 10][enemies_struct[i].eypostion / 10] == 2)
+					{
+						collisionSound.play();
+						//this_thread::sleep_for(.2s);
+
+
+						play = false;
+
+					}
+					for (int i = 0; i < 82; i++)
+					{
+						for (int j = 0; j < 62; j++)
+						{
+							if (player.getPosition().x == grid[i][j] == 2 || player.getPosition().y == grid[i][j] == 2)
+								play = false;
+						}
+					}
+				}
+				setsBrush(xpos, ypos);
+				//draw 
+				window_Level_Three.clear();
+				drawArea(Sgrid, window_Level_Three, image, image2);
+				window_Level_Three.draw(player);
+				window_Level_Three.draw(bound);
+				for (int i = 0; i < nEnemy; i++) {
+					window_Level_Three.draw(enemies_shapes[i]);
+				}
+				window_Level_Three.draw(time_text);
+				window_Level_Three.draw(PercentText);
+				window_Level_Three.display();
+			}
+		}
+	}
+}
+void part_level_six(int level_number) {
+
+	{
+		if (level_number == 2)
+		{//level three
+			set_grid_0();
+			short nEnemy = 4;//number of enemy of selected level
+			//level one  
+			RenderWindow window_Level_Three(VideoMode(ScreenWidth, ScreenHeight), "level three", Style::Close);//render window_play 
+			window_Level_Three.setFramerateLimit(30);//set frames to 60 per second 
+			bool play = true, endgame = false;; // play variable 
+			int xpos = 0, ypos = 0; //playes position
+			short dir = -1;//direction of the player  -1 means no direction in the start it can be anything
+			//images 
+			Texture image, image2;
+			check_images_borders_load(image, image2);
+			//font 
+			Font number_font, Arial_font;
+			check_font_load(number_font, Arial_font);
+			RectangleShape enemies_shapes[10];
+			for (int i = 0; i < nEnemy; i++) {
+				enemies_shapes[i].setSize(Vector2f(20, 20));
+				enemies_shapes[i].setPosition(enemies_struct[i].expostion, enemies_struct[i].eypostion);
+				enemies_shapes[i].setFillColor(Color::Yellow);//Se7aaaaaaaaaa
+			}
+			// time 
+			time_t first_second, this_second;
+			time(&first_second);
+			int second = 0, minute = 0;
+			//time text
+			Text time_text, PercentText;
+			time_text.setFont(number_font);
+			time_text.setFillColor(Color::Red);
+			time_text.setPosition(0, 640);
+			time_text.setCharacterSize(20);
+			//Percent Text
+			PercentText.setFont(Arial_font);
+			PercentText.setFillColor(Color::Green);
+			PercentText.setPosition(500, 630);
+			PercentText.setCharacterSize(30);
+			//player rectangle 
+			RectangleShape player;
+			player_rectangle(player);
+			//under bound rectangle 
+			RectangleShape bound;
+			bound.setFillColor(Color::Red);
+			bound.setPosition(0, 620);
+			bound.setSize(Vector2f(820, 5));
+			// event
+			Event event;
+			//sound
+			// sound track while the game is playing
+			Music music;
+			if (!music.openFromFile("Data/soundtrack.ogg"))
+				cout << "error in load sound";
+			music.play();
+			SoundBuffer sound;
+			Sound collisionSound;
+			if (sound.loadFromFile("Data/impact.wav"))
+				cout << "collision done " << endl;
+			collisionSound.setBuffer(sound);
+			while (play)     //this move one page
+			{
+				Sprite Sgrid;
+				int percent = 0;
+				percent = checkBoundaries() / (44);
+				// time string 
+				stringstream time_string, areaString;
+				areaString << "You Finished " << percent << "%";
+				PercentText.setString(areaString.str());
+				time(&this_second);
+				if (second < 60)
+				{
+					second = this_second - first_second;
+				}
+				else if (second % 60 == 0)
+				{
+					minute++;
+					time(&first_second);
+					second = 0;
+				}
+				if (minute < 10)
+				{
+					if ((second) < 10)
+					{
+						time_string.clear();
+						time_string << "Time " << "0" << minute << " : " << "0" << second;
+					}
+					else
+					{
+						time_string.clear();
+						time_string << "Time " << "0" << minute << " : " << second;
+					}
+				}
+				else
+				{
+					if ((this_second - first_second) < 10)
+					{
+						time_string.clear();
+						time_string << "Time " << minute << " : " << "0" << second;
+					}
+					else
+					{
+						time_string.clear();
+						time_string << "Time " << minute << " : " << second;
+					}
+				}
+				while (window_Level_Three.pollEvent(event))
+				{
+					if (event.type == Event::Closed)
+					{
+						window_Level_Three.close();
+						play = false;
+						//endgame = true;
+					}
+					if (Keyboard::isKeyPressed(Keyboard::Escape))
+					{
+						window_Level_Three.close();
+						play = false;
+					}
+					if (Keyboard::isKeyPressed(Keyboard::Up)) 		dir = Up;
+					else if (Keyboard::isKeyPressed(Keyboard::Down))	dir = Down;
+					else if (Keyboard::isKeyPressed(Keyboard::Right))	dir = Right;
+					else if (Keyboard::isKeyPressed(Keyboard::Left))	dir = Left;
+
+				}
+				//enemy move
+				moveEnemy(nEnemy);
+				// boundaries that anything can't go after it like player
+				//player movement in the Grid 
+				movePlayer(xpos, ypos, dir);
+				player.setPosition(xpos * 10, ypos * 10);
+				time_text.setString(time_string.str());
+				for (int i = 0; i < nEnemy; i++)
+				{
+					enemies_shapes[i].setPosition(enemies_struct[i].expostion, enemies_struct[i].eypostion);
+				}
+				for (int i = 0; i < nEnemy; i++)
+				{
+					if (grid[enemies_struct[i].expostion / 10][enemies_struct[i].eypostion / 10] == 2)
+					{
+						collisionSound.play();
+						//this_thread::sleep_for(.2s);
+
+
+						play = false;
+
+					}
+					for (int i = 0; i < 82; i++)
+					{
+						for (int j = 0; j < 62; j++)
+						{
+							if (player.getPosition().x == grid[i][j] == 2 || player.getPosition().y == grid[i][j] == 2)
+								play = false;
+						}
+					}
+				}
+				setsBrush(xpos, ypos);
+				//draw 
+				window_Level_Three.clear();
+				drawArea(Sgrid, window_Level_Three, image, image2);
+				window_Level_Three.draw(player);
+				window_Level_Three.draw(bound);
+				for (int i = 0; i < nEnemy; i++) {
+					window_Level_Three.draw(enemies_shapes[i]);
+				}
+				window_Level_Three.draw(time_text);
+				window_Level_Three.draw(PercentText);
+				window_Level_Three.display();
+			}
+		}
+	}
+}
+void part_level_seven(int level_number) {
+
+	{
+		if (level_number == 2)
+		{//level three
+			set_grid_0();
+			short nEnemy = 4;//number of enemy of selected level
+			//level one  
+			RenderWindow window_Level_Three(VideoMode(ScreenWidth, ScreenHeight), "level three", Style::Close);//render window_play 
+			window_Level_Three.setFramerateLimit(60);//set frames to 60 per second 
+			bool play = true, endgame = false;; // play variable 
+			int xpos = 0, ypos = 0; //playes position
+			short dir = -1;//direction of the player  -1 means no direction in the start it can be anything
+			//images 
+			Texture image, image2;
+			check_images_borders_load(image, image2);
+			//font 
+			Font number_font, Arial_font;
+			check_font_load(number_font, Arial_font);
+			RectangleShape enemies_shapes[10];
+			for (int i = 0; i < nEnemy; i++) {
+				enemies_shapes[i].setSize(Vector2f(20, 20));
+				enemies_shapes[i].setPosition(enemies_struct[i].expostion, enemies_struct[i].eypostion);
+				enemies_shapes[i].setFillColor(Color::Yellow);//Se7aaaaaaaaaa
+			}
+			// time 
+			time_t first_second, this_second;
+			time(&first_second);
+			int second = 0, minute = 0;
+			//time text
+			Text time_text, PercentText;
+			time_text.setFont(number_font);
+			time_text.setFillColor(Color::Red);
+			time_text.setPosition(0, 640);
+			time_text.setCharacterSize(20);
+			//Percent Text
+			PercentText.setFont(Arial_font);
+			PercentText.setFillColor(Color::Green);
+			PercentText.setPosition(500, 630);
+			PercentText.setCharacterSize(30);
+			//player rectangle 
+			RectangleShape player;
+			player_rectangle(player);
+			//under bound rectangle 
+			RectangleShape bound;
+			bound.setFillColor(Color::Red);
+			bound.setPosition(0, 620);
+			bound.setSize(Vector2f(820, 5));
+			// event
+			Event event;
+			//sound
+			// sound track while the game is playing
+			Music music;
+			if (!music.openFromFile("Data/soundtrack.ogg"))
+				cout << "error in load sound";
+			music.play();
+			SoundBuffer sound;
+			Sound collisionSound;
+			if (sound.loadFromFile("Data/impact.wav"))
+				cout << "collision done " << endl;
+			collisionSound.setBuffer(sound);
+			while (play)     //this move one page
+			{
+				Sprite Sgrid;
+				int percent = 0;
+				percent = checkBoundaries() / (44);
+				// time string 
+				stringstream time_string, areaString;
+				areaString << "You Finished " << percent << "%";
+				PercentText.setString(areaString.str());
+				time(&this_second);
+				if (second < 60)
+				{
+					second = this_second - first_second;
+				}
+				else if (second % 60 == 0)
+				{
+					minute++;
+					time(&first_second);
+					second = 0;
+				}
+				if (minute < 10)
+				{
+					if ((second) < 10)
+					{
+						time_string.clear();
+						time_string << "Time " << "0" << minute << " : " << "0" << second;
+					}
+					else
+					{
+						time_string.clear();
+						time_string << "Time " << "0" << minute << " : " << second;
+					}
+				}
+				else
+				{
+					if ((this_second - first_second) < 10)
+					{
+						time_string.clear();
+						time_string << "Time " << minute << " : " << "0" << second;
+					}
+					else
+					{
+						time_string.clear();
+						time_string << "Time " << minute << " : " << second;
+					}
+				}
+				while (window_Level_Three.pollEvent(event))
+				{
+					if (event.type == Event::Closed)
+					{
+						window_Level_Three.close();
+						play = false;
+						//endgame = true;
+					}
+					if (Keyboard::isKeyPressed(Keyboard::Escape))
+					{
+						window_Level_Three.close();
+						play = false;
+					}
+					if (Keyboard::isKeyPressed(Keyboard::Up)) 		dir = Up;
+					else if (Keyboard::isKeyPressed(Keyboard::Down))	dir = Down;
+					else if (Keyboard::isKeyPressed(Keyboard::Right))	dir = Right;
+					else if (Keyboard::isKeyPressed(Keyboard::Left))	dir = Left;
+
+				}
+				//enemy move
+				moveEnemy(nEnemy);
+				// boundaries that anything can't go after it like player
+				//player movement in the Grid 
+				movePlayer(xpos, ypos, dir);
+				player.setPosition(xpos * 10, ypos * 10);
+				time_text.setString(time_string.str());
+				for (int i = 0; i < nEnemy; i++)
+				{
+					enemies_shapes[i].setPosition(enemies_struct[i].expostion, enemies_struct[i].eypostion);
+				}
+				for (int i = 0; i < nEnemy; i++)
+				{
+					if (grid[enemies_struct[i].expostion / 10][enemies_struct[i].eypostion / 10] == 2)
+					{
+						collisionSound.play();
+						//this_thread::sleep_for(.2s);
+
+
+						play = false;
+
+					}
+					for (int i = 0; i < 82; i++)
+					{
+						for (int j = 0; j < 62; j++)
+						{
+							if (player.getPosition().x == grid[i][j] == 2 || player.getPosition().y == grid[i][j] == 2)
+								play = false;
+						}
+					}
+				}
+				setsBrush(xpos, ypos);
+				//draw 
+				window_Level_Three.clear();
+				drawArea(Sgrid, window_Level_Three, image, image2);
+				window_Level_Three.draw(player);
+				window_Level_Three.draw(bound);
+				for (int i = 0; i < nEnemy; i++) {
+					window_Level_Three.draw(enemies_shapes[i]);
+				}
+				window_Level_Three.draw(time_text);
+				window_Level_Three.draw(PercentText);
+				window_Level_Three.display();
+			}
+		}
+	}
+}
+void part_level_eight(int level_number) {
+
+	{
+		if (level_number == 2)
+		{//level three
+			set_grid_0();
+			short nEnemy = 4;//number of enemy of selected level
+			//level one  
+			RenderWindow window_Level_Three(VideoMode(ScreenWidth, ScreenHeight), "level three", Style::Close);//render window_play 
+			window_Level_Three.setFramerateLimit(60);//set frames to 60 per second 
+			bool play = true, endgame = false;; // play variable 
+			int xpos = 0, ypos = 0; //playes position
+			short dir = -1;//direction of the player  -1 means no direction in the start it can be anything
+			//images 
+			Texture image, image2;
+			check_images_borders_load(image, image2);
+			//font 
+			Font number_font, Arial_font;
+			check_font_load(number_font, Arial_font);
+			RectangleShape enemies_shapes[10];
+			for (int i = 0; i < nEnemy; i++) {
+				enemies_shapes[i].setSize(Vector2f(20, 20));
+				enemies_shapes[i].setPosition(enemies_struct[i].expostion, enemies_struct[i].eypostion);
+				enemies_shapes[i].setFillColor(Color::Yellow);//Se7aaaaaaaaaa
+			}
+			// time 
+			time_t first_second, this_second;
+			time(&first_second);
+			int second = 0, minute = 0;
+			//time text
+			Text time_text, PercentText;
+			time_text.setFont(number_font);
+			time_text.setFillColor(Color::Red);
+			time_text.setPosition(0, 640);
+			time_text.setCharacterSize(20);
+			//Percent Text
+			PercentText.setFont(Arial_font);
+			PercentText.setFillColor(Color::Green);
+			PercentText.setPosition(500, 630);
+			PercentText.setCharacterSize(30);
+			//player rectangle 
+			RectangleShape player;
+			player_rectangle(player);
+			//under bound rectangle 
+			RectangleShape bound;
+			bound.setFillColor(Color::Red);
+			bound.setPosition(0, 620);
+			bound.setSize(Vector2f(820, 5));
+			// event
+			Event event;
+			//sound
+			// sound track while the game is playing
+			Music music;
+			if (!music.openFromFile("Data/soundtrack.ogg"))
+				cout << "error in load sound";
+			music.play();
+			SoundBuffer sound;
+			Sound collisionSound;
+			if (sound.loadFromFile("Data/impact.wav"))
+				cout << "collision done " << endl;
+			collisionSound.setBuffer(sound);
+			while (play)     //this move one page
+			{
+				Sprite Sgrid;
+				int percent = 0;
+				percent = checkBoundaries() / (44);
+				// time string 
+				stringstream time_string, areaString;
+				areaString << "You Finished " << percent << "%";
+				PercentText.setString(areaString.str());
+				time(&this_second);
+				if (second < 60)
+				{
+					second = this_second - first_second;
+				}
+				else if (second % 60 == 0)
+				{
+					minute++;
+					time(&first_second);
+					second = 0;
+				}
+				if (minute < 10)
+				{
+					if ((second) < 10)
+					{
+						time_string.clear();
+						time_string << "Time " << "0" << minute << " : " << "0" << second;
+					}
+					else
+					{
+						time_string.clear();
+						time_string << "Time " << "0" << minute << " : " << second;
+					}
+				}
+				else
+				{
+					if ((this_second - first_second) < 10)
+					{
+						time_string.clear();
+						time_string << "Time " << minute << " : " << "0" << second;
+					}
+					else
+					{
+						time_string.clear();
+						time_string << "Time " << minute << " : " << second;
+					}
+				}
+				while (window_Level_Three.pollEvent(event))
+				{
+					if (event.type == Event::Closed)
+					{
+						window_Level_Three.close();
+						play = false;
+						//endgame = true;
+					}
+					if (Keyboard::isKeyPressed(Keyboard::Escape))
+					{
+						window_Level_Three.close();
+						play = false;
+					}
+					if (Keyboard::isKeyPressed(Keyboard::Up)) 		dir = Up;
+					else if (Keyboard::isKeyPressed(Keyboard::Down))	dir = Down;
+					else if (Keyboard::isKeyPressed(Keyboard::Right))	dir = Right;
+					else if (Keyboard::isKeyPressed(Keyboard::Left))	dir = Left;
+
+				}
+				//enemy move
+				moveEnemy(nEnemy);
+				// boundaries that anything can't go after it like player
+				//player movement in the Grid 
+				movePlayer(xpos, ypos, dir);
+				player.setPosition(xpos * 10, ypos * 10);
+				time_text.setString(time_string.str());
+				for (int i = 0; i < nEnemy; i++)
+				{
+					enemies_shapes[i].setPosition(enemies_struct[i].expostion, enemies_struct[i].eypostion);
+				}
+				for (int i = 0; i < nEnemy; i++)
+				{
+					if (grid[enemies_struct[i].expostion / 10][enemies_struct[i].eypostion / 10] == 2)
+					{
+						collisionSound.play();
+						//this_thread::sleep_for(.2s);
+
+
+						play = false;
+
+					}
+					for (int i = 0; i < 82; i++)
+					{
+						for (int j = 0; j < 62; j++)
+						{
+							if (player.getPosition().x == grid[i][j] == 2 || player.getPosition().y == grid[i][j] == 2)
+								play = false;
+						}
+					}
+				}
+				setsBrush(xpos, ypos);
+				//draw 
+				window_Level_Three.clear();
+				drawArea(Sgrid, window_Level_Three, image, image2);
+				window_Level_Three.draw(player);
+				window_Level_Three.draw(bound);
+				for (int i = 0; i < nEnemy; i++) {
+					window_Level_Three.draw(enemies_shapes[i]);
+				}
+				window_Level_Three.draw(time_text);
+				window_Level_Three.draw(PercentText);
+				window_Level_Three.display();
+			}
+		}
+	}
+}
+void part_level_Custom(int level_number) {
+
+	{
+		if (level_number == 8)
+		{
+			bool level_play = true, end_levels_2 = true, end_levels = true;
+			while (level_play)   //this move on all levels
+			{
+				//custom
+				RenderWindow window_Custom(VideoMode(ScreenWidth, ScreenHeight), "Custom", Style::Close);//render window_play 
+				Custom custom(ScreenWidth, ScreenHeight);  //to take object from class  
+				while (window_Custom.isOpen())
 				{
 					Event event2;
-					while (window_Levels.pollEvent(event2))
+					while (window_Custom.pollEvent(event2))
 					{
 						if (event2.type == Event::Closed)
-							window_Levels.close();
+						{
+							window_Custom.close();
+							level_play = false;
+							end_levels = false;
 
+						}
+						if (Keyboard::isKeyPressed(Keyboard::Escape))
+						{
+							level_play = false;
+							end_levels = false;
+						}
 						if (event2.type == Event::KeyReleased)
 						{
 							if (event2.key.code == Keyboard::Up)
 							{
-								Levels.moveup();
+								custom.moveUp();
 								break;
 							}
 							if (event2.key.code == Keyboard::Down)
 							{
-								Levels.moveDown();
+								custom.moveDown();
 								break;
 							}
 						}
 
-						//choose page
-						if (event2.key.code == Keyboard::Enter)   // Return == I pressed enter
+						//choice level
+						if (event2.key.code == Keyboard::Return)   // Return == I pressed enter
 						{
-							if (Levels.mainlevelsPressed() == 0)    //  level 1
+							for (int i = 0; i < 3; i++)
 							{
-								window_Levels.close();				//close the main window and open window.1
-								level_number = 0;
-							}
-							if (Levels.mainlevelsPressed() == 1)    //  level 2
-							{
-								window_Levels.close();				//close the main window and open window.2
-								level_number = 1;
+								if (i == 2)
+								{
+									//page_Custom = 3;
+									level_number = 9;
+								}
+								else {
+									if (custom.mainCustomPressed() == i)    //  level 1
+									{
+										window_Custom.close();				//close the main window and open window.1
+										page_Custom = i;
 
+									}
+								}
 							}
-							if (Levels.mainlevelsPressed() == 2)    //  level 3
-							{
-								window_Levels.close();				//close the main window and open window.3
-								level_number = 2;
-							}
+
+						}
+						if (end_levels == false)
+							break;
+					}
+
+					window_Custom.clear();
+					if (page_Custom == 2)
+					{
+						//main menu
+						end_levels_2 = false;
+						end_levels = false;
+						break;
+					}
+					else {
+						custom.draw(window_Custom);
+						window_Custom.display();
+					}
+
+
+					if (end_levels == false)
+						break;
+				}
+				if (end_levels == false)
+					break;
+				Custom_make_level(page_Custom);
+				Custom_load_levels(page_Custom);
+
+
+			}
+
+		}
+	}
+}
+
+
+void part_play(int page_number)
+{
+	if (page_number == 0)
+	{
+		bool level_play = true, end_levels_2 = true, end_levels = true;
+		while (level_play)   //this move on all levels
+		{
+			//play levels
+			RenderWindow window_Levels(VideoMode(ScreenWidth, ScreenHeight), "Levels", Style::Close);//render window_play 
+			levels Levels(ScreenWidth, ScreenHeight);  //to take object from class  
+			while (window_Levels.isOpen())
+			{
+				Event event2;
+				while (window_Levels.pollEvent(event2))
+				{
+					if (event2.type == Event::Closed)
+					{
+						window_Levels.close();
+						level_play = false;
+						end_levels = false;
+
+					}
+					if (Keyboard::isKeyPressed(Keyboard::Escape))
+					{
+						level_play = false;
+						end_levels = false;
+					}
+					if (event2.type == Event::KeyReleased)
+					{
+						if (event2.key.code == Keyboard::Up)
+						{
+							Levels.moveup();
+							break;
+						}
+						if (event2.key.code == Keyboard::Down)
+						{
+							Levels.moveDown();
+							break;
 						}
 					}
 
-					window_Levels.clear();
+					//choice level
+					if (event2.key.code == Keyboard::Enter)   // Return == I pressed enter
+					{
+						for (int i = 0; i < 10; i++)
+						{
+
+
+							if (Levels.mainlevelsPressed() == i)    //  level 1
+							{
+								if (i == 9)
+								{
+									//level_number = 3;
+									page_number = 9;
+								}
+								window_Levels.close();				//close the main window and open window.1
+								level_number = i;
+
+							}
+
+						}
+
+					}
+					if (end_levels == false)
+						break;
+				}
+
+				window_Levels.clear();
+				if (page_number == 9)
+				{
+					//main menu
+					end_levels_2 = false;
+					end_levels = false;
+					break;
+				}
+				else {
 					Levels.draw(window_Levels);
 					window_Levels.display();
 				}
-				if (level_number == 0)
-				{
-					 
-
-					//level one  --- 
-					//nested loop to set grid to 0
-					for (int i = 0; i < Rows; i++)
-						for (int j = 0; j < Coulmns; j++)
-							grid[i][j] = 0;
-					short nEnemy = 4;//number of enemy of selected level
-										//level one  
-					RenderWindow window_Level_one(VideoMode(ScreenWidth, ScreenHeight), "play");//render window_play 
-					window_Level_one.setFramerateLimit(30);//set frames to 60 per second 
-					bool play = true, endgame = false;; // play variable 
-					int xpos = 0, ypos = 0; //playes position
-					short dir = -1;//direction of the player  -1 means no direction in the start it can be anything
-					//images 
-					Texture image;
-					if (image.loadFromFile("Data/borders.png") == false)
-					{
-						cout << "image is not here";
-						return 1; // end the program 
-					}
-					Texture image2;
-					if (image2.loadFromFile("Data/borders1.png") == false)
-					{
-						cout << "image is not here";
-						return 1; // end the program 
-					}
-					//font 
-					Font number_font;
-					if (number_font.loadFromFile("Data/numbers_font.ttf") == false)
-					{
-						cout << "font is not here";
-						return 1; // end the program 
-					}
-					Font Arial_font;
-					if (Arial_font.loadFromFile("Data/arial.ttf") == false)
-					{
-						cout << "font is not here";
-						return 1; // end the program 
-					}
-					RectangleShape enemies_shapes[10];
-					for (int i = 0; i < nEnemy; i++) {
-						enemies_shapes[i].setSize(Vector2f(10, 10));
-						enemies_shapes[i].setPosition(enemies_struct[i].expostion, enemies_struct[i].eypostion);
-						enemies_shapes[i].setFillColor(Color::Red);//Se7aaaaaaaaaa
-					}
-					// time 
-					time_t first_second, this_second;
-					time(&first_second);
-					int second = 0, minute = 0;
-					//time text
-					Text time_text, PercentText;
-					time_text.setFont(number_font);
-					time_text.setFillColor(Color::Red);
-					time_text.setPosition(0, 640);
-					time_text.setCharacterSize(20);
-					//Percent Text
-					PercentText.setFont(Arial_font);
-					PercentText.setFillColor(Color::Green);
-					PercentText.setPosition(500, 630);
-					PercentText.setCharacterSize(30);
-					//player rectangle 
-					RectangleShape player;
-					player.setFillColor(Color::Magenta);
-					player.setPosition(0, 0);
-					player.setSize(Vector2f(10, 10));
-					//under bound rectangle 
-					RectangleShape bound;
-					bound.setFillColor(Color::Red);
-					bound.setPosition(0, 620);
-					bound.setSize(Vector2f(820, 5));
-					// event
-					Event event;
-					//sound
-					// sound track while the game is playing
-					Music music;
-					if (!music.openFromFile("Data/soundtrack.ogg"))
-						return -1;
-					music.play();
-					SoundBuffer sound;
-					Sound collisionSound;
-					if (sound.loadFromFile("Data/impact.wav"))
-						cout << "collision done " << endl;
-					collisionSound.setBuffer(sound);
-					while (play)     //this move one page
-					{
-						Sprite Sgrid;
-						int percent = 0;
-						percent = checkBoundaries() / (44);
-						// time string 
-						stringstream time_string, areaString;
-						areaString << "You Finished " << percent << "%";
-						PercentText.setString(areaString.str());
-						time(&this_second);
-						if (second < 60)
-						{
-							second = this_second - first_second;
-						}
-						else if (second % 60 == 0)
-						{
-							minute++;
-							time(&first_second);
-							second = 0;
-						}
-						if (minute < 10)
-						{
-							if ((second) < 10)
-							{
-								time_string.clear();
-								time_string << "Time " << "0" << minute << " : " << "0" << second;
-							}
-							else
-							{
-								time_string.clear();
-								time_string << "Time " << "0" << minute << " : " << second;
-							}
-						}
-						else
-						{
-							if ((this_second - first_second) < 10)
-							{
-								time_string.clear();
-								time_string << "Time " << minute << " : " << "0" << second;
-							}
-							else
-							{
-								time_string.clear();
-								time_string << "Time " << minute << " : " << second;
-							}
-						}
-						while (window_Level_one.pollEvent(event))
-						{
-							if (event.type == Event::Closed)
-							{
-								window_Level_one.close();
-								play = false;
-								//endgame = true;
-							}
-							if (Keyboard::isKeyPressed(Keyboard::Escape))
-							{
-								play = false;
-							}
-							if (Keyboard::isKeyPressed(Keyboard::Up)) 		dir = Up;
-							else if (Keyboard::isKeyPressed(Keyboard::Down))	dir = Down;
-							else if (Keyboard::isKeyPressed(Keyboard::Right))	dir = Right;
-							else if (Keyboard::isKeyPressed(Keyboard::Left))	dir = Left;
-							for (int l = 0; l < nEnemy; l++)
-							{
-								for (int k = 1; k < nEnemy; k++)
-									if (enemies_shapes[l].getGlobalBounds().intersects(enemies_shapes[k].getGlobalBounds()))
-									{
-										enemies_struct[l].expostion = -enemies_struct[l].expostion;
-										enemies_struct[l].eypostion = -enemies_struct[l].eypostion;
-										enemies_struct[k].expostion = -enemies_struct[k].expostion;
-										enemies_struct[k].eypostion = -enemies_struct[k].eypostion;
-									}
-							}
-						}
-						//enemy move
-					//	moveEnemy(nEnemy); activate it when you want to cut pieces of the pink line and remove it below :)
-						// boundaries that anything can't go after it like player
-						//player movement in the Grid 
-						movePlayer(xpos, ypos, dir);
-						player.setPosition(xpos * 10, ypos * 10);
-						time_text.setString(time_string.str());
-						for (int i = 0; i < nEnemy; i++)
-						{
-							enemies_shapes[i].setPosition(enemies_struct[i].expostion, enemies_struct[i].eypostion);
-						}
-						for (int i = 0; i < nEnemy; i++)
-						{
-							if (grid[enemies_struct[i].expostion / 10][enemies_struct[i].eypostion / 10] == 2)
-							{
-								collisionSound.play();
-								this_thread::sleep_for(.2s);
-								for(int i=0;i<82;i++)
-									for(int j=0;j<62;j++ )
-										if(grid[i][j]==2)
-											grid[i][j] = 0;
-								
-								//play = false;
-							}
-						}
-						moveEnemy(nEnemy);
-
-						for (int i = 0; i < 82; i++)
-						{
-							for (int j = 0; j < 62; j++)
-							{
-								if (player.getPosition().x == grid[i][j] == 2 || player.getPosition().y == grid[i][j] == 2)
-									play = false;
-							}
-						}
-						setsBrush(xpos, ypos);
-						//draw 
-						window_Level_one.clear();
-						drawArea(Sgrid, window_Level_one, image, image2);
-						window_Level_one.draw(player);
-						window_Level_one.draw(bound);
-						for (int i = 0; i < nEnemy; i++) {
-							window_Level_one.draw(enemies_shapes[i]);
-						}
-						window_Level_one.draw(time_text);
-						window_Level_one.draw(PercentText);
-						window_Level_one.display();
-					}
-
-				}
-				if (level_number == 1)
-				{
-					//level two 
-					//nested loop to set grid to 0
-					for (int i = 0; i < Rows; i++)
-						for (int j = 0; j < Coulmns; j++)
-							grid[i][j] = 0;
-					short nEnemy = 6;//number of enemy of selected level
-				//level one  
-					RenderWindow window_Level_one(VideoMode(ScreenWidth, ScreenHeight), "play");//render window_play 
-					window_Level_one.setFramerateLimit(30);//set frames to 60 per second 
-					bool play = true, endgame = false;; // play variable 
-					int xpos = 0, ypos = 0; //playes position
-					short dir = -1;//direction of the player  -1 means no direction in the start it can be anything
-					//images 
-					Texture image;
-					if (image.loadFromFile("Data/borders.png") == false)
-					{
-						cout << "image is not here";
-						return 1; // end the program 
-					}
-					Texture image2;
-					if (image2.loadFromFile("Data/borders1.png") == false)
-					{
-						cout << "image is not here";
-						return 1; // end the program 
-					}
-					//font 
-					Font number_font;
-					if (number_font.loadFromFile("Data/numbers_font.ttf") == false)
-					{
-						cout << "font is not here";
-						return 1; // end the program 
-					}
-					Font Arial_font;
-					if (Arial_font.loadFromFile("Data/arial.ttf") == false)
-					{
-						cout << "font is not here";
-						return 1; // end the program 
-					}
-					RectangleShape enemies_shapes[10];
-					for (int i = 0; i < nEnemy; i++) {
-						enemies_shapes[i].setSize(Vector2f(20, 20));
-						enemies_shapes[i].setPosition(enemies_struct[i].expostion, enemies_struct[i].eypostion);
-						enemies_shapes[i].setFillColor(Color::Yellow);//Se7aaaaaaaaaa
-					}
-					// time 
-					time_t first_second, this_second;
-					time(&first_second);
-					int second = 0, minute = 0;
-					//time text
-					Text time_text, PercentText;
-					time_text.setFont(number_font);
-					time_text.setFillColor(Color::Red);
-					time_text.setPosition(0, 640);
-					time_text.setCharacterSize(20);
-					//Percent Text
-					PercentText.setFont(Arial_font);
-					PercentText.setFillColor(Color::Green);
-					PercentText.setPosition(500, 630);
-					PercentText.setCharacterSize(30);
-					//player rectangle 
-					RectangleShape player;
-					player.setFillColor(Color::Magenta);
-					player.setPosition(0, 0);
-					player.setSize(Vector2f(10, 10));
-					//under bound rectangle 
-					RectangleShape bound;
-					bound.setFillColor(Color::Red);
-					bound.setPosition(0, 620);
-					bound.setSize(Vector2f(820, 5));
-					// event
-					Event event;
-					//sound
-					// sound track while the game is playing
-					Music music;
-					if (!music.openFromFile("Data/soundtrack.ogg"))
-						return -1;
-					music.play();
-					SoundBuffer sound;
-					Sound collisionSound;
-					if (sound.loadFromFile("Data/impact.wav"))
-						cout << "collision done " << endl;
-					collisionSound.setBuffer(sound);
-					while (play)     //this move one page
-					{
-						Sprite Sgrid;
-						int percent = 0;
-						percent = checkBoundaries() / (44);
-						// time string 
-						stringstream time_string, areaString;
-						areaString << "You Finished " << percent << "%";
-						PercentText.setString(areaString.str());
-						time(&this_second);
-						if (second < 60)
-						{
-							second = this_second - first_second;
-						}
-						else if (second % 60 == 0)
-						{
-							minute++;
-							time(&first_second);
-							second = 0;
-						}
-						if (minute < 10)
-						{
-							if ((second) < 10)
-							{
-								time_string.clear();
-								time_string << "Time " << "0" << minute << " : " << "0" << second;
-							}
-							else
-							{
-								time_string.clear();
-								time_string << "Time " << "0" << minute << " : " << second;
-							}
-						}
-						else
-						{
-							if ((this_second - first_second) < 10)
-							{
-								time_string.clear();
-								time_string << "Time " << minute << " : " << "0" << second;
-							}
-							else
-							{
-								time_string.clear();
-								time_string << "Time " << minute << " : " << second;
-							}
-						}
-						while (window_Level_one.pollEvent(event))
-						{
-							if (event.type == Event::Closed)
-							{
-								window_Level_one.close();
-								play = false;
-								//endgame = true;
-							}
-							if (Keyboard::isKeyPressed(Keyboard::Escape))
-							{
-								play = false;
-							}
-							if (Keyboard::isKeyPressed(Keyboard::Up)) 		dir = Up;
-							else if (Keyboard::isKeyPressed(Keyboard::Down))	dir = Down;
-							else if (Keyboard::isKeyPressed(Keyboard::Right))	dir = Right;
-							else if (Keyboard::isKeyPressed(Keyboard::Left))	dir = Left;
-
-						}
-						//enemy move
-						moveEnemy(nEnemy);
-						// boundaries that anything can't go after it like player
-						//player movement in the Grid 
-						movePlayer(xpos, ypos, dir);
-						player.setPosition(xpos * 10, ypos * 10);
-						time_text.setString(time_string.str());
-						for (int i = 0; i < nEnemy; i++)
-						{
-							enemies_shapes[i].setPosition(enemies_struct[i].expostion, enemies_struct[i].eypostion);
-						}
-						for (int i = 0; i < nEnemy; i++)
-						{
-							if (grid[enemies_struct[i].expostion / 10][enemies_struct[i].eypostion / 10] == 2)
-							{
-								collisionSound.play();
-								this_thread::sleep_for(.2s);
 
 
-								play = false;
-
-							}
-							for (int i = 0; i < 82; i++)
-							{
-								for (int j = 0; j < 62; j++)
-								{
-									if (player.getPosition().x == grid[i][j] == 2 || player.getPosition().y == grid[i][j] == 2)
-										play = false;
-								}
-							}
-						}
-						setsBrush(xpos, ypos);
-						//draw 
-						window_Level_one.clear();
-						drawArea(Sgrid, window_Level_one, image, image2);
-						window_Level_one.draw(player);
-						window_Level_one.draw(bound);
-						for (int i = 0; i < nEnemy; i++) {
-							window_Level_one.draw(enemies_shapes[i]);
-						}
-						window_Level_one.draw(time_text);
-						window_Level_one.draw(PercentText);
-						window_Level_one.display();
-					}
-				}
-				if (level_number == 2)
-				{
-					//nested loop to set grid to 0
-					for (int i = 0; i < Rows; i++)
-						for (int j = 0; j < Coulmns; j++)
-							grid[i][j] = 0;
-					short nEnemy = 4;//number of enemy of selected level
-										//level one  
-					RenderWindow window_Level_one(VideoMode(ScreenWidth, ScreenHeight), "play");//render window_play 
-					window_Level_one.setFramerateLimit(30);//set frames to 60 per second 
-					bool play = true, endgame = false;; // play variable 
-					int xpos = 0, ypos = 0; //playes position
-					short dir = -1;//direction of the player  -1 means no direction in the start it can be anything
-					//images 
-					Texture image;
-					if (image.loadFromFile("Data/borders.png") == false)
-					{
-						cout << "image is not here";
-						return 1; // end the program 
-					}
-					Texture image2;
-					if (image2.loadFromFile("Data/borders1.png") == false)
-					{
-						cout << "image is not here";
-						return 1; // end the program 
-					}
-					//font 
-					Font number_font;
-					if (number_font.loadFromFile("Data/numbers_font.ttf") == false)
-					{
-						cout << "font is not here";
-						return 1; // end the program 
-					}
-					Font Arial_font;
-					if (Arial_font.loadFromFile("Data/arial.ttf") == false)
-					{
-						cout << "font is not here";
-						return 1; // end the program 
-					}
-					RectangleShape enemies_shapes[10];
-					for (int i = 0; i < nEnemy; i++) {
-						enemies_shapes[i].setSize(Vector2f(20, 20));
-						enemies_shapes[i].setPosition(enemies_struct[i].expostion, enemies_struct[i].eypostion);
-						enemies_shapes[i].setFillColor(Color::Yellow);//Se7aaaaaaaaaa
-					}
-					// time 
-					time_t first_second, this_second;
-					time(&first_second);
-					int second = 0, minute = 0;
-					//time text
-					Text time_text, PercentText;
-					time_text.setFont(number_font);
-					time_text.setFillColor(Color::Red);
-					time_text.setPosition(0, 640);
-					time_text.setCharacterSize(20);
-					//Percent Text
-					PercentText.setFont(Arial_font);
-					PercentText.setFillColor(Color::Green);
-					PercentText.setPosition(500, 630);
-					PercentText.setCharacterSize(30);
-					//player rectangle 
-					RectangleShape player;
-					player.setFillColor(Color::Magenta);
-					player.setPosition(0, 0);
-					player.setSize(Vector2f(10, 10));
-					//under bound rectangle 
-					RectangleShape bound;
-					bound.setFillColor(Color::Red);
-					bound.setPosition(0, 620);
-					bound.setSize(Vector2f(820, 5));
-					// event
-					Event event;
-					//sound
-					// sound track while the game is playing
-					Music music;
-					if (!music.openFromFile("Data/soundtrack.ogg"))
-						return -1;
-					music.play();
-					SoundBuffer sound;
-					Sound collisionSound;
-					if (sound.loadFromFile("Data/impact.wav"))
-						cout << "collision done " << endl;
-					collisionSound.setBuffer(sound);
-					while (play)     //this move one page
-					{
-						Sprite Sgrid;
-						int percent = 0;
-						percent = checkBoundaries() / (44);
-						// time string 
-						stringstream time_string, areaString;
-						areaString << "You Finished " << percent << "%";
-						PercentText.setString(areaString.str());
-						time(&this_second);
-						if (second < 60)
-						{
-							second = this_second - first_second;
-						}
-						else if (second % 60 == 0)
-						{
-							minute++;
-							time(&first_second);
-							second = 0;
-						}
-						if (minute < 10)
-						{
-							if ((second) < 10)
-							{
-								time_string.clear();
-								time_string << "Time " << "0" << minute << " : " << "0" << second;
-							}
-							else
-							{
-								time_string.clear();
-								time_string << "Time " << "0" << minute << " : " << second;
-							}
-						}
-						else
-						{
-							if ((this_second - first_second) < 10)
-							{
-								time_string.clear();
-								time_string << "Time " << minute << " : " << "0" << second;
-							}
-							else
-							{
-								time_string.clear();
-								time_string << "Time " << minute << " : " << second;
-							}
-						}
-						while (window_Level_one.pollEvent(event))
-						{
-							if (event.type == Event::Closed)
-							{
-								window_Level_one.close();
-								play = false;
-								//endgame = true;
-							}
-							if (Keyboard::isKeyPressed(Keyboard::Escape))
-							{
-								play = false;
-							}
-							if (Keyboard::isKeyPressed(Keyboard::Up)) 		dir = Up;
-							else if (Keyboard::isKeyPressed(Keyboard::Down))	dir = Down;
-							else if (Keyboard::isKeyPressed(Keyboard::Right))	dir = Right;
-							else if (Keyboard::isKeyPressed(Keyboard::Left))	dir = Left;
-
-						}
-						//enemy move
-						moveEnemy(nEnemy);
-						// boundaries that anything can't go after it like player
-						//player movement in the Grid 
-						movePlayer(xpos, ypos, dir);
-						player.setPosition(xpos * 10, ypos * 10);
-						time_text.setString(time_string.str());
-						for (int i = 0; i < nEnemy; i++)
-						{
-							enemies_shapes[i].setPosition(enemies_struct[i].expostion, enemies_struct[i].eypostion);
-						}
-						for (int i = 0; i < nEnemy; i++)
-						{
-							if (grid[enemies_struct[i].expostion / 10][enemies_struct[i].eypostion / 10] == 2)
-							{
-								collisionSound.play();
-								this_thread::sleep_for(.2s);
-
-
-								play = false;
-
-							}
-							for (int i = 0; i < 82; i++)
-							{
-								for (int j = 0; j < 62; j++)
-								{
-									if (player.getPosition().x == grid[i][j] == 2 || player.getPosition().y == grid[i][j] == 2)
-										play = false;
-								}
-							}
-						}
-						setsBrush(xpos, ypos);
-						//draw 
-						window_Level_one.clear();
-						drawArea(Sgrid, window_Level_one, image, image2);
-						window_Level_one.draw(player);
-						window_Level_one.draw(bound);
-						for (int i = 0; i < nEnemy; i++) {
-							window_Level_one.draw(enemies_shapes[i]);
-						}
-						window_Level_one.draw(time_text);
-						window_Level_one.draw(PercentText);
-						window_Level_one.display();
-					}
-				}
-
-
-
+				if (end_levels == false)
+					break;
 			}
-			if (page_number == 2)
-			{
-				//exit
+			if (end_levels == false)
 				break;
+			part_level_one(level_number);
+			part_level_two(level_number);
+			part_level_three(level_number);
+			part_level_four(level_number);
+			part_level_five(level_number);
+			part_level_six(level_number);
+			part_level_seven(level_number);
+			part_level_eight(level_number);
+			part_level_Custom(level_number);
+
+
+		}
+
+	}
+}
+
+void part_Credits(int page_number)
+{
+	if (page_number == 1)
+	{
+		//credits
+		sf::RenderWindow window_Credits(VideoMode(ScreenWidth, ScreenHeight), "credits", sf::Style::Close);
+		bool play = true;
+		while (play)
+		{
+			while (window_Credits.isOpen())
+			{
+				sf::Event event;
+				while (window_Credits.pollEvent(event))
+				{
+					if (event.type == sf::Event::Closed)
+						window_Credits.close();
+					if (Keyboard::isKeyPressed(Keyboard::Escape))
+						play = false;
+				}
+				window_Credits.clear();
+
+				window_Credits.display();
 			}
 		}
-		return 0;
 	}
+}
+
+void part_option(int page_number)
+{
+	if (page_number == 2)
+	{
+		//option
+		sf::RenderWindow window_option(VideoMode(ScreenWidth, ScreenHeight), "option", sf::Style::Close);
+		bool play = true;
+		while (play)
+		{
+			while (window_option.isOpen())
+			{
+				sf::Event event;
+				while (window_option.pollEvent(event))
+				{
+					if (event.type == sf::Event::Closed)
+						window_option.close();
+					if (Keyboard::isKeyPressed(Keyboard::Escape))
+						play = false;
+				}
+				window_option.clear();
+
+				window_option.display();
+			}
+		}
+	}
+}
+
+void set_grid_0()
+{
+	//nested loop to set grid to 0
+	for (int i = 0; i < Rows; i++)
+		for (int j = 0; j < Coulmns; j++)
+			grid[i][j] = 0;
+}
+void check_images_borders_load(Texture& image, Texture& image2) {
+	if (image.loadFromFile("Data/borders.png") == false)
+		cout << "image is not here";
+	if (image2.loadFromFile("Data/borders1.png") == false)
+		cout << "image is not here";
+}
+
+void check_font_load(Font& number_font, Font& Arial_font) {
+	//font  
+	if (number_font.loadFromFile("Data/numbers_font.ttf") == false)
+		cout << "font is not here";
+	if (Arial_font.loadFromFile("Data/arial.ttf") == false)
+		cout << "font is not here";
+
+}
+void player_rectangle(RectangleShape& player) {
+	//player rectangle 
+
+	player.setFillColor(Color::Magenta);
+	player.setPosition(0, 0);
+	player.setSize(Vector2f(10, 10));
+}
+
+int Custom_make_level(int page_Custom) {
+	string levelgrid = "$";
+	sf::RenderWindow window(sf::VideoMode(820, 680), "Xonix");//render window 
+	window.setFramerateLimit(30);//set frames to 60 per second 
+	bool play = true;
+	bool top = false, down = false, right = false, left = false; //key pressed bools 
+	bool paint = false, clear = false;
+	int xpos = 0, ypos = 0; //playes position
+	int x_paint = 0, y_paint = 0;
+	//
+	Texture image;
+	if (image.loadFromFile("Data/borders.png") == false)
+	{
+		cout << "image is not here";
+		return 1; // end the program 
+	}
+	Texture image2;
+	if (image2.loadFromFile("Data/borders1.png") == false)
+	{
+		cout << "image is not here";
+		return 1; // end the program 
+	}
+	//font 
+	Font number_font;
+	if (number_font.loadFromFile("Data/numbers_font.ttf") == false)
+	{
+		cout << "font is not here";
+		return 1; // end the program 
+	}
+		sf::RectangleShape enemies_shapes[8];
+		for (int i = 0; i < 8; i++) {
+			enemies_shapes[i].setSize(Vector2f(10, 10));
+			enemies_shapes[i].setPosition(enemies_struct[i].expostion, enemies_struct[i].eypostion);
+
+		}
+		///////////////////////
+
+		// time
+		time_t first_second, this_second;
+		time(&first_second);
+		int second = 0, minute = 0;
+		//time text
+		Text time_text;
+		time_text.setFont(number_font);
+		time_text.setFillColor(Color::Red);
+		time_text.setPosition(0, 640);
+		time_text.setCharacterSize(20);
+		//player rectangle
+		RectangleShape player;
+		player.setFillColor(Color::Magenta);
+		player.setPosition(400, 300);
+		player.setSize(Vector2f(10, 10));
+		//under bound rectangle
+		RectangleShape bound;
+		bound.setFillColor(Color::Red);
+		bound.setPosition(0, 620);
+		bound.setSize(Vector2f(820, 5));
+		// event
+		Event event;
+		FilesHandler levelsFile;
+
+		while (play)
+		{
+			Sprite Sgrid;
+			//
+			stringstream time_string;
+			time(&this_second);
+			if (second < 60)
+			{
+				second = this_second - first_second;
+			}
+			else if (second % 60 == 0)
+			{
+				minute++;
+				time(&first_second);
+				second = 0;
+			}
+			if (minute < 10)
+			{
+				if ((this_second - first_second) < 10)
+				{
+					time_string.clear();
+					time_string << "Time " << "0" << minute << " : " << "0" << second;
+				}
+				else
+				{
+					time_string.clear();
+					time_string << "Time " << "0" << minute << " : " << second;
+				}
+			}
+			else
+			{
+
+				if ((this_second - first_second) < 10)
+				{
+					time_string.clear();
+					time_string << "Time " << minute << " : " << "0" << second;
+				}
+				else
+				{
+					time_string.clear();
+					time_string << "Time " << minute << " : " << second;
+				}
+			}
+			while (window.pollEvent(event))
+			{
+				time_string.clear();
+				if (event.type == Event::Closed)
+				{
+					play = false;
+				}
+				if (event.type == Event::KeyPressed && event.key.code == Keyboard::Up) {
+					top = true;
+				}
+				if (event.type == Event::KeyPressed && event.key.code == Keyboard::Down)
+				{
+					down = true;
+				}
+				if (event.type == Event::KeyPressed && event.key.code == Keyboard::Right)
+				{
+					right = true;
+				}
+				if (event.type == Event::KeyPressed && event.key.code == Keyboard::Left)
+				{
+					left = true;
+				}
+				if (event.type == sf::Event::KeyReleased && event.key.code == sf::Keyboard::Up)
+				{
+					top = false;
+				}
+
+				if (event.type == sf::Event::KeyReleased && event.key.code == sf::Keyboard::Down)
+				{
+					down = false;
+				}
+				if (event.type == sf::Event::KeyReleased && event.key.code == sf::Keyboard::Right)
+				{
+					right = false;
+				}
+
+				if (event.type == sf::Event::KeyReleased && event.key.code == sf::Keyboard::Left)
+				{
+					left = false;
+				}
+				if (event.type == sf::Event::KeyReleased && event.key.code == sf::Keyboard::Enter)
+				{
+					if (paint == true)
+						paint = false;
+					else
+					{
+						paint = true;
+						clear = false;
+					}
+				}
+				if (event.type == sf::Event::KeyReleased && event.key.code == sf::Keyboard::Escape)
+				{
+					if (clear == true)
+						clear = false;
+					else
+					{
+						clear = true;
+						paint = false;
+					}
+				}
+				string levelname = "";
+
+				if (event.type == sf::Event::KeyReleased && event.key.code == sf::Keyboard::P)
+				{
+					for (int i = 0; i < 82; i++)
+					{
+						for (int j = 0; j < 62; j++)
+						{
+							levelgrid += to_string(grid[i][j]);
+
+						}
+						//cout << endl;
+
+					}
+					levelgrid += "$";
+					cout << "Enter level name here : ";
+					cin >> levelname;
+					levelsFile.writeLevels(levelgrid,levelname);
+
+
+					cout << "------------------------------------------------------------------------";
+				}
+				if (event.type == sf::Event::KeyReleased && event.key.code == sf::Keyboard::L)
+				{
+					levelgrid = levelsFile.load_level();
+					cout << "THe grid  : ";
+					int k = 0;
+					for (int i = 0; i < 82; i++)
+					{
+						
+						for (int j = 0; j < 62; j++)
+						{
+							short zero, one;
+							
+							if(levelgrid[k]=='1')
+							{
+								one = levelgrid[k] - 48;
+								grid[i][j] = one;
+							}
+							
+							else if(grid[i][j]=='0')
+							{
+								 zero = levelgrid[k] - 48;
+								 grid[i][j] = zero;
+
+							}
+										
+							cout << "" << grid[i][j];
+							k++;
+						}
+						
+						
+						//cout << endl;
+
+					}
+
+
+
+
+					cout << "------------------------------------------------------------------------";
+				}
+				if (event.type == sf::Event::MouseMoved)
+				{
+
+					if (paint == true)
+					{
+						xpos = event.mouseMove.x / 10;
+						ypos = event.mouseMove.y / 10;
+					}
+					else if (clear == true)
+					{
+						xpos = event.mouseMove.x / 10;
+						ypos = event.mouseMove.y / 10;
+					}
+				}
+				cout << event.mouseMove.x << " : " << event.mouseMove.y << endl;
+				if (event.type == sf::Event::KeyReleased && event.key.code == sf::Keyboard::K)
+				{
+					cout << "Enter brush x position : ";
+					int x, y;
+					cin >> x;
+					if (x >= 0 && x <= 82)
+					{
+						xpos = x;
+					}
+					cout << "Enter brush y position : ";
+					cin >> y;
+					if (y >= 0 && y <= 68)
+					{
+						ypos = y;
+					}
+				}
+			}
+
+			int numberofenemy = 7;
+			//player move
+			if (top == true)
+			{
+				ypos -= 1;
+			}
+			else if (down == true)
+			{
+				ypos += 1;
+			}
+			else if (right == true)
+			{
+				xpos += 1;
+			}
+			else if (left == true)
+			{
+				xpos -= 1;
+			}
+			if (x_paint != xpos)
+				x_paint = xpos;
+			if (y_paint != ypos)
+				y_paint = ypos;
+			if (paint == true)
+			{
+				grid[x_paint][y_paint] = 1;
+			}
+			if (clear == true)
+			{
+				grid[x_paint][y_paint] = 0;
+			}
+			// bound moving
+			if (xpos >= 82)
+				xpos -= 1;
+			if (xpos < 0)
+				xpos += 1;
+			if (ypos >= 62)
+				ypos -= 1;
+			if (ypos < 0)
+				ypos += 1;
+			player.setPosition(xpos * 10, ypos * 10);
+			time_text.setString(time_string.str());
+
+			//draw
+			window.clear();
+
+			for (int i = 0; i < 82; i++)
+				for (int j = 0; j < 62; j++)
+				{
+					if (grid[i][j] == 0)
+					{
+						continue;
+					}
+					if (grid[i][j] == 1)
+					{
+						Sgrid.setTexture(image2);
+					}
+					if (grid[i][j] == 2)
+					{
+						Sgrid.setTexture(image);
+					}
+
+					Sgrid.setPosition(i * 10, j * 10);
+					window.draw(Sgrid);
+				}
+
+			window.draw(player);
+			window.draw(bound);
+
+			window.draw(time_text);
+			window.display();
+		}
+
+}
+int Custom_load_levels(int page_Custom) {
+	string levelgrid = "";
+	sf::RenderWindow window(sf::VideoMode(820, 680), "Xonix");//render window 
+	window.setFramerateLimit(30);//set frames to 60 per second 
+	bool play = true;
+	bool top = false, down = false, right = false, left = false; //key pressed bools 
+	bool paint = false, clear = false;
+	int xpos = 0, ypos = 0; //playes position
+	int x_paint = 0, y_paint = 0;
+	//
+	Texture image;
+	if (image.loadFromFile("Data/borders.png") == false)
+	{
+		cout << "image is not here";
+		return 1; // end the program 
+	}
+	Texture image2;
+	if (image2.loadFromFile("Data/borders1.png") == false)
+	{
+		cout << "image is not here";
+		return 1; // end the program 
+	}
+	//font 
+	Font number_font;
+	if (number_font.loadFromFile("Data/numbers_font.ttf") == false)
+	{
+		cout << "font is not here";
+		return 1; // end the program 
+	}
+		sf::RectangleShape enemies_shapes[8];
+		for (int i = 0; i < 8; i++) {
+			enemies_shapes[i].setSize(Vector2f(10, 10));
+			enemies_shapes[i].setPosition(enemies_struct[i].expostion, enemies_struct[i].eypostion);
+
+		}
+		///////////////////////
+
+		// time
+		time_t first_second, this_second;
+		time(&first_second);
+		int second = 0, minute = 0;
+		//time text
+		Text time_text;
+		time_text.setFont(number_font);
+		time_text.setFillColor(Color::Red);
+		time_text.setPosition(0, 640);
+		time_text.setCharacterSize(20);
+		//player rectangle
+		RectangleShape player;
+		player.setFillColor(Color::Magenta);
+		player.setPosition(400, 300);
+		player.setSize(Vector2f(10, 10));
+		//under bound rectangle
+		RectangleShape bound;
+		bound.setFillColor(Color::Red);
+		bound.setPosition(0, 620);
+		bound.setSize(Vector2f(820, 5));
+		// event
+		Event event;
+		FilesHandler levelsFile;
+		Sprite Sgrid;
+		//
+		stringstream time_string;
+
+		//loading levels
+	//	levelgrid = levelsFile.load_levels();
+
+	
+		while (play)
+		{
+		
+			time(&this_second);
+			if (second < 60)
+			{
+				second = this_second - first_second;
+			}
+			else if (second % 60 == 0)
+			{
+				minute++;
+				time(&first_second);
+				second = 0;
+			}
+			if (minute < 10)
+			{
+				if ((this_second - first_second) < 10)
+				{
+					time_string.clear();
+					time_string << "Time " << "0" << minute << " : " << "0" << second;
+				}
+				else
+				{
+					time_string.clear();
+					time_string << "Time " << "0" << minute << " : " << second;
+				}
+			}
+			else
+			{
+
+				if ((this_second - first_second) < 10)
+				{
+					time_string.clear();
+					time_string << "Time " << minute << " : " << "0" << second;
+				}
+				else
+				{
+					time_string.clear();
+					time_string << "Time " << minute << " : " << second;
+				}
+			}
+			while (window.pollEvent(event))
+			{
+				time_string.clear();
+				if (event.type == Event::Closed)
+				{
+					play = false;
+				}
+				if (event.type == Event::KeyPressed && event.key.code == Keyboard::Up) {
+					top = true;
+				}
+				if (event.type == Event::KeyPressed && event.key.code == Keyboard::Down)
+				{
+					down = true;
+				}
+				if (event.type == Event::KeyPressed && event.key.code == Keyboard::Right)
+				{
+					right = true;
+				}
+				if (event.type == Event::KeyPressed && event.key.code == Keyboard::Left)
+				{
+					left = true;
+				}
+				if (event.type == sf::Event::KeyReleased && event.key.code == sf::Keyboard::Up)
+				{
+					top = false;
+				}
+
+				if (event.type == sf::Event::KeyReleased && event.key.code == sf::Keyboard::Down)
+				{
+					down = false;
+				}
+				if (event.type == sf::Event::KeyReleased && event.key.code == sf::Keyboard::Right)
+				{
+					right = false;
+				}
+
+				if (event.type == sf::Event::KeyReleased && event.key.code == sf::Keyboard::Left)
+				{
+					left = false;
+				}
+			
+				if (event.type == sf::Event::KeyReleased && event.key.code == sf::Keyboard::Escape)
+				{
+					if (clear == true)
+						clear = false;
+					else
+					{
+						clear = true;
+						paint = false;
+					}
+				}
+				string levelname = "";
+
+			
+
+			
+
+
+
+
+					
+				
+		
+			
+			}
+
+			int numberofenemy = 7;
+			//player move
+			if (top == true)
+			{
+				ypos -= 1;
+			}
+			else if (down == true)
+			{
+				ypos += 1;
+			}
+			else if (right == true)
+			{
+				xpos += 1;
+			}
+			else if (left == true)
+			{
+				xpos -= 1;
+			}
+	
+			// bound moving
+			if (xpos >= 82)
+				xpos -= 1;
+			if (xpos < 0)
+				xpos += 1;
+			if (ypos >= 62)
+				ypos -= 1;
+			if (ypos < 0)
+				ypos += 1;
+			player.setPosition(xpos * 10, ypos * 10);
+			time_text.setString(time_string.str());
+
+			//draw
+			window.clear();
+
+			for (int i = 0; i < 82; i++)
+				for (int j = 0; j < 62; j++)
+				{
+					if (grid[i][j] == 0)
+					{
+						continue;
+					}
+					if (grid[i][j] == 1)
+					{
+						Sgrid.setTexture(image2);
+					}
+					if (grid[i][j] == 2)
+					{
+						Sgrid.setTexture(image);
+					}
+
+					Sgrid.setPosition(i * 10, j * 10);
+					window.draw(Sgrid);
+				}
+
+			window.draw(player);
+			window.draw(bound);
+
+			window.draw(time_text);
+			window.display();
+		}
 }
 

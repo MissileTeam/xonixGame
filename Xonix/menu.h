@@ -1,7 +1,7 @@
 #pragma once
 #include <SFML\Graphics.hpp>
 using namespace sf;
-#define Max_main_menu 3 
+#define Max_main_menu 10
 class menu
 {
 public:
@@ -22,6 +22,3 @@ private:
 	Font font;
 	Text mainmenu[Max_main_menu];
 };
-
-
-

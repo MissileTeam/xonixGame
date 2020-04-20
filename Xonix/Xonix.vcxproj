@@ -19,11 +19,16 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Custom.cpp" />
+    <ClCompile Include="FilesHandler.cpp" />
     <ClCompile Include="levels.cpp" />
     <ClCompile Include="menu.cpp" />
     <ClCompile Include="Source.cpp" />
+    <ClCompile Include="Source1.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Custom.h" />
+    <ClInclude Include="FilesHandler.h" />
     <ClInclude Include="levels.h" />
     <ClInclude Include="menu.h" />
   </ItemGroup>
