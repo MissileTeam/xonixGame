@@ -1,7 +1,20 @@
 #include "Custom.h"
 using namespace sf;
+#define width 680
+#define height 820
+Custom::Custom()
+{
+	display_Custom();
+}
 
-Custom::Custom(float width, float height)
+
+Custom::~Custom()
+{
+}
+
+
+
+void Custom::display_Custom()
 {
 	if (!font.loadFromFile("Data/arial.ttf")) {}
 
@@ -28,14 +41,7 @@ Custom::Custom(float width, float height)
 	mainCustom[2].setPosition(Vector2f(width / 2, height / (Max_Custom + 1) * 3));
 
 	mainCustomSelected = 0;  //start from zero index (play)
-
 }
-
-
-Custom::~Custom()
-{
-}
-
 
 //********************************Function of drawing main menu**********************************************//
 void Custom::draw(RenderWindow& window_Custom)

@@ -1720,7 +1720,7 @@ void part_level_Custom(int level_number) {
 			{
 				//custom
 				RenderWindow window_Custom(VideoMode(ScreenWidth, ScreenHeight), "Custom", Style::Close);//render window_play 
-				Custom custom(ScreenWidth, ScreenHeight);  //to take object from class  
+				Custom custom;  //to take object from class  
 				while (window_Custom.isOpen())
 				{
 					Event event2;
@@ -1815,8 +1815,9 @@ void part_play(int page_number)
 		while (level_play)   //this move on all levels
 		{
 			//play levels
-			RenderWindow window_Levels(VideoMode(ScreenWidth, ScreenHeight), "Levels", Style::Close);//render window_play 
-			levels Levels(ScreenWidth, ScreenHeight);  //to take object from class  
+			RenderWindow window_Levels(VideoMode(ScreenWidth, ScreenHeight), "Custom Levels", Style::Close);//render window_play 
+			levels mainLevels;  //to take object from class   and display main levels
+			
 			while (window_Levels.isOpen())
 			{
 				Event event2;
@@ -1838,12 +1839,12 @@ void part_play(int page_number)
 					{
 						if (event2.key.code == Keyboard::Up)
 						{
-							Levels.moveup();
+							mainLevels.moveup();
 							break;
 						}
 						if (event2.key.code == Keyboard::Down)
 						{
-							Levels.moveDown();
+							mainLevels.moveDown();
 							break;
 						}
 					}
@@ -1855,7 +1856,7 @@ void part_play(int page_number)
 						{
 
 
-							if (Levels.mainlevelsPressed() == i)    //  level 1
+							if (mainLevels.mainlevelsPressed() == i)    //  level 1
 							{
 								if (i == 9)
 								{
@@ -1883,7 +1884,7 @@ void part_play(int page_number)
 					break;
 				}
 				else {
-					Levels.draw(window_Levels);
+					mainLevels.draw(window_Levels);
 					window_Levels.display();
 				}
 
@@ -2181,7 +2182,15 @@ int Custom_make_level(int page_Custom) {
 				}
 				if (event.type == sf::Event::KeyReleased && event.key.code == sf::Keyboard::L)
 				{
-					levelgrid = levelsFile.load_level();
+					int i = 0;
+					string levels[5] = {}; string* name;
+					for ( i = 0; i < 3; i++)
+					{
+						name = levelsFile.check_levels();
+						levels[i] = *(name+i);
+						cout << "level"<<i<<":" << levels[i]<<"\n";
+					}
+					levelgrid = levelsFile.load_level("BOAT");
 					cout << "THe grid  : ";
 					int k = 0;
 					for (int i = 0; i < 82; i++)
@@ -2189,18 +2198,16 @@ int Custom_make_level(int page_Custom) {
 						
 						for (int j = 0; j < 62; j++)
 						{
-							short zero, one;
+							
 							
 							if(levelgrid[k]=='1')
 							{
-								one = levelgrid[k] - 48;
-								grid[i][j] = one;
+								grid[i][j] = 1;
 							}
 							
 							else if(grid[i][j]=='0')
 							{
-								 zero = levelgrid[k] - 48;
-								 grid[i][j] = zero;
+								 grid[i][j] =0;
 
 							}
 										
@@ -2325,239 +2332,6 @@ int Custom_make_level(int page_Custom) {
 
 }
 int Custom_load_levels(int page_Custom) {
-	string levelgrid = "";
-	sf::RenderWindow window(sf::VideoMode(820, 680), "Xonix");//render window 
-	window.setFramerateLimit(30);//set frames to 60 per second 
-	bool play = true;
-	bool top = false, down = false, right = false, left = false; //key pressed bools 
-	bool paint = false, clear = false;
-	int xpos = 0, ypos = 0; //playes position
-	int x_paint = 0, y_paint = 0;
-	//
-	Texture image;
-	if (image.loadFromFile("Data/borders.png") == false)
-	{
-		cout << "image is not here";
-		return 1; // end the program 
-	}
-	Texture image2;
-	if (image2.loadFromFile("Data/borders1.png") == false)
-	{
-		cout << "image is not here";
-		return 1; // end the program 
-	}
-	//font 
-	Font number_font;
-	if (number_font.loadFromFile("Data/numbers_font.ttf") == false)
-	{
-		cout << "font is not here";
-		return 1; // end the program 
-	}
-		sf::RectangleShape enemies_shapes[8];
-		for (int i = 0; i < 8; i++) {
-			enemies_shapes[i].setSize(Vector2f(10, 10));
-			enemies_shapes[i].setPosition(enemies_struct[i].expostion, enemies_struct[i].eypostion);
-
-		}
-		///////////////////////
-
-		// time
-		time_t first_second, this_second;
-		time(&first_second);
-		int second = 0, minute = 0;
-		//time text
-		Text time_text;
-		time_text.setFont(number_font);
-		time_text.setFillColor(Color::Red);
-		time_text.setPosition(0, 640);
-		time_text.setCharacterSize(20);
-		//player rectangle
-		RectangleShape player;
-		player.setFillColor(Color::Magenta);
-		player.setPosition(400, 300);
-		player.setSize(Vector2f(10, 10));
-		//under bound rectangle
-		RectangleShape bound;
-		bound.setFillColor(Color::Red);
-		bound.setPosition(0, 620);
-		bound.setSize(Vector2f(820, 5));
-		// event
-		Event event;
-		FilesHandler levelsFile;
-		Sprite Sgrid;
-		//
-		stringstream time_string;
-
-		//loading levels
-	//	levelgrid = levelsFile.load_levels();
-
-	
-		while (play)
-		{
-		
-			time(&this_second);
-			if (second < 60)
-			{
-				second = this_second - first_second;
-			}
-			else if (second % 60 == 0)
-			{
-				minute++;
-				time(&first_second);
-				second = 0;
-			}
-			if (minute < 10)
-			{
-				if ((this_second - first_second) < 10)
-				{
-					time_string.clear();
-					time_string << "Time " << "0" << minute << " : " << "0" << second;
-				}
-				else
-				{
-					time_string.clear();
-					time_string << "Time " << "0" << minute << " : " << second;
-				}
-			}
-			else
-			{
-
-				if ((this_second - first_second) < 10)
-				{
-					time_string.clear();
-					time_string << "Time " << minute << " : " << "0" << second;
-				}
-				else
-				{
-					time_string.clear();
-					time_string << "Time " << minute << " : " << second;
-				}
-			}
-			while (window.pollEvent(event))
-			{
-				time_string.clear();
-				if (event.type == Event::Closed)
-				{
-					play = false;
-				}
-				if (event.type == Event::KeyPressed && event.key.code == Keyboard::Up) {
-					top = true;
-				}
-				if (event.type == Event::KeyPressed && event.key.code == Keyboard::Down)
-				{
-					down = true;
-				}
-				if (event.type == Event::KeyPressed && event.key.code == Keyboard::Right)
-				{
-					right = true;
-				}
-				if (event.type == Event::KeyPressed && event.key.code == Keyboard::Left)
-				{
-					left = true;
-				}
-				if (event.type == sf::Event::KeyReleased && event.key.code == sf::Keyboard::Up)
-				{
-					top = false;
-				}
-
-				if (event.type == sf::Event::KeyReleased && event.key.code == sf::Keyboard::Down)
-				{
-					down = false;
-				}
-				if (event.type == sf::Event::KeyReleased && event.key.code == sf::Keyboard::Right)
-				{
-					right = false;
-				}
-
-				if (event.type == sf::Event::KeyReleased && event.key.code == sf::Keyboard::Left)
-				{
-					left = false;
-				}
-			
-				if (event.type == sf::Event::KeyReleased && event.key.code == sf::Keyboard::Escape)
-				{
-					if (clear == true)
-						clear = false;
-					else
-					{
-						clear = true;
-						paint = false;
-					}
-				}
-				string levelname = "";
-
-			
-
-			
-
-
-
-
-					
-				
-		
-			
-			}
-
-			int numberofenemy = 7;
-			//player move
-			if (top == true)
-			{
-				ypos -= 1;
-			}
-			else if (down == true)
-			{
-				ypos += 1;
-			}
-			else if (right == true)
-			{
-				xpos += 1;
-			}
-			else if (left == true)
-			{
-				xpos -= 1;
-			}
-	
-			// bound moving
-			if (xpos >= 82)
-				xpos -= 1;
-			if (xpos < 0)
-				xpos += 1;
-			if (ypos >= 62)
-				ypos -= 1;
-			if (ypos < 0)
-				ypos += 1;
-			player.setPosition(xpos * 10, ypos * 10);
-			time_text.setString(time_string.str());
-
-			//draw
-			window.clear();
-
-			for (int i = 0; i < 82; i++)
-				for (int j = 0; j < 62; j++)
-				{
-					if (grid[i][j] == 0)
-					{
-						continue;
-					}
-					if (grid[i][j] == 1)
-					{
-						Sgrid.setTexture(image2);
-					}
-					if (grid[i][j] == 2)
-					{
-						Sgrid.setTexture(image);
-					}
-
-					Sgrid.setPosition(i * 10, j * 10);
-					window.draw(Sgrid);
-				}
-
-			window.draw(player);
-			window.draw(bound);
-
-			window.draw(time_text);
-			window.display();
-		}
+	return 2;
 }
 

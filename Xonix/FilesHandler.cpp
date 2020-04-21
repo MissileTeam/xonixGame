@@ -1,9 +1,9 @@
 #include "FilesHandler.h"
 using namespace std;
-string FilesHandler::load_level()
+string FilesHandler::load_level(string levelName)
 {
 	short i = 0;
-	string data = ""; short dolarPosition=0;
+	string data = ""; short dolarPosition = 0;
 	inputFile.open("levels.txt");
 	if (grid.find('0') & grid.find('1'))
 	{
@@ -17,23 +17,29 @@ string FilesHandler::load_level()
 
 			while (getline(inputFile, data))
 			{
-				if (data.find_first_of("$") == -1)
+				if (data == levelName)
 				{
-					continue;
+					if (data.find_first_of("$") == -1)
+					{
+						inputFile.seekg((int)inputFile.tellg());
+						inputFile >> data;
+						if (data.find_first_of("$") >= 0)
+						{
+							dolarPosition = data.find_first_of("$");
+							dolarPosition++;
+							i++;
+							data = data.substr(1, data.size() - 2); //Nice solving trying to understand
+							cout << "Input:" << data.size();
+							break;
+						}
+
+					}
+					
 				}
-				else
-				{
-					dolarPosition = data.find_first_of("$");
-					dolarPosition++;
-					i++;
-					data = data.substr(1, data.size() - 2); //Nice solving trying to understand
-					cout << "Input:" << data;
-					break;
-				}
 
-
-
+				
 			}
+
 			/*if (dolarPosition = data.find_first_of("$"))
 				break;*/
 
@@ -53,16 +59,33 @@ string FilesHandler::load_level()
 	
 }
 
-string FilesHandler::choose_level(string levelName)
+string* FilesHandler::check_levels()
 {
+	short i = 0,pos=0;
 	
+	inputFile.open("levels.txt");
 	while (inputFile.good())
 	{
-		inputFile >> levelName;
-		if ((levelName.find('0') & levelName.find('1') & levelName.find('$')) == false)
-			return levelName;
 
+		while (getline(inputFile, levelName[i]))
+		{
+			pos = levelName[i].find("1");
+
+			if (pos < 0)
+			{
+				i++;
+				break;
+			}
+
+			else
+			{
+				continue;
+			}
+		}
 	}
+			
+	inputFile.close();
+	return levelptr;
 }
 void FilesHandler::writeLevels(string grid,string levelName)
 {
@@ -81,4 +104,3 @@ void FilesHandler::writeLevels(string grid,string levelName)
 
 	
 }
-
