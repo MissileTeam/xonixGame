@@ -1720,7 +1720,7 @@ void part_level_Custom(int level_number) {
 			{
 				//custom
 				RenderWindow window_Custom(VideoMode(ScreenWidth, ScreenHeight), "Custom", Style::Close);//render window_play 
-				Custom custom;  //to take object from class  
+				Custom custom(ScreenWidth,ScreenHeight);  //to take object from class  
 				while (window_Custom.isOpen())
 				{
 					Event event2;
@@ -1816,7 +1816,7 @@ void part_play(int page_number)
 		{
 			//play levels
 			RenderWindow window_Levels(VideoMode(ScreenWidth, ScreenHeight), "Custom Levels", Style::Close);//render window_play 
-			levels mainLevels;  //to take object from class   and display main levels
+			levels mainLevels(ScreenWidth,ScreenHeight);  //to take object from class   and display main levels
 			
 			while (window_Levels.isOpen())
 			{
@@ -2190,7 +2190,7 @@ int Custom_make_level(int page_Custom) {
 						levels[i] = *(name+i);
 						cout << "level"<<i<<":" << levels[i]<<"\n";
 					}
-					levelgrid = levelsFile.load_level("BOAT");
+					levelgrid = levelsFile.load_level("modified BOAT");
 					cout << "THe grid  : ";
 					int k = 0;
 					for (int i = 0; i < 82; i++)

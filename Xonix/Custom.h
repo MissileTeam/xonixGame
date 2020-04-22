@@ -1,16 +1,14 @@
 #pragma once
 #include <SFML\Graphics.hpp>
-using namespace sf;
 
 #define Max_Custom 3
-#define width 680
-#define height 820
+
 class Custom //menuu
 {
 public:
-	Custom();
+	Custom(float width, float hegiht);
 
-	void display_Custom();
+
 	void draw(sf::RenderWindow& window_Custom);
 	void moveUp();
 	void moveDown();
@@ -22,7 +20,7 @@ public:
 
 	~Custom();
 
-public:
+private:
 	int mainCustomSelected;
 	sf::Font font;
 	sf::Text mainCustom[Max_Custom];

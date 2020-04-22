@@ -1,21 +1,9 @@
 ﻿#include "levels.h"
-using namespace std;
-using namespace std;
 using namespace sf;
-#define hight 820
-#define  width 680
-
-levels::levels()
-{
-	display_mainLevels();
-}
 
 
-levels::~levels()
-{
-}
-//function of displaying levels
-void levels::display_mainLevels()
+
+levels::levels(float width, float hight)
 {
 	if (!font2.loadFromFile("Data/menu.ttf")) {}
 
@@ -92,6 +80,12 @@ void levels::display_mainLevels()
 
 	mainlevelsSelected = 0;
 }
+
+
+levels::~levels()
+{
+}
+
 //Function of drawing levels 
 void levels::draw(RenderWindow& window_Levels)
 {
@@ -117,11 +111,6 @@ void levels::moveDown()
 		}
 		mainlevels[mainlevelsSelected].setFillColor(Color::Blue); //change the new item's color
 	}
-}
-
-void levels::displayCustom_lvs(string levels[])
-{
-
 }
 
 //move up 
