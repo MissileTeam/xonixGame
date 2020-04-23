@@ -14,13 +14,14 @@
 #define ScreenHeight 680
 #define Rows 82
 #define Coulmns 62
+string* name;
 int  page_number = -1;
 int  level_number = 0;
 int page_Custom = 0;
 int grid[Rows][Coulmns] = {};
 bool start = 0;
 
-enum { Down, Up, Left, Right };
+enum { Down, Up, Left, Right};
 using namespace std;
 using namespace sf;
 //tell me i did selelction to which window
@@ -208,9 +209,8 @@ void part_level_five(int level_number);
 void part_level_six(int level_number);
 void part_level_seven(int level_number);
 void part_level_eight(int level_number);
-void part_level_Custom(int level_number);
-int Custom_make_level(int page_Custom);
-int Custom_load_levels(int page_Custom);
+void part_level_Custom(int level_number,string* name);
+void Custom_make_level(int page_Custom);
 void part_play(int page_number);
 
 void part_Credits(int page_number);
@@ -1710,8 +1710,9 @@ void part_level_eight(int level_number) {
 		}
 	}
 }
-void part_level_Custom(int level_number) {
-
+void part_level_Custom(int level_number,string* name) {
+	string levelgrid = "$";
+	FilesHandler levelsFile;
 	{
 		if (level_number == 8)
 		{
@@ -1720,7 +1721,7 @@ void part_level_Custom(int level_number) {
 			{
 				//custom
 				RenderWindow window_Custom(VideoMode(ScreenWidth, ScreenHeight), "Custom", Style::Close);//render window_play 
-				Custom custom(ScreenWidth,ScreenHeight);  //to take object from class  
+				Custom custom(ScreenWidth, ScreenHeight);  //to take object from class  
 				while (window_Custom.isOpen())
 				{
 					Event event2;
@@ -1797,11 +1798,130 @@ void part_level_Custom(int level_number) {
 				if (end_levels == false)
 					break;
 				Custom_make_level(page_Custom);
-				Custom_load_levels(page_Custom);
+				if (page_Custom == 1)
+				{
+					window_Custom.close();
+					break;
+				}
 
 
 			}
+			if (page_Custom == 1)
+			{
+				
+				level_play = true; end_levels_2 = true; end_levels = true;
+				//Loading Custom levels
+				RenderWindow cLevelsWindow(VideoMode(ScreenWidth, ScreenHeight), "Custom levels", Style::Close);
+				levels CustomLevels(ScreenWidth, ScreenHeight, 1);  //to take object from class   and display Custom levels
+				//
+				int i = 0;
+				string levels[5] = {};
+				CustomLevels.nCustom_level = 5;
+				name = levelsFile.check_levels();				
+				for (i = 0; i < 4; i++)
+				{
+					
+					levels[i] = *(name + i);
+					cout << "level" << i << ":" << levels[i] << "\n";
+				}
+				levelgrid = levelsFile.load_level("modified BOAT");
+				cout << "THe grid  : ";
+				int k = 0;
+				for (int i = 0; i < 82; i++)
+				{
 
+					for (int j = 0; j < 62; j++)
+					{
+
+
+						if (levelgrid[k] == '1')
+						{
+							grid[i][j] = 1;
+						}
+
+						else if (grid[i][j] == '0')
+						{
+							grid[i][j] = 0;
+
+						}
+
+						cout << "" << grid[i][j];
+						k++;
+					}
+
+
+					//cout << endl;
+
+				}
+
+
+				//
+				CustomLevels.display_customLevels(name,cLevelsWindow);
+				
+				cLevelsWindow.display();
+				
+				while (cLevelsWindow.isOpen())
+				{
+					Event event3;
+					while (cLevelsWindow.pollEvent(event3))
+					{
+						if (event3.type == Event::Closed)
+						{
+							cLevelsWindow.close();
+							level_play = false;
+							end_levels = false;
+
+						}
+						if (Keyboard::isKeyPressed(Keyboard::Escape))
+						{
+							level_play = false;
+							end_levels = false;
+						}
+						if (event3.type == Event::KeyReleased)
+						{
+							if (event3.key.code == Keyboard::Up)
+							{
+								CustomLevels.moveUp(1);
+								break;
+							}
+							if (event3.key.code == Keyboard::Down)
+							{
+								CustomLevels.moveDown(1);
+								break;
+							}
+
+
+						}
+							
+
+						//choice level
+						if (event3.key.code == Keyboard::Enter)   // Return == I pressed enter
+						{
+							for (int i = 0; i < CustomLevels.nCustom_level - 1; i++)
+							{
+
+
+								if (CustomLevels.mainlevelsPressed() == i)    //  level 1
+								{
+									if (i == 9)
+									{
+										//level_number = 3;
+										page_number = 9;
+									}
+									//cLevelsWindow.close();				//close the main window and open window.1
+									level_number = i;
+
+								}
+
+							}
+
+						}
+						if (end_levels == false)
+							break;
+					}
+				}
+
+			}
 		}
 	}
 }
@@ -1816,7 +1936,7 @@ void part_play(int page_number)
 		{
 			//play levels
 			RenderWindow window_Levels(VideoMode(ScreenWidth, ScreenHeight), "Custom Levels", Style::Close);//render window_play 
-			levels mainLevels(ScreenWidth,ScreenHeight);  //to take object from class   and display main levels
+			levels mainLevels(ScreenWidth,ScreenHeight,0);  //to take object from class   and display main levels
 			
 			while (window_Levels.isOpen())
 			{
@@ -1902,7 +2022,7 @@ void part_play(int page_number)
 			part_level_six(level_number);
 			part_level_seven(level_number);
 			part_level_eight(level_number);
-			part_level_Custom(level_number);
+			part_level_Custom(level_number,name);
 
 
 		}
@@ -1994,7 +2114,8 @@ void player_rectangle(RectangleShape& player) {
 	player.setSize(Vector2f(10, 10));
 }
 
-int Custom_make_level(int page_Custom) {
+void Custom_make_level(int page_Custom) {
+	/*
 	string levelgrid = "$";
 	sf::RenderWindow window(sf::VideoMode(820, 680), "Xonix");//render window 
 	window.setFramerateLimit(30);//set frames to 60 per second 
@@ -2175,56 +2296,18 @@ int Custom_make_level(int page_Custom) {
 					levelgrid += "$";
 					cout << "Enter level name here : ";
 					cin >> levelname;
-					levelsFile.writeLevels(levelgrid,levelname);
+					levelsFile.writeLevels(levelgrid, levelname);
 
 
 					cout << "------------------------------------------------------------------------";
 				}
-				if (event.type == sf::Event::KeyReleased && event.key.code == sf::Keyboard::L)
-				{
-					int i = 0;
-					string levels[5] = {}; string* name;
-					for ( i = 0; i < 3; i++)
-					{
-						name = levelsFile.check_levels();
-						levels[i] = *(name+i);
-						cout << "level"<<i<<":" << levels[i]<<"\n";
-					}
-					levelgrid = levelsFile.load_level("modified BOAT");
-					cout << "THe grid  : ";
-					int k = 0;
-					for (int i = 0; i < 82; i++)
-					{
-						
-						for (int j = 0; j < 62; j++)
-						{
-							
-							
-							if(levelgrid[k]=='1')
-							{
-								grid[i][j] = 1;
-							}
-							
-							else if(grid[i][j]=='0')
-							{
-								 grid[i][j] =0;
-
-							}
-										
-							cout << "" << grid[i][j];
-							k++;
-						}
-						
-						
-						//cout << endl;
-
-					}
 
 
 
 
-					cout << "------------------------------------------------------------------------";
-				}
+				cout << "------------------------------------------------------------------------";
+			}
+		
 				if (event.type == sf::Event::MouseMoved)
 				{
 
@@ -2328,10 +2411,8 @@ int Custom_make_level(int page_Custom) {
 
 			window.draw(time_text);
 			window.display();
+			*/
 		}
 
-}
-int Custom_load_levels(int page_Custom) {
-	return 2;
-}
+
 

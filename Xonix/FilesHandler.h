@@ -15,7 +15,7 @@ private:
 	ifstream inputFile;
 	ofstream outputFile;
 	string levelName[9] = {};
-	string* levelptr = &levelName[0];
+	string* levelptr = levelName;
 	string grid;
 };
 
