@@ -23,6 +23,7 @@
     <ClCompile Include="FilesHandler.cpp" />
     <ClCompile Include="levels.cpp" />
     <ClCompile Include="menu.cpp" />
+    <ClCompile Include="messagebox.cpp" />
     <ClCompile Include="Source.cpp" />
     <ClCompile Include="Source1.cpp" />
   </ItemGroup>
@@ -31,6 +32,7 @@
     <ClInclude Include="FilesHandler.h" />
     <ClInclude Include="levels.h" />
     <ClInclude Include="menu.h" />
+    <ClInclude Include="messagebox.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

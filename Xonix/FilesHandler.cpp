@@ -34,14 +34,14 @@ string FilesHandler::load_level(string levelName)
 						}
 
 					}
-					
+
 				}
 
-				
+
 			}
 
 			/*if (dolarPosition = data.find_first_of("$"))
-				break;*/
+			break;*/
 
 
 		}
@@ -55,14 +55,14 @@ string FilesHandler::load_level(string levelName)
 		cout << "levels file is'nt correct ";
 		return "";
 	}
-		
-	
+
+
 }
 
 string* FilesHandler::check_levels()
 {
-	short i = 0,pos=0;
-	
+	short i = 0, pos = 0;
+
 	inputFile.open("levels.txt");
 	while (inputFile.good())
 	{
@@ -83,11 +83,11 @@ string* FilesHandler::check_levels()
 			}
 		}
 	}
-			
+
 	inputFile.close();
 	return levelptr;
 }
-void FilesHandler::writeLevels(string grid,string levelName)
+void FilesHandler::writeLevels(string grid, string levelName)
 {
 	// grid is = "$grid$";
 	std::ostringstream formatedText;
@@ -95,12 +95,13 @@ void FilesHandler::writeLevels(string grid,string levelName)
 	string copyOfText = formatedText.str();
 
 	outputFile.open("levels.txt", ios::app);
-	
+
 	outputFile << "\n" << copyOfText << "\n" << grid;
 	cout << "done writing";
 	outputFile.close();
-	
-	
 
-	
+
+
+
 }
+

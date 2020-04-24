@@ -1,5 +1,6 @@
 #pragma once
 #include <SFML\Graphics.hpp>
+#include <string>
 using namespace sf;
 #define Max_main_levels 10 
 #define ScreenWidth 680
@@ -8,7 +9,8 @@ class levels
 {
 public:
 	int nCustom_level = 9;
-	levels(float width, float hight, int mode);
+	levels(float width, float hight, int mode,RenderWindow& CustomWindow,std:: string * name);
+
 
 	void draw(RenderWindow& window_Levels);
 	void moveup();
@@ -19,14 +21,18 @@ public:
 	{
 		return mainlevelsSelected;
 	}
-	void display_customLevels(std::string* levelnames,RenderWindow& window);
-	
+	int mainClevelsPressed()
+	{
+		return mainClevelsSelected;
+	}
+	void display_customLevels(std::string* levelnames, RenderWindow& window);
 
-	
+
 
 	~levels();
 private:
-	int mainlevelsSelected; 
+	int mainlevelsSelected;
+	int mainClevelsSelected=1;
 	Font font2;
 	Text mainlevels[Max_main_levels];
 	Text* CustomLevels = new Text[nCustom_level];

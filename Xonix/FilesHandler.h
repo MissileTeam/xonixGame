@@ -9,7 +9,7 @@ class FilesHandler
 public:
 	string load_level(string levelName);
 	string* check_levels();
-	void writeLevels(string grid,string levelName);
+	void writeLevels(string grid, string levelName);
 
 private:
 	ifstream inputFile;
@@ -18,4 +18,5 @@ private:
 	string* levelptr = levelName;
 	string grid;
 };
+
 

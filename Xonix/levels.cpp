@@ -3,9 +3,9 @@ using namespace sf;
 
 
 
-levels::levels(float width, float hight,int mode)
+levels::levels(float width, float hight, int mode,RenderWindow &CustomWindow,std:: string*name)
 {
-	if(mode==0)
+	if (mode == 0)
 	{
 		if (!font2.loadFromFile("Data/menu.ttf")) {}
 
@@ -80,9 +80,43 @@ levels::levels(float width, float hight,int mode)
 		mainlevels[9].setCharacterSize(50);
 		mainlevels[9].setPosition(Vector2f(width / 2 + 120, hight / (Max_main_levels + 1) * 9));
 
-		mainlevelsSelected = 0;
+		mainlevelsSelected = 1;
 	}
-	
+	else if (mode == 1)
+	{
+		if (!font2.loadFromFile("Data/menu.ttf")) {}
+		// set Text elements
+		for (int i = 0; i < nCustom_level; ++i)
+		{
+			if (i == 1)
+			{
+				CustomLevels[1].setFillColor(Color::Green);
+			}
+			else
+			{
+				CustomLevels[i].setFillColor(Color::White);
+			}
+			CustomLevels[i].setFont(font2);
+			CustomLevels[i].setString(name[i]);
+			CustomLevels[i].setPosition(Vector2f(ScreenWidth / 4 - 150, ScreenHeight / (Max_main_levels + 1) * (1 + 2 * i)));
+			CustomLevels[i].setCharacterSize(50);
+			//displaying Them to screen
+		}
+		mainClevelsSelected = 1;
+	}
+
+}
+
+
+void levels::display_customLevels(std::string* levelnames, RenderWindow& window)
+{
+
+	// set Text elements
+	for (int i = 0; i < nCustom_level; ++i)
+	{
+		//displaying Them to screen
+		window.draw(CustomLevels[i]);
+	}
 }
 
 
@@ -103,13 +137,19 @@ void levels::draw(RenderWindow& window_Levels)
 	}
 }
 
+//void levels::display_customLevels(std::string* levelnames, RenderWindow&  cLevelsWindow)
+//{
+//	for (int j = 0; j <nCustom_level; j++)
+//	{
+//		cLevelsWindow.draw(CustomLevels[j]);
+//	}
+//}
 //move down 
 void levels::moveDown()
 {
 	if (mainlevelsSelected + 1 <= Max_main_levels) //check if not on the last item (level3)    
 	{
-		if (mainlevelsSelected == -1)
-			mainlevelsSelected++;
+
 		mainlevels[mainlevelsSelected].setFillColor(Color::White);			// áæ Ýí ÈÚÏíåÇ æÇäÇ ÏæÓÊ Úáí Ïæä íÈÞí Çááí ÇäÇ æÇÞÝ ÚáíåÇ ÇÈíÖ ææåíÍÑßäí Úáí Çááí ÈÚÏí
 
 		mainlevelsSelected++; //move to the lower item 
@@ -120,63 +160,6 @@ void levels::moveDown()
 		mainlevels[mainlevelsSelected].setFillColor(Color::Blue);	//change the new item's color
 	}
 }
-
-void levels::moveUp(int mode)
-{
-	if (mainlevelsSelected - 1 >= -1) //check if not on the first item (level 1)
-	{
-		CustomLevels[mainlevelsSelected].setFillColor(Color::White); //change the pervious item's color
-
-		mainlevelsSelected--;        //move to the upper item 
-		if (mainlevelsSelected == -1)
-		{
-			mainlevelsSelected = 2;
-		}
-
-		CustomLevels[mainlevelsSelected].setFillColor(Color::Blue); //change the new item's color
-
-
-
-	}
-}
-
-void levels::moveDown(int mode)
-{
-	if (mainlevelsSelected + 1 <= Max_main_levels) //check if not on the last item (level3)    
-	{
-		if (mainlevelsSelected == -1)
-			mainlevelsSelected++;
-		CustomLevels[mainlevelsSelected].setFillColor(Color::White);			// áæ Ýí ÈÚÏíåÇ æÇäÇ ÏæÓÊ Úáí Ïæä íÈÞí Çááí ÇäÇ æÇÞÝ ÚáíåÇ ÇÈíÖ ææåíÍÑßäí Úáí Çááí ÈÚÏí
-
-		mainlevelsSelected++; //move to the lower item 
-		if (mainlevelsSelected == 3)  //=3 == level 4 and it not found
-		{
-			mainlevelsSelected = 0;
-		}
-		CustomLevels[mainlevelsSelected].setFillColor(Color::Blue);	//change the new item's color
-	}
-}
-
-void levels::display_customLevels(std::string* levelnames,RenderWindow& window)
-{
-	if (!font2.loadFromFile("Data/menu.ttf")) {}
-	// set Text elements
-		for(int i=1; i<=nCustom_level-1;++i)
-	{
-		CustomLevels[i].setFont(font2);
-		CustomLevels[i].setFillColor(Color::White);
-
-		CustomLevels[i].setString(levelnames[i]);
-		CustomLevels[i].setPosition(Vector2f(ScreenWidth / 4 - 150, ScreenHeight / (Max_main_levels + 1) * (1+2*i) ));
-		CustomLevels[i].setCharacterSize(50);
-		//displaying Them to screen
-			window.draw(CustomLevels[i]);
-	}
-		mainlevelsSelected = 0;
-
-
-}
-
 //move up 
 void levels::moveup()
 {
@@ -191,6 +174,46 @@ void levels::moveup()
 		}
 
 		mainlevels[mainlevelsSelected].setFillColor(Color::Blue); //change the new item's color
+
+
+
+	}
+}
+
+
+
+
+void levels::moveDown(int mode)
+{
+	if (mainClevelsSelected + 1 <= nCustom_level) //check if not on the last item (level3)    
+	{
+
+		CustomLevels[mainClevelsSelected].setFillColor(Color::White);			// áæ Ýí ÈÚÏíåÇ æÇäÇ ÏæÓÊ Úáí Ïæä íÈÞí Çááí ÇäÇ æÇÞÝ ÚáíåÇ ÇÈíÖ ææåíÍÑßäí Úáí Çááí ÈÚÏí
+
+		mainClevelsSelected++; //move to the lower item 
+		if (mainClevelsSelected == 4)  //=3 == level 4 and it not found
+		{
+			mainClevelsSelected = 0;
+		}
+		CustomLevels[mainClevelsSelected].setFillColor(Color::Green);	//change the new item's color
+	}
+}
+
+
+
+void levels::moveUp(int mode)
+{
+	if (mainClevelsSelected - 1 >= -1) //check if not on the first item (level 1)
+	{
+		CustomLevels[mainClevelsSelected].setFillColor(Color::White); //change the pervious item's color
+
+		mainClevelsSelected--;        //move to the upper item 
+		if (mainClevelsSelected == -1)
+		{
+			mainClevelsSelected = 0;
+		}
+
+		CustomLevels[mainClevelsSelected].setFillColor(Color::Green); //change the new item's color
 
 
 

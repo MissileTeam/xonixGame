@@ -33,6 +33,9 @@
     <ClCompile Include="Custom.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="messagebox.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="menu.h">
@@ -45,6 +48,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Custom.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="messagebox.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
