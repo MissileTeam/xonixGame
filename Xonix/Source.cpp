@@ -141,8 +141,7 @@ void setsBrush(int& xpos, int& ypos)
 		{
 			/*if (grid[i][j] == 3)
 				grid[i][j] = 3;*/
-			//check border
-				
+			
 			if (grid[xpos][ypos] == 1)
 			{
 
@@ -160,9 +159,9 @@ void setsBrush(int& xpos, int& ypos)
 					grid[i][j] = 0;
 
 				else if (grid[i][j] == 2)
-					grid[i][j] = 2;
-			/*	else if (grid[i][j] == 3)///new thing to add
-					grid[i][j] = 3;*/
+					grid[i][j] = 1;
+				else if (grid[i][j] == 3)///new thing to add
+					grid[i][j] = 3;
 				else if(grid[i][j]==0)
 					grid[i][j] = 1;
 			}
@@ -184,10 +183,10 @@ void drawArea(Sprite& Sgrid, RenderWindow& window, Texture& image, Texture& imag
 			{
 				Sgrid.setTexture(image2);
 			}
-			/*if (grid[i][j] == 2)
+			if (grid[i][j] == 2)
 			{
-				Sgrid.setTexture(image);
-			}*/
+				Sgrid.setTexture(image2);
+			}
 			if (grid[i][j] == 3)
 			{
 				Sgrid.setTexture(image);
@@ -971,7 +970,7 @@ void part_level_four(int level_number) {
 			//level one  
 				string levelgrid = "$";
 			FilesHandler level4_grid;
-			levelgrid = level4_grid.load_level("level 7", "standardLevels.txt");
+			levelgrid = level4_grid.load_level("level 5", "standardLevels.txt");
 			cout << "levelgrid:" << levelgrid;
 			cout << "THe grid  : ";
 			int k = 0;
@@ -984,7 +983,7 @@ void part_level_four(int level_number) {
 
 					if (levelgrid[k] == '1')
 					{
-						grid[i][j] = 3;
+						grid[i][j] = 1;
 					}
 
 					else if (levelgrid[k] == '0')
@@ -1133,22 +1132,12 @@ void part_level_four(int level_number) {
 				{
 					if (grid[enemies_struct[i].expostion / 10][enemies_struct[i].eypostion / 10] == 2)
 					{
-						//collisionSound.play();
-						//this_thread::sleep_for(.2s);
-
-
-						//play = false;
-
-					}///addding new difficulty
-					if (grid[xpos / 10][ypos / 10] == 3)
-					{
 						collisionSound.play();
 						//this_thread::sleep_for(.2s);
-
-
-						play = false;
-
-					}
+						//play = false;
+					}///addding new difficulty
+				}
+				
 					//for (int i = 0; i < 82; i++)
 					//{
 					//	/*for (int j = 0; j < 62; j++)
@@ -1157,10 +1146,14 @@ void part_level_four(int level_number) {
 					//			play = false;
 					//	}*/
 					//}
-				}
+				//adding new difficulty for the grid :)
+				if (grid[xpos][ypos] == 3)
+					play = false;
 				moveEnemy(nEnemy);
 				setsBrush(xpos, ypos);
 				//draw 
+				
+			
 			
 				window_Level_Three.clear();
 				drawArea(Sgrid, window_Level_Three, image, image2);
