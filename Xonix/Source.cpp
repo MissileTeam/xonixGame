@@ -25,7 +25,6 @@ int Clevel_number = -1;
 int page_Custom = 0;
 int grid[Rows][Coulmns] = {};
 bool start = 0;
-
 enum { Down, Up, Left, Right };
 using namespace std;
 using namespace sf;
@@ -104,11 +103,10 @@ void movePlayer(int& xpos, int& ypos, int dir)
 }
 void rules_of_draw(int x, int y)
 {
+	
 	if (grid[x][y] == 0)
 	
 		grid[x][y] = -1; //strange error happens here becuase the random position of the enemy  y =- number;
-
-
 
 	if (grid[x - 1][y] == 0)
 
@@ -137,14 +135,24 @@ void moveEnemy(int numberofenemy)
 }
 void setsBrush(int& xpos, int& ypos)
 {
+	
 	for (int i = 0; i < 82; i++)
 		for (int j = 0; j < 62; j++)
+		{
+			/*if (grid[i][j] == 3)
+				grid[i][j] = 3;*/
+			//check border
+				
 			if (grid[xpos][ypos] == 1)
 			{
+
 				if (grid[i][j] == -1)
 					grid[i][j] = 0;
-				else
+				else if (grid[i][j] == 0)
 					grid[i][j] = 1;
+				/*else if (grid[i][j] == 3)
+					grid[i][j] = 3;*/
+			
 			}
 			else
 			{
@@ -153,15 +161,21 @@ void setsBrush(int& xpos, int& ypos)
 
 				else if (grid[i][j] == 2)
 					grid[i][j] = 2;
-				else
+			/*	else if (grid[i][j] == 3)///new thing to add
+					grid[i][j] = 3;*/
+				else if(grid[i][j]==0)
 					grid[i][j] = 1;
 			}
+		}
+			
 }
 void drawArea(Sprite& Sgrid, RenderWindow& window, Texture& image, Texture& image2)
 {
+	
 	for (int i = 0; i < 82; i++)
 		for (int j = 0; j < 62; j++)
 		{
+		
 			if (grid[i][j] == 0)
 			{
 				continue;
@@ -170,14 +184,17 @@ void drawArea(Sprite& Sgrid, RenderWindow& window, Texture& image, Texture& imag
 			{
 				Sgrid.setTexture(image2);
 			}
-			if (grid[i][j] == 2)
+			/*if (grid[i][j] == 2)
+			{
+				Sgrid.setTexture(image);
+			}*/
+			if (grid[i][j] == 3)
 			{
 				Sgrid.setTexture(image);
 			}
 			Sgrid.setPosition(i * 10, j * 10);
 			window.draw(Sgrid);
 		}
-
 }
 int checkBoundaries()
 {
@@ -313,7 +330,6 @@ int main()
 			window.draw(photo);
 			window.draw(photo2);
 			menuu.draw(window);
-
 			window.display();
 		}
 		part_play(page_number);
@@ -562,17 +578,18 @@ void part_level_one(int number_level)
 				}
 				moveEnemy(nEnemy);
 
-				for (int i = 0; i < 82; i++)
+			/*	for (int i = 0; i < 82; i++)
 				{
 					for (int j = 0; j < 62; j++)
 					{
 						if (player.getPosition().x == grid[i][j] == 2 || player.getPosition().y == grid[i][j] == 2)
 							play = false;
 					}
-				}
+				}*/
 				setsBrush(xpos, ypos);
 
 				//draw 
+
 				window_Level_one.clear();
 				drawArea(Sgrid, window_Level_one, image, image2);
 				window_Level_one.draw(player);
@@ -946,11 +963,44 @@ void part_level_three(int number_level)
 void part_level_four(int level_number) {
 
 	{
-		if (level_number == 2)
+		
+		if (level_number == 3)
 		{//level three
 			set_grid_0();
 			short nEnemy = 4;//number of enemy of selected level
 			//level one  
+				string levelgrid = "$";
+			FilesHandler level4_grid;
+			levelgrid = level4_grid.load_level("level 7", "standardLevels.txt");
+			cout << "levelgrid:" << levelgrid;
+			cout << "THe grid  : ";
+			int k = 0;
+			for (int i = 0; i < 82; i++)
+			{
+
+				for (int j = 0; j < 62; j++)
+				{
+
+
+					if (levelgrid[k] == '1')
+					{
+						grid[i][j] = 3;
+					}
+
+					else if (levelgrid[k] == '0')
+					{
+						grid[i][j] = 0;
+
+					}
+					else if (levelgrid[k] == '3')
+						grid[i][j] = 3;
+
+					cout << "" << grid[i][j];
+					k++;
+				}
+				//cout << endl; 
+			}
+
 			RenderWindow window_Level_Three(VideoMode(ScreenWidth, ScreenHeight), "level three", Style::Close);//render window_play 
 			window_Level_Three.setFramerateLimit(30);//set frames to 60 per second 
 			bool play = true, endgame = false;; // play variable 
@@ -1070,7 +1120,6 @@ void part_level_four(int level_number) {
 
 				}
 				//enemy move
-				moveEnemy(nEnemy);
 				// boundaries that anything can't go after it like player
 				//player movement in the Grid 
 				movePlayer(xpos, ypos, dir);
@@ -1084,6 +1133,15 @@ void part_level_four(int level_number) {
 				{
 					if (grid[enemies_struct[i].expostion / 10][enemies_struct[i].eypostion / 10] == 2)
 					{
+						//collisionSound.play();
+						//this_thread::sleep_for(.2s);
+
+
+						//play = false;
+
+					}///addding new difficulty
+					if (grid[xpos / 10][ypos / 10] == 3)
+					{
 						collisionSound.play();
 						//this_thread::sleep_for(.2s);
 
@@ -1091,19 +1149,22 @@ void part_level_four(int level_number) {
 						play = false;
 
 					}
-					for (int i = 0; i < 82; i++)
-					{
-						for (int j = 0; j < 62; j++)
-						{
-							if (player.getPosition().x == grid[i][j] == 2 || player.getPosition().y == grid[i][j] == 2)
-								play = false;
-						}
-					}
+					//for (int i = 0; i < 82; i++)
+					//{
+					//	/*for (int j = 0; j < 62; j++)
+					//	{
+					//		if (player.getPosition().x == grid[i][j] == 3 || player.getPosition().y == grid[i][j] == 3)
+					//			play = false;
+					//	}*/
+					//}
 				}
+				moveEnemy(nEnemy);
 				setsBrush(xpos, ypos);
 				//draw 
+			
 				window_Level_Three.clear();
 				drawArea(Sgrid, window_Level_Three, image, image2);
+
 				window_Level_Three.draw(player);
 				window_Level_Three.draw(bound);
 				for (int i = 0; i < nEnemy; i++) {
@@ -1625,7 +1686,8 @@ void part_level_seven(int level_number) {
 				drawArea(Sgrid, window_Level_Three, image, image2);
 				window_Level_Three.draw(player);
 				window_Level_Three.draw(bound);
-				for (int i = 0; i < nEnemy; i++) {
+				for (int i = 0; i < nEnemy; i++) 
+				{
 					window_Level_Three.draw(enemies_shapes[i]);
 				}
 				window_Level_Three.draw(time_text);
@@ -1895,7 +1957,8 @@ void part_level_Custom(int &level_number, string* name) {
 				}
 				if (end_levels == false)
 					break;
-				//	Custom_make_level(page_Custom);
+				if(page_Custom==0)
+					Custom_make_level(page_Custom);
 				if (page_Custom == 1)
 				{
 					window_Custom.close();
@@ -1908,7 +1971,7 @@ void part_level_Custom(int &level_number, string* name) {
 					string levelgrid = "$";
 					FilesHandler levelsFile;
 					bool level_play = true, end_levels_2 = true, end_levels = true;
-					name = levelsFile.check_levels();
+					name = levelsFile.check_levels("levels.txt");
 					name[0] = "Test yamooo";
 					while (level_play)   //this move on all levels
 					{
@@ -2024,6 +2087,8 @@ void part_play(int page_number)
 {
 	if (page_number == 0)
 	{
+		FilesHandler standardLevels;
+
 		bool level_play = true, end_levels_2 = true, end_levels = true;
 		while (level_play)   //this move on all levels
 		{
@@ -2106,14 +2171,64 @@ void part_play(int page_number)
 			}
 			if (end_levels == false)
 				break;
-			part_level_one(level_number);
-			part_level_two(level_number);
-			part_level_three(level_number);
+			switch (level_number)
+			{
+			case 0:
+				name=standardLevels.check_levels("standardLevels.txt");
+				standardLevels.load_level("level 1", "standardLevels.txt");
+				part_level_one(level_number);
+				break;
+			case 1 : 
+				name = standardLevels.check_levels("standardLevels.txt");
+				standardLevels.load_level("level 2", "standardLevels.txt");
+				part_level_two(level_number);
+				break;
+			case 2:
+				name = standardLevels.check_levels("standardLevels.txt");
+
+				standardLevels.load_level("level 3", "standardLevels.txt");
+				part_level_three(level_number);
+
+				break;
+			case 3:
+				//name = standardLevels.check_levels("standardLevels.txt");
+
+				//standardLevels.load_level("level 4", "standardLevels.txt");
+				part_level_four(level_number);
+				break;
+			case 4 : 
+				name = standardLevels.check_levels("standardLevels.txt");
+
+				standardLevels.load_level("level 5", "standardLevels.txt");
+				part_level_five(level_number);
+				break;
+			case 5: 
+				name = standardLevels.check_levels("standardLevels.txt");
+
+				standardLevels.load_level("level 6", "standardLevels.txt");
+				part_level_six(level_number);
+				break;
+			case 6 :
+				name = standardLevels.check_levels("standardLevels.txt");
+
+				standardLevels.load_level("level 7", "standardLevels.txt");
+				part_level_seven(level_number);
+				break;
+			case 7:
+				name = standardLevels.check_levels("standardLevels.txt");
+				standardLevels.load_level("level 8", "standardLevels.txt");
+				part_level_eight(level_number);
+				break;
+
+			default:
+				break;
+			}
+		/*	part_level_three(level_number);
 			part_level_four(level_number);
 			part_level_five(level_number);
 			part_level_six(level_number);
 			part_level_seven(level_number);
-			part_level_eight(level_number);
+			part_level_eight(level_number);     garbish                   */
 			if (level_number == 8)
 			{
 				window_Levels.close();
@@ -2189,16 +2304,16 @@ void load_custom_level(int &CLevelnumber,string &levelgrid,FilesHandler &levelsF
 {
 	
 	int i = 0;
-	string levels[5] = {};
+	string levels[9] = {};
 	//CustomLevels.nCustom_level = 5;
-	name = levelsFile.check_levels();
-	for (i = 0; i < 4; i++)
+	name = levelsFile.check_levels("levels.txt");
+	for (i = 0; i < 9; i++)
 	{
 
 		levels[i] = *(name + i);
 		cout << "level" << i << ":" << levels[i] << "\n";
 	}
-	levelgrid = levelsFile.load_level(name[Clevel_number]);
+	levelgrid = levelsFile.load_level(name[Clevel_number],"levels.txt");
 	cout << "THe grid  : ";
 	int k = 0;
 	for (int i = 0; i < 82; i++)
@@ -2218,6 +2333,8 @@ void load_custom_level(int &CLevelnumber,string &levelgrid,FilesHandler &levelsF
 				grid[i][j] = 0;
 
 			}
+			else if (grid[i][j] == '3')
+				grid[i][j] = 3;
 
 			cout << "" << grid[i][j];
 			k++;
@@ -2259,7 +2376,7 @@ void player_rectangle(RectangleShape& player) {
 }
 
 void Custom_make_level(int page_Custom) {
-
+	set_grid_0();
 	string levelgrid = "$";
 	sf::RenderWindow window(sf::VideoMode(820, 680), "Xonix");//render window
 	window.setFramerateLimit(30);//set frames to 60 per second
@@ -2281,6 +2398,7 @@ void Custom_make_level(int page_Custom) {
 		cout << "image is not here";
 		return; // end the program
 	}
+	
 	//font
 	Font number_font;
 	if (number_font.loadFromFile("Data/numbers_font.ttf") == false)
@@ -2439,7 +2557,7 @@ void Custom_make_level(int page_Custom) {
 				levelgrid += "$";
 				cout << "Enter level name here : ";
 				cin >> levelname;
-				levelsFile.writeLevels(levelgrid, levelname);
+				levelsFile.write_custom_Level(levelgrid, levelname,"standardLevels.txt");
 
 
 				cout << "------------------------------------------------------------------------";
@@ -2482,79 +2600,80 @@ void Custom_make_level(int page_Custom) {
 				ypos = y;
 			}
 		}
-	}
 
-	int numberofenemy = 7;
-	//player move
-	if (top == true)
-	{
-		ypos -= 1;
-	}
-	else if (down == true)
-	{
-		ypos += 1;
-	}
-	else if (right == true)
-	{
-		xpos += 1;
-	}
-	else if (left == true)
-	{
-		xpos -= 1;
-	}
-	if (x_paint != xpos)
-		x_paint = xpos;
-	if (y_paint != ypos)
-		y_paint = ypos;
-	if (paint == true)
-	{
-		grid[x_paint][y_paint] = 1;
-	}
-	if (clear == true)
-	{
-		grid[x_paint][y_paint] = 0;
-	}
-	// bound moving
-	if (xpos >= 82)
-		xpos -= 1;
-	if (xpos < 0)
-		xpos += 1;
-	if (ypos >= 62)
-		ypos -= 1;
-	if (ypos < 0)
-		ypos += 1;
-	player.setPosition(xpos * 10, ypos * 10);
-	time_text.setString(time_string.str());
 
-	//draw
-	window.clear();
-
-	for (int i = 0; i < 82; i++)
-		for (int j = 0; j < 62; j++)
+		int numberofenemy = 7;
+		//player move
+		if (top == true)
 		{
-			if (grid[i][j] == 0)
-			{
-				continue;
-			}
-			if (grid[i][j] == 1)
-			{
-				Sgrid.setTexture(image2);
-			}
-			if (grid[i][j] == 2)
-			{
-				Sgrid.setTexture(image);
-			}
-
-			Sgrid.setPosition(i * 10, j * 10);
-			window.draw(Sgrid);
+			ypos -= 1;
 		}
+		else if (down == true)
+		{
+			ypos += 1;
+		}
+		else if (right == true)
+		{
+			xpos += 1;
+		}
+		else if (left == true)
+		{
+			xpos -= 1;
+		}
+		if (x_paint != xpos)
+			x_paint = xpos;
+		if (y_paint != ypos)
+			y_paint = ypos;
+		if (paint == true)
+		{
+			grid[xpos][ypos] = 3;
+		}
+		if (clear == true)
+		{
+			grid[x_paint][y_paint] = 0;
+		}
+		// bound moving
+		if (xpos >= 82)
+			xpos -= 1;
+		if (xpos < 0)
+			xpos += 1;
+		if (ypos >= 62)
+			ypos -= 1;
+		if (ypos < 0)
+			ypos += 1;
+		player.setPosition(xpos * 10, ypos * 10);
+		time_text.setString(time_string.str());
 
-	window.draw(player);
-	window.draw(bound);
+		//draw
+		window.clear();
 
-	window.draw(time_text);
-	window.display();
+		for (int i = 0; i < 82; i++)
+			for (int j = 0; j < 62; j++)
+			{
+				if (grid[i][j] == 0)
+				{
+					continue;
+				}
+				if (grid[i][j] == 3)
+				{
+					Sgrid.setColor(Color::Yellow);
+					Sgrid.setTexture(image);
+				}
+				if (grid[i][j] == 2)
+				{
+					Sgrid.setTexture(image);
+				}
 
+				Sgrid.setPosition(i * 10, j * 10);
+				window.draw(Sgrid);
+			}
+
+		window.draw(player);
+		window.draw(bound);
+
+		window.draw(time_text);
+		window.display();
+	}
 }
 
 

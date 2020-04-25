@@ -7,14 +7,13 @@ using namespace std;
 class FilesHandler
 {
 public:
-	string load_level(string levelName);
-	string* check_levels();
-	void writeLevels(string grid, string levelName);
-
+	string load_level(string levelName,string fileName);
+	string* check_levels(string fileName);
+	void write_custom_Level(string grid, string levelName,string fileName);
 private:
 	ifstream inputFile;
 	ofstream outputFile;
-	string levelName[9] = {};
+	string levelName[50] = {};
 	string* levelptr = levelName;
 	string grid;
 };

@@ -1,7 +1,7 @@
 #pragma once
 #include <SFML\Graphics.hpp>
 using namespace sf;
-#define Max_message 2
+#define Max_message 3
 
 class messagebox
 {

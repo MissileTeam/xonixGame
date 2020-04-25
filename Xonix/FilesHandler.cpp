@@ -1,10 +1,10 @@
 #include "FilesHandler.h"
 using namespace std;
-string FilesHandler::load_level(string levelName)
+string FilesHandler::load_level(string levelName,string fileName)
 {
 	short i = 0;
 	string data = ""; short dolarPosition = 0;
-	inputFile.open("levels.txt");
+	inputFile.open(fileName);
 	if (grid.find('0') & grid.find('1'))
 	{
 		inputFile.seekg(dolarPosition);
@@ -59,11 +59,11 @@ string FilesHandler::load_level(string levelName)
 
 }
 
-string* FilesHandler::check_levels()
+string* FilesHandler::check_levels(string fileName)
 {
 	short i = 0, pos = 0;
 
-	inputFile.open("levels.txt");
+	inputFile.open(fileName);
 	while (inputFile.good())
 	{
 
@@ -87,14 +87,14 @@ string* FilesHandler::check_levels()
 	inputFile.close();
 	return levelptr;
 }
-void FilesHandler::writeLevels(string grid, string levelName)
+void FilesHandler::write_custom_Level(string grid, string levelName,string fileName)
 {
 	// grid is = "$grid$";
 	std::ostringstream formatedText;
 	formatedText << levelName;
 	string copyOfText = formatedText.str();
 
-	outputFile.open("levels.txt", ios::app);
+	outputFile.open(fileName, ios::app);
 
 	outputFile << "\n" << copyOfText << "\n" << grid;
 	cout << "done writing";
