@@ -355,6 +355,7 @@ void part_level_one(int number_level)
 {
 	if (level_number == 0)
 	{
+		
 		//level one  --- 
 		//set_grid_0();
 		short nEnemy = 4;//number of enemy of selected level
@@ -362,7 +363,7 @@ void part_level_one(int number_level)
 		RenderWindow window_Level_one(VideoMode(ScreenWidth, ScreenHeight), "level one", Style::Close);//render window_play 
 		window_Level_one.setFramerateLimit(30);//set frames to 60 per second 
 		bool play = true;// play variable 
-		bool replay = true;
+		bool replay = false;
 		int heart = 3;
 		int xpos = 0, ypos = 0; //playes position
 		short dir = -1;//direction of the player  -1 means no direction in the start it can be anything
@@ -422,10 +423,8 @@ void part_level_one(int number_level)
 		if (sound.loadFromFile("Data/impact.wav"))
 			cout << "collision done " << endl;
 		collisionSound.setBuffer(sound);
-		while (true)
-		{
 
-
+		
 
 			while (play)     //this move one page
 			{
@@ -557,16 +556,20 @@ void part_level_one(int number_level)
 							{
 								if (Message.messagePressed() == 0)    //  yes
 								{
-									message.close();				//close the main window and open window.play
+									message.close();//close the main window and open window.play
+									window_Level_one.close();
+									music.stop();                //closing window level to open new one
 									play = false;
 									replay = true;
+									break;
+									
+									
 								}
 								if (Message.messagePressed() == 1)    //  no
 								{
 									message.close();				//close the main window and open window.credits
 									play = false;
 									replay = false;
-
 								}
 							}
 						}
@@ -601,11 +604,14 @@ void part_level_one(int number_level)
 				window_Level_one.draw(heartText);
 				window_Level_one.draw(PercentText);
 				window_Level_one.display();
+				if (replay == true)
+					break;
 			}
-			if (replay == false)
-				break;
-
-		}
+			if (replay == true)
+			{
+				set_grid_0();                   ///needs more expermenting now it has been fixed :) 
+				part_level_one(level_number);
+			}
 	}
 }
 
@@ -970,7 +976,7 @@ void part_level_four(int level_number) {
 			//level one  
 				string levelgrid = "$";
 			FilesHandler level4_grid;
-			levelgrid = level4_grid.load_level("level 5", "standardLevels.txt");
+			levelgrid = level4_grid.load_level("level 6", "standardLevels.txt");
 			cout << "levelgrid:" << levelgrid;
 			cout << "THe grid  : ";
 			int k = 0;
