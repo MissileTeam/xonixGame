@@ -1,3 +1,4 @@
+
 #include <SFML/Graphics.hpp>
 #include<SFML/Audio.hpp> 
 #include <iostream> // to use input and output functions 
@@ -22,6 +23,7 @@ bool defaultmode = false;
 int  page_number = -1;
 int  level_number = 0;
 int Clevel_number = -1;
+int score = 0;
 int page_Custom = 0;
 int grid[Rows][Coulmns] = {};
 bool start = 0;
@@ -36,7 +38,7 @@ struct enemy {
 	// we put the function in the struct to make varibles of struct idientfied in the functions
 	short expostion, eypostion, exvelocity, eyvelocity;
 	enemy() {
-		expostion = 400 - rand() % 100;
+		expostion = 400 - rand() % 50;
 		eypostion = 400 - rand() % 50;
 
 		exvelocity = 1 - rand() % 10;
@@ -57,10 +59,50 @@ struct enemy {
 			eyvelocity = -eyvelocity;
 			eypostion += eyvelocity;
 		}
+	
 	}
 }enemies_struct[10];
 // Function to check the area around enemies and set it to (-1) and check the area to be  filled which is (0) bounded by (2) in the matrix which is player lines
-
+void setTime(time_t &this_second,int &second,int &minute,time_t &first_second,stringstream &time_string)
+{
+	time(&this_second);
+	if (second < 60)
+	{
+		second = this_second - first_second;
+	}
+	else if (second % 60 == 0)
+	{
+		minute++;
+		time(&first_second);
+		second = 0;
+	}
+	if (minute < 10)
+	{
+		if ((second) < 10)
+		{
+			time_string.clear();
+			time_string << "Time " << "0" << minute << " : " << "0" << second;
+		}
+		else
+		{
+			time_string.clear();
+			time_string << "Time " << "0" << minute << " : " << second;
+		}
+	}
+	else
+	{
+		if ((this_second - first_second) < 10)
+		{
+			time_string.clear();
+			time_string << "Time " << minute << " : " << "0" << second;
+		}
+		else
+		{
+			time_string.clear();
+			time_string << "Time " << minute << " : " << second;
+		}
+	}
+}
 void player_rectangle(RectangleShape& player);
 
 void movePlayer(int& xpos, int& ypos, int dir)
@@ -103,7 +145,7 @@ void movePlayer(int& xpos, int& ypos, int dir)
 }
 void rules_of_draw(int x, int y)
 {
-	
+
 	if (grid[x][y] == 0)
 	
 		grid[x][y] = -1; //strange error happens here becuase the random position of the enemy  y =- number;
@@ -147,10 +189,11 @@ void setsBrush(int& xpos, int& ypos)
 
 				if (grid[i][j] == -1)
 					grid[i][j] = 0;
-				else if (grid[i][j] == 0)
+				else if (grid[i][j] == 3)
+					grid[i][j] = 3;
+				else
 					grid[i][j] = 1;
-				/*else if (grid[i][j] == 3)
-					grid[i][j] = 3;*/
+				
 			
 			}
 			else
@@ -159,10 +202,10 @@ void setsBrush(int& xpos, int& ypos)
 					grid[i][j] = 0;
 
 				else if (grid[i][j] == 2)
-					grid[i][j] = 1;
+					grid[i][j] = 2;
 				else if (grid[i][j] == 3)///new thing to add
 					grid[i][j] = 3;
-				else if(grid[i][j]==0)
+				else if (grid[i][j] == 0)
 					grid[i][j] = 1;
 			}
 		}
@@ -181,14 +224,19 @@ void drawArea(Sprite& Sgrid, RenderWindow& window, Texture& image, Texture& imag
 			}
 			if (grid[i][j] == 1)
 			{
+				Sgrid.setColor(Color::White);
+
 				Sgrid.setTexture(image2);
 			}
 			if (grid[i][j] == 2)
 			{
-				Sgrid.setTexture(image2);
+				Sgrid.setColor(Color::White);
+
+				Sgrid.setTexture(image);
 			}
 			if (grid[i][j] == 3)
 			{
+				Sgrid.setColor(Color::Yellow);
 				Sgrid.setTexture(image);
 			}
 			Sgrid.setPosition(i * 10, j * 10);
@@ -209,6 +257,7 @@ int checkBoundaries()
 			else if (grid[i][j] == 1)
 			{
 				percent++;
+				score++;
 			}
 
 		}
@@ -356,6 +405,19 @@ void part_level_one(int number_level)
 	if (level_number == 0)
 	{
 		
+ //score system
+int highscore=20;
+
+Font arial;
+arial.loadFromFile("Data/arial.ttf");
+
+ostringstream sscore;
+sscore << "Score : " << score;
+Text labelscore;
+labelscore.setCharacterSize(20);
+labelscore.setPosition({ 30, 20 });
+labelscore.setFont(arial);
+labelscore.setString(sscore.str());
 		//level one  --- 
 		//set_grid_0();
 		short nEnemy = 4;//number of enemy of selected level
@@ -423,9 +485,6 @@ void part_level_one(int number_level)
 		if (sound.loadFromFile("Data/impact.wav"))
 			cout << "collision done " << endl;
 		collisionSound.setBuffer(sound);
-
-		
-
 			while (play)     //this move one page
 			{
 				Sprite Sgrid;
@@ -437,43 +496,9 @@ void part_level_one(int number_level)
 				heartText.setString(heartString.str());
 				areaString << "You Finished " << percent << "%";
 				PercentText.setString(areaString.str());
-				time(&this_second);
-				if (second < 60)
-				{
-					second = this_second - first_second;
-				}
-				else if (second % 60 == 0)
-				{
-					minute++;
-					time(&first_second);
-					second = 0;
-				}
-				if (minute < 10)
-				{
-					if ((second) < 10)
-					{
-						time_string.clear();
-						time_string << "Time " << "0" << minute << " : " << "0" << second;
-					}
-					else
-					{
-						time_string.clear();
-						time_string << "Time " << "0" << minute << " : " << second;
-					}
-				}
-				else
-				{
-					if ((this_second - first_second) < 10)
-					{
-						time_string.clear();
-						time_string << "Time " << minute << " : " << "0" << second;
-					}
-					else
-					{
-						time_string.clear();
-						time_string << "Time " << minute << " : " << second;
-					}
-				}
+				//setting time 
+					setTime(this_second, second, minute, first_second, time_string);
+			
 				while (window_Level_one.pollEvent(event))
 				{
 					if (event.type == Event::Closed)
@@ -490,7 +515,7 @@ void part_level_one(int number_level)
 					else if (Keyboard::isKeyPressed(Keyboard::Down))	dir = Down;
 					else if (Keyboard::isKeyPressed(Keyboard::Right))	dir = Right;
 					else if (Keyboard::isKeyPressed(Keyboard::Left))	dir = Left;
-					for (int l = 0; l < nEnemy; l++)
+				/*	for (int l = 0; l < nEnemy; l++)
 					{
 						for (int k = 1; k < nEnemy; k++)
 							if (enemies_shapes[l].getGlobalBounds().intersects(enemies_shapes[k].getGlobalBounds()))
@@ -500,10 +525,10 @@ void part_level_one(int number_level)
 								enemies_struct[k].expostion = -enemies_struct[k].expostion;
 								enemies_struct[k].eypostion = -enemies_struct[k].eypostion;
 							}
-					}
+					}*/
 				}
 				//enemy move
-				//	moveEnemy(nEnemy); activate it when you want to cut pieces of the pink line and remove it below :)
+					moveEnemy(nEnemy);// activate it when you want to cut pieces of the pink line and remove it below :)
 				// boundaries that anything can't go after it like player
 				//player movement in the Grid 
 				movePlayer(xpos, ypos, dir);
@@ -519,16 +544,18 @@ void part_level_one(int number_level)
 					{
 						collisionSound.play();
 						//this_thread::sleep_for(.2s);
-						for (int i = 0; i < 82; i++)
+					/*	for (int i = 0; i < 82; i++)
 							for (int j = 0; j < 62; j++)
 								if (grid[i][j] == 2)
-									grid[i][j] = 0;
+									grid[i][j] = 0;*/
 						heart--;
 						//play = false;
 					}
 				}
 				if (heart == 0)
 				{
+					//scores.writeScore(score, highscore, "Level one : ");
+
 					RenderWindow message(VideoMode(messageWidth, messageHeight), "message", Style::Close);
 					messagebox  Message(messageWidth, messageHeight);
 					while (message.isOpen())
@@ -562,8 +589,7 @@ void part_level_one(int number_level)
 									play = false;
 									replay = true;
 									break;
-									
-									
+										
 								}
 								if (Message.messagePressed() == 1)    //  no
 								{
@@ -578,7 +604,7 @@ void part_level_one(int number_level)
 						message.display();
 					}
 				}
-				moveEnemy(nEnemy);
+				//moveEnemy(nEnemy);
 
 			/*	for (int i = 0; i < 82; i++)
 				{
@@ -609,7 +635,8 @@ void part_level_one(int number_level)
 			}
 			if (replay == true)
 			{
-				set_grid_0();                   ///needs more expermenting now it has been fixed :) 
+				set_grid_0();    
+				heart = 3;    ///needs more expermenting now it has been fixed :) 
 				part_level_one(level_number);
 			}
 	}
@@ -692,43 +719,9 @@ void part_level_two(int number_level)
 			stringstream time_string, areaString;
 			areaString << "You Finished " << percent << "%";
 			PercentText.setString(areaString.str());
-			time(&this_second);
-			if (second < 60)
-			{
-				second = this_second - first_second;
-			}
-			else if (second % 60 == 0)
-			{
-				minute++;
-				time(&first_second);
-				second = 0;
-			}
-			if (minute < 10)
-			{
-				if ((second) < 10)
-				{
-					time_string.clear();
-					time_string << "Time " << "0" << minute << " : " << "0" << second;
-				}
-				else
-				{
-					time_string.clear();
-					time_string << "Time " << "0" << minute << " : " << second;
-				}
-			}
-			else
-			{
-				if ((this_second - first_second) < 10)
-				{
-					time_string.clear();
-					time_string << "Time " << minute << " : " << "0" << second;
-				}
-				else
-				{
-					time_string.clear();
-					time_string << "Time " << minute << " : " << second;
-				}
-			}
+			setTime(this_second, second, minute, first_second, time_string);
+
+			
 			while (window_Level_two.pollEvent(event))
 			{
 				if (event.type == Event::Closed)
@@ -764,7 +757,8 @@ void part_level_two(int number_level)
 				{
 					collisionSound.play();
 					//this_thread::sleep_for(.2s);
-
+					FilesHandler scores;
+					scores.writeScore(score, score, "Level two : ");
 
 					play = false;
 
@@ -863,43 +857,8 @@ void part_level_three(int number_level)
 			stringstream time_string, areaString;
 			areaString << "You Finished " << percent << "%";
 			PercentText.setString(areaString.str());
-			time(&this_second);
-			if (second < 60)
-			{
-				second = this_second - first_second;
-			}
-			else if (second % 60 == 0)
-			{
-				minute++;
-				time(&first_second);
-				second = 0;
-			}
-			if (minute < 10)
-			{
-				if ((second) < 10)
-				{
-					time_string.clear();
-					time_string << "Time " << "0" << minute << " : " << "0" << second;
-				}
-				else
-				{
-					time_string.clear();
-					time_string << "Time " << "0" << minute << " : " << second;
-				}
-			}
-			else
-			{
-				if ((this_second - first_second) < 10)
-				{
-					time_string.clear();
-					time_string << "Time " << minute << " : " << "0" << second;
-				}
-				else
-				{
-					time_string.clear();
-					time_string << "Time " << minute << " : " << second;
-				}
-			}
+			setTime(this_second, second, minute, first_second, time_string);
+
 			while (window_Level_Three.pollEvent(event))
 			{
 				if (event.type == Event::Closed)
@@ -1068,43 +1027,8 @@ void part_level_four(int level_number) {
 				stringstream time_string, areaString;
 				areaString << "You Finished " << percent << "%";
 				PercentText.setString(areaString.str());
-				time(&this_second);
-				if (second < 60)
-				{
-					second = this_second - first_second;
-				}
-				else if (second % 60 == 0)
-				{
-					minute++;
-					time(&first_second);
-					second = 0;
-				}
-				if (minute < 10)
-				{
-					if ((second) < 10)
-					{
-						time_string.clear();
-						time_string << "Time " << "0" << minute << " : " << "0" << second;
-					}
-					else
-					{
-						time_string.clear();
-						time_string << "Time " << "0" << minute << " : " << second;
-					}
-				}
-				else
-				{
-					if ((this_second - first_second) < 10)
-					{
-						time_string.clear();
-						time_string << "Time " << minute << " : " << "0" << second;
-					}
-					else
-					{
-						time_string.clear();
-						time_string << "Time " << minute << " : " << second;
-					}
-				}
+				setTime(this_second, second, minute, first_second, time_string);
+
 				while (window_Level_Three.pollEvent(event))
 				{
 					if (event.type == Event::Closed)
@@ -1246,43 +1170,8 @@ void part_level_five(int level_number) {
 				stringstream time_string, areaString;
 				areaString << "You Finished " << percent << "%";
 				PercentText.setString(areaString.str());
-				time(&this_second);
-				if (second < 60)
-				{
-					second = this_second - first_second;
-				}
-				else if (second % 60 == 0)
-				{
-					minute++;
-					time(&first_second);
-					second = 0;
-				}
-				if (minute < 10)
-				{
-					if ((second) < 10)
-					{
-						time_string.clear();
-						time_string << "Time " << "0" << minute << " : " << "0" << second;
-					}
-					else
-					{
-						time_string.clear();
-						time_string << "Time " << "0" << minute << " : " << second;
-					}
-				}
-				else
-				{
-					if ((this_second - first_second) < 10)
-					{
-						time_string.clear();
-						time_string << "Time " << minute << " : " << "0" << second;
-					}
-					else
-					{
-						time_string.clear();
-						time_string << "Time " << minute << " : " << second;
-					}
-				}
+				setTime(this_second, second, minute, first_second, time_string);
+
 				while (window_Level_Three.pollEvent(event))
 				{
 					if (event.type == Event::Closed)
@@ -1419,43 +1308,8 @@ void part_level_six(int level_number) {
 				stringstream time_string, areaString;
 				areaString << "You Finished " << percent << "%";
 				PercentText.setString(areaString.str());
-				time(&this_second);
-				if (second < 60)
-				{
-					second = this_second - first_second;
-				}
-				else if (second % 60 == 0)
-				{
-					minute++;
-					time(&first_second);
-					second = 0;
-				}
-				if (minute < 10)
-				{
-					if ((second) < 10)
-					{
-						time_string.clear();
-						time_string << "Time " << "0" << minute << " : " << "0" << second;
-					}
-					else
-					{
-						time_string.clear();
-						time_string << "Time " << "0" << minute << " : " << second;
-					}
-				}
-				else
-				{
-					if ((this_second - first_second) < 10)
-					{
-						time_string.clear();
-						time_string << "Time " << minute << " : " << "0" << second;
-					}
-					else
-					{
-						time_string.clear();
-						time_string << "Time " << minute << " : " << second;
-					}
-				}
+				setTime(this_second, second, minute, first_second, time_string);
+
 				while (window_Level_Three.pollEvent(event))
 				{
 					if (event.type == Event::Closed)
@@ -1592,43 +1446,8 @@ void part_level_seven(int level_number) {
 				stringstream time_string, areaString;
 				areaString << "You Finished " << percent << "%";
 				PercentText.setString(areaString.str());
-				time(&this_second);
-				if (second < 60)
-				{
-					second = this_second - first_second;
-				}
-				else if (second % 60 == 0)
-				{
-					minute++;
-					time(&first_second);
-					second = 0;
-				}
-				if (minute < 10)
-				{
-					if ((second) < 10)
-					{
-						time_string.clear();
-						time_string << "Time " << "0" << minute << " : " << "0" << second;
-					}
-					else
-					{
-						time_string.clear();
-						time_string << "Time " << "0" << minute << " : " << second;
-					}
-				}
-				else
-				{
-					if ((this_second - first_second) < 10)
-					{
-						time_string.clear();
-						time_string << "Time " << minute << " : " << "0" << second;
-					}
-					else
-					{
-						time_string.clear();
-						time_string << "Time " << minute << " : " << second;
-					}
-				}
+				setTime(this_second, second, minute, first_second, time_string);
+
 				while (window_Level_Three.pollEvent(event))
 				{
 					if (event.type == Event::Closed)
@@ -1766,43 +1585,8 @@ void part_level_eight(int level_number) {
 				stringstream time_string, areaString;
 				areaString << "You Finished " << percent << "%";
 				PercentText.setString(areaString.str());
-				time(&this_second);
-				if (second < 60)
-				{
-					second = this_second - first_second;
-				}
-				else if (second % 60 == 0)
-				{
-					minute++;
-					time(&first_second);
-					second = 0;
-				}
-				if (minute < 10)
-				{
-					if ((second) < 10)
-					{
-						time_string.clear();
-						time_string << "Time " << "0" << minute << " : " << "0" << second;
-					}
-					else
-					{
-						time_string.clear();
-						time_string << "Time " << "0" << minute << " : " << second;
-					}
-				}
-				else
-				{
-					if ((this_second - first_second) < 10)
-					{
-						time_string.clear();
-						time_string << "Time " << minute << " : " << "0" << second;
-					}
-					else
-					{
-						time_string.clear();
-						time_string << "Time " << minute << " : " << second;
-					}
-				}
+				setTime(this_second, second, minute, first_second, time_string);
+
 				while (window_Level_Three.pollEvent(event))
 				{
 					if (event.type == Event::Closed)
@@ -2084,6 +1868,7 @@ void part_level_Custom(int &level_number, string* name) {
 
 void part_play(int page_number)
 {
+	FilesHandler scores;
 	if (page_number == 0)
 	{
 		FilesHandler standardLevels;
@@ -2441,44 +2226,8 @@ void Custom_make_level(int page_Custom) {
 	while (play)
 	{
 
-		time(&this_second);
-		if (second < 60)
-		{
-			second = this_second - first_second;
-		}
-		else if (second % 60 == 0)
-		{
-			minute++;
-			time(&first_second);
-			second = 0;
-		}
-		if (minute < 10)
-		{
-			if ((this_second - first_second) < 10)
-			{
-				time_string.clear();
-				time_string << "Time " << "0" << minute << " : " << "0" << second;
-			}
-			else
-			{
-				time_string.clear();
-				time_string << "Time " << "0" << minute << " : " << second;
-			}
-		}
-		else
-		{
+		setTime(this_second, second, minute, first_second, time_string);
 
-			if ((this_second - first_second) < 10)
-			{
-				time_string.clear();
-				time_string << "Time " << minute << " : " << "0" << second;
-			}
-			else
-			{
-				time_string.clear();
-				time_string << "Time " << minute << " : " << second;
-			}
-		}
 		while (window.pollEvent(event))
 		{
 			time_string.clear();
@@ -2655,7 +2404,6 @@ void Custom_make_level(int page_Custom) {
 				}
 				if (grid[i][j] == 3)
 				{
-					Sgrid.setColor(Color::Yellow);
 					Sgrid.setTexture(image);
 				}
 				if (grid[i][j] == 2)

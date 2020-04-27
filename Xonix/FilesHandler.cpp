@@ -105,3 +105,79 @@ void FilesHandler::write_custom_Level(string grid, string levelName,string fileN
 
 }
 
+void FilesHandler::writeScore(int &score,int &highscore,string levelName)
+{
+	int position = 0; string line,data="",targetLine; bool isFound = false;
+	fstream scoreFile;
+	scoreFile.open("Data/ScoreSaving.txt");
+	if (scoreFile.is_open())
+	{
+		while (getline(scoreFile,line))
+		{
+			
+			if (line.find(levelName)!=-1)
+			{
+				position = line.find("L");
+				targetLine=line.replace(position, line.length(),levelName+to_string(score));
+				cout << targetLine;
+				cout << line;
+				isFound = true;
+				//break;
+			}
+			data += line;
+			/*if (isFound)
+				break;*/
+
+		}
+	}
+	scoreFile.close();
+	scoreFile.open("Data/ScoreSaving.txt",ios::out);
+	if (isFound)
+	{
+		scoreFile.seekp(position);
+		scoreFile << targetLine<<'\n' << data.substr(targetLine.length(),string::npos)<<'\n';
+	}
+	else
+		scoreFile << levelName << highscore <<'\n';
+	
+}
+
+void FilesHandler::checkScores()
+{
+
+}
+
+//Experiment
+
+//int position = 0; string line, data = ""; bool isFound = false;
+//fstream scoreFile;
+//scoreFile.open("Data/ScoreSaving.txt");
+//if (scoreFile.is_open())
+//{
+//	while (getline(scoreFile, line))
+//	{
+//
+//		if (line.find(levelName) != -1)
+//		{
+//
+//			line.erase(line.find_first_of(":") + 2, line.find_first_of('\n'));
+//
+//			position = (int)scoreFile.tellg();
+//			isFound = true;
+//			//break;
+//		}
+//		data += line;
+//		/*if (isFound)
+//			break;*/
+//
+//	}
+//}
+//scoreFile.close();
+//scoreFile.open("Data/ScoreSaving.txt", ios::out);
+//if (isFound)
+//{
+//	scoreFile.seekp(position);
+//	scoreFile << data << highscore;
+//}
+//else
+//scoreFile << levelName << highscore;

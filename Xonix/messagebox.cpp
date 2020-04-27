@@ -22,7 +22,7 @@ messagebox::messagebox(float  messageWidth, float  massegeHeight)
 
 	mainmessage[2].setFont(font);
 	mainmessage[2].setFillColor(Color::White);
-	mainmessage[2].setString("Are you want to replay?");
+	mainmessage[2].setString("Do you want to replay?");
 	mainmessage[2].setCharacterSize(25);
 	mainmessage[2].setPosition(Vector2f(10, 30));
 

@@ -80,7 +80,7 @@ levels::levels(float width, float hight, int mode,RenderWindow &CustomWindow,std
 		mainlevels[9].setCharacterSize(50);
 		mainlevels[9].setPosition(Vector2f(width / 2 + 120, hight / (Max_main_levels + 1) * 9));
 
-		mainlevelsSelected = 1;
+		mainlevelsSelected = 0;
 	}
 	else if (mode == 1)
 	{

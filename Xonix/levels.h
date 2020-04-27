@@ -31,7 +31,7 @@ public:
 
 	~levels();
 private:
-	int mainlevelsSelected;
+	int mainlevelsSelected=0;
 	int mainClevelsSelected=1;
 	Font font2;
 	Text mainlevels[Max_main_levels];
