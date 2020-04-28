@@ -19,11 +19,11 @@
 #define Rows 82
 #define Coulmns 62
 string* name;
-bool defaultmode = false;
+bool defaultmode = false,replay = false;
 int  page_number = -1;
 int  level_number = 0;
 int Clevel_number = -1;
-int score = 0;
+int score = 0; short heart = 3;
 int page_Custom = 0;
 int grid[Rows][Coulmns] = {};
 bool start = 0;
@@ -104,7 +104,29 @@ void setTime(time_t &this_second,int &second,int &minute,time_t &first_second,st
 	}
 }
 void player_rectangle(RectangleShape& player);
+void checkCollision(short nEnemy,RectangleShape enemies_shapes [],Sound collisionSound)
+{
+	for (int i = 0; i < nEnemy; i++)
+	{
+		enemies_shapes[i].setPosition(enemies_struct[i].expostion, enemies_struct[i].eypostion);
 
+
+		if (grid[enemies_struct[i].expostion / 10][enemies_struct[i].eypostion / 10] == 2)
+		{
+			heart--;
+			collisionSound.play();
+			//make the enemy destroy your line "Nice"
+			grid[enemies_struct[i].expostion / 10][enemies_struct[i].eypostion / 10] = -1;
+			//this_thread::sleep_for(.2s);
+		/*	for (int i = 0; i < 82; i++)
+				for (int j = 0; j < 62; j++)
+					if (grid[i][j] == 2)
+						grid[i][j] = 0;*/
+
+						//play = false;
+		}
+	}
+}
 void movePlayer(int& xpos, int& ypos, int dir)
 {
 	if (grid[xpos][ypos] != 1)
@@ -404,7 +426,8 @@ void part_level_one(int number_level)
 {
 	if (level_number == 0)
 	{
-		
+		score = 0;
+		heart = 3;
  //score system
 int highscore=20;
 
@@ -417,7 +440,7 @@ Text labelscore;
 labelscore.setCharacterSize(20);
 labelscore.setPosition({ 30, 20 });
 labelscore.setFont(arial);
-labelscore.setString(sscore.str());
+labelscore.setString(sscore.str());        
 		//level one  --- 
 		//set_grid_0();
 		short nEnemy = 4;//number of enemy of selected level
@@ -425,8 +448,7 @@ labelscore.setString(sscore.str());
 		RenderWindow window_Level_one(VideoMode(ScreenWidth, ScreenHeight), "level one", Style::Close);//render window_play 
 		window_Level_one.setFramerateLimit(30);//set frames to 60 per second 
 		bool play = true;// play variable 
-		bool replay = false;
-		int heart = 3;
+		
 		int xpos = 0, ypos = 0; //playes position
 		short dir = -1;//direction of the player  -1 means no direction in the start it can be anything
 
@@ -485,11 +507,16 @@ labelscore.setString(sscore.str());
 		if (sound.loadFromFile("Data/impact.wav"))
 			cout << "collision done " << endl;
 		collisionSound.setBuffer(sound);
+
 			while (play)     //this move one page
 			{
 				Sprite Sgrid;
 				int percent = 0;
 				percent = checkBoundaries() / (44);
+				score = score / (44);
+				sscore.str("");
+				sscore <<"Score:"<< score;
+				labelscore.setString(sscore.str());
 				// time string 
 				stringstream time_string, areaString, heartString;
 				heartString << heart;
@@ -534,26 +561,10 @@ labelscore.setString(sscore.str());
 				movePlayer(xpos, ypos, dir);
 				player.setPosition(xpos * 10, ypos * 10);
 				time_text.setString(time_string.str());
-				for (int i = 0; i < nEnemy; i++)
-				{
-					enemies_shapes[i].setPosition(enemies_struct[i].expostion, enemies_struct[i].eypostion);
-				}
-				for (int i = 0; i < nEnemy; i++)
-				{
-					if (grid[enemies_struct[i].expostion / 10][enemies_struct[i].eypostion / 10] == 2)
-					{
-						heart--;
-						collisionSound.play();
-						//this_thread::sleep_for(.2s);
-					/*	for (int i = 0; i < 82; i++)
-							for (int j = 0; j < 62; j++)
-								if (grid[i][j] == 2)
-									grid[i][j] = 0;*/
-						
-						//play = false;
-					}
-				}
+			//check player-enemy collision
+				checkCollision(nEnemy, enemies_shapes, collisionSound);
 
+				//
 				
 				//moveEnemy(nEnemy);
 
@@ -580,12 +591,15 @@ labelscore.setString(sscore.str());
 				window_Level_one.draw(time_text);
 				window_Level_one.draw(heartText);
 				window_Level_one.draw(PercentText);
+				window_Level_one.draw(labelscore);
+
 				window_Level_one.display();
 				///////////////////////
 				if (heart == 0)
 				{
 					//scores.writeScore(score, highscore, "Level one : ");
-
+					FilesHandler scores;
+					scores.writeScore(score, score, "Level 1 : ");
 					RenderWindow message(VideoMode(messageWidth, messageHeight), "message", Style::Close);
 					messagebox  Message(messageWidth, messageHeight);
 					while (message.isOpen())
@@ -614,7 +628,7 @@ labelscore.setString(sscore.str());
 								if (Message.messagePressed() == 0)    //  yes
 								{
 									message.close();//close the main window and open window.play
-									window_Level_one.close();
+									//window_Level_one.close();
 									music.stop();                //closing window level to open new one
 									play = true;
 									replay = true;
@@ -633,18 +647,28 @@ labelscore.setString(sscore.str());
 						Message.draw(message);
 						message.display();
 					}
+					if (replay == true)
+					{
+						heart = 3;
+						xpos, ypos = 0;
+						message.close();
+						replay = false;
+						set_grid_0();
+						music.play();
+						//break;
+					}
 				}
-				if (replay == true)
-					break;
+				
+					
 			}
-			if (replay == true)
+		/*	if (replay == true)
 			{
 				replay = false;
 				set_grid_0();    
 				   ///needs more expermenting now it has been fixed :) 
 				part_level_one(level_number);
 
-			}
+			}*/
 	}
 }
 
@@ -652,6 +676,7 @@ void part_level_two(int number_level)
 {
 	if (level_number == 1)
 	{
+		heart = 3;
 		//level two  
 		set_grid_0();
 		short nEnemy = 6;//number of enemy of selected level
@@ -685,7 +710,7 @@ void part_level_two(int number_level)
 		time(&first_second);
 		int second = 0, minute = 0;
 		//time text
-		Text time_text, PercentText;
+		Text time_text, PercentText,heartText;
 		time_text.setFont(number_font);
 		time_text.setFillColor(Color::Red);
 		time_text.setPosition(0, 640);
@@ -695,6 +720,11 @@ void part_level_two(int number_level)
 		PercentText.setFillColor(Color::Green);
 		PercentText.setPosition(500, 630);
 		PercentText.setCharacterSize(30);
+		//heart Text
+		heartText.setFont(Arial_font);
+		heartText.setFillColor(Color::Green);
+		heartText.setPosition((ScreenWidth / 3), 633);
+		heartText.setCharacterSize(30);
 		//player rectangle 
 		RectangleShape player;
 		player_rectangle(player);
@@ -722,9 +752,11 @@ void part_level_two(int number_level)
 			int percent = 0;
 			percent = checkBoundaries() / (44);
 			// time string 
-			stringstream time_string, areaString;
+			stringstream time_string, areaString,heartString;
 			areaString << "You Finished " << percent << "%";
 			PercentText.setString(areaString.str());
+			heartString << heart;
+			heartText.setString(heartString.str());
 			setTime(this_second, second, minute, first_second, time_string);
 
 			
@@ -753,31 +785,16 @@ void part_level_two(int number_level)
 			movePlayer(xpos, ypos, dir);
 			player.setPosition(xpos * 10, ypos * 10);
 			time_text.setString(time_string.str());
-			for (int i = 0; i < nEnemy; i++)
-			{
-				enemies_shapes[i].setPosition(enemies_struct[i].expostion, enemies_struct[i].eypostion);
-			}
-			for (int i = 0; i < nEnemy; i++)
-			{
-				if (grid[enemies_struct[i].expostion / 10][enemies_struct[i].eypostion / 10] == 2)
-				{
-					collisionSound.play();
-					//this_thread::sleep_for(.2s);
-					FilesHandler scores;
-					scores.writeScore(score, score, "Level 8 : ");
-
-					play = false;
-
-				}
-				for (int i = 0; i < 82; i++)
+			checkCollision(nEnemy, enemies_shapes, collisionSound);
+			/*	for (int i = 0; i < 82; i++)
 				{
 					for (int j = 0; j < 62; j++)
 					{
 						if (player.getPosition().x == grid[i][j] == 2 || player.getPosition().y == grid[i][j] == 2)
 							play = false;
 					}
-				}
-			}
+				}*/
+			
 			setsBrush(xpos, ypos);
 			//draw 
 			window_Level_two.clear();
@@ -790,7 +807,69 @@ void part_level_two(int number_level)
 			window_Level_two.draw(time_text);
 			window_Level_two.draw(PercentText);
 			window_Level_two.display();
+			/////////////////////
+			if (heart == 0)
+			{
+				RenderWindow message(VideoMode(messageWidth, messageHeight), "message", Style::Close);
+				messagebox  Message(messageWidth, messageHeight);
+				while (message.isOpen())
+				{
+					Event event;
+					while (message.pollEvent(event))
+					{
+						if (event.type == Event::Closed)
+							message.close();
+						if (event.type == Event::KeyReleased)
+						{
+							if (event.key.code == Keyboard::Left)
+							{
+								Message.moveLeft();
+								break;
+							}
+							if (event.key.code == Keyboard::Right)
+							{
+								Message.moveRight();
+								break;
+							}
+						}
+						//choose decision
+						if (event.key.code == Keyboard::Return)   // Return == I pressed enter
+						{
+							if (Message.messagePressed() == 0)    //  yes
+							{
+								message.close();//close the main window and open window.play
+								window_Level_two.close();
+								music.stop();                //closing window level to open new one
+								play = true;
+								replay = true;
+								break;
+
+							}
+							if (Message.messagePressed() == 1)    //  no
+							{
+								message.close();				//close the main window and open window.credits
+								play = false;
+								replay = false;
+							}
+						}
+					}
+					message.clear();
+					Message.draw(message);
+					message.display();
+				}
+			}
+			if (replay == true)
+				break;
 		}
+		if (replay == true)
+		{
+			replay = false;
+			set_grid_0();
+			///needs more expermenting now it has been fixed :) 
+			part_level_two(level_number);
+
+		}
+		
 	}
 }
 
@@ -891,30 +970,8 @@ void part_level_three(int number_level)
 			movePlayer(xpos, ypos, dir);
 			player.setPosition(xpos * 10, ypos * 10);
 			time_text.setString(time_string.str());
-			for (int i = 0; i < nEnemy; i++)
-			{
-				enemies_shapes[i].setPosition(enemies_struct[i].expostion, enemies_struct[i].eypostion);
-			}
-			for (int i = 0; i < nEnemy; i++)
-			{
-				if (grid[enemies_struct[i].expostion / 10][enemies_struct[i].eypostion / 10] == 2)
-				{
-					collisionSound.play();
-					//this_thread::sleep_for(.2s);
+			checkCollision(nEnemy, enemies_shapes, collisionSound);
 
-
-					play = false;
-
-				}
-				for (int i = 0; i < 82; i++)
-				{
-					for (int j = 0; j < 62; j++)
-					{
-						if (player.getPosition().x == grid[i][j] == 2 || player.getPosition().y == grid[i][j] == 2)
-							play = false;
-					}
-				}
-			}
 			setsBrush(xpos, ypos);
 			//draw 
 			window_Level_Three.clear();
@@ -1060,29 +1117,8 @@ void part_level_four(int level_number) {
 				movePlayer(xpos, ypos, dir);
 				player.setPosition(xpos * 10, ypos * 10);
 				time_text.setString(time_string.str());
-				for (int i = 0; i < nEnemy; i++)
-				{
-					enemies_shapes[i].setPosition(enemies_struct[i].expostion, enemies_struct[i].eypostion);
-				}
-				for (int i = 0; i < nEnemy; i++)
-				{
-					if (grid[enemies_struct[i].expostion / 10][enemies_struct[i].eypostion / 10] == 2)
-					{
-						collisionSound.play();
-						//this_thread::sleep_for(.2s);
-						//play = false;
-					}///addding new difficulty
-				}
-				
-					//for (int i = 0; i < 82; i++)
-					//{
-					//	/*for (int j = 0; j < 62; j++)
-					//	{
-					//		if (player.getPosition().x == grid[i][j] == 3 || player.getPosition().y == grid[i][j] == 3)
-					//			play = false;
-					//	}*/
-					//}
-				//adding new difficulty for the grid :)
+				checkCollision(nEnemy, enemies_shapes, collisionSound);
+
 				if (grid[xpos][ypos] == 3)
 					play = false;
 				moveEnemy(nEnemy);
@@ -1204,30 +1240,8 @@ void part_level_five(int level_number) {
 				movePlayer(xpos, ypos, dir);
 				player.setPosition(xpos * 10, ypos * 10);
 				time_text.setString(time_string.str());
-				for (int i = 0; i < nEnemy; i++)
-				{
-					enemies_shapes[i].setPosition(enemies_struct[i].expostion, enemies_struct[i].eypostion);
-				}
-				for (int i = 0; i < nEnemy; i++)
-				{
-					if (grid[enemies_struct[i].expostion / 10][enemies_struct[i].eypostion / 10] == 2)
-					{
-						collisionSound.play();
-						//this_thread::sleep_for(.2s);
+				checkCollision(nEnemy, enemies_shapes, collisionSound);
 
-
-						play = false;
-
-					}
-					for (int i = 0; i < 82; i++)
-					{
-						for (int j = 0; j < 62; j++)
-						{
-							if (player.getPosition().x == grid[i][j] == 2 || player.getPosition().y == grid[i][j] == 2)
-								play = false;
-						}
-					}
-				}
 				setsBrush(xpos, ypos);
 				//draw 
 				window_Level_Three.clear();
@@ -1342,30 +1356,8 @@ void part_level_six(int level_number) {
 				movePlayer(xpos, ypos, dir);
 				player.setPosition(xpos * 10, ypos * 10);
 				time_text.setString(time_string.str());
-				for (int i = 0; i < nEnemy; i++)
-				{
-					enemies_shapes[i].setPosition(enemies_struct[i].expostion, enemies_struct[i].eypostion);
-				}
-				for (int i = 0; i < nEnemy; i++)
-				{
-					if (grid[enemies_struct[i].expostion / 10][enemies_struct[i].eypostion / 10] == 2)
-					{
-						collisionSound.play();
-						//this_thread::sleep_for(.2s);
+				checkCollision(nEnemy, enemies_shapes, collisionSound);
 
-
-						play = false;
-
-					}
-					for (int i = 0; i < 82; i++)
-					{
-						for (int j = 0; j < 62; j++)
-						{
-							if (player.getPosition().x == grid[i][j] == 2 || player.getPosition().y == grid[i][j] == 2)
-								play = false;
-						}
-					}
-				}
 				setsBrush(xpos, ypos);
 				//draw 
 				window_Level_Three.clear();
@@ -1480,30 +1472,8 @@ void part_level_seven(int level_number) {
 				movePlayer(xpos, ypos, dir);
 				player.setPosition(xpos * 10, ypos * 10);
 				time_text.setString(time_string.str());
-				for (int i = 0; i < nEnemy; i++)
-				{
-					enemies_shapes[i].setPosition(enemies_struct[i].expostion, enemies_struct[i].eypostion);
-				}
-				for (int i = 0; i < nEnemy; i++)
-				{
-					if (grid[enemies_struct[i].expostion / 10][enemies_struct[i].eypostion / 10] == 2)
-					{
-						collisionSound.play();
-						//this_thread::sleep_for(.2s);
+				checkCollision(nEnemy, enemies_shapes, collisionSound);
 
-
-						play = false;
-
-					}
-					for (int i = 0; i < 82; i++)
-					{
-						for (int j = 0; j < 62; j++)
-						{
-							if (player.getPosition().x == grid[i][j] == 2 || player.getPosition().y == grid[i][j] == 2)
-								play = false;
-						}
-					}
-				}
 				setsBrush(xpos, ypos);
 				//draw 
 				window_Level_Three.clear();
@@ -1619,30 +1589,8 @@ void part_level_eight(int level_number) {
 				movePlayer(xpos, ypos, dir);
 				player.setPosition(xpos * 10, ypos * 10);
 				time_text.setString(time_string.str());
-				for (int i = 0; i < nEnemy; i++)
-				{
-					enemies_shapes[i].setPosition(enemies_struct[i].expostion, enemies_struct[i].eypostion);
-				}
-				for (int i = 0; i < nEnemy; i++)
-				{
-					if (grid[enemies_struct[i].expostion / 10][enemies_struct[i].eypostion / 10] == 2)
-					{
-						collisionSound.play();
-						//this_thread::sleep_for(.2s);
+				checkCollision(nEnemy, enemies_shapes, collisionSound);
 
-
-						play = false;
-
-					}
-					for (int i = 0; i < 82; i++)
-					{
-						for (int j = 0; j < 62; j++)
-						{
-							if (player.getPosition().x == grid[i][j] == 2 || player.getPosition().y == grid[i][j] == 2)
-								play = false;
-						}
-					}
-				}
 				setsBrush(xpos, ypos);
 				//draw 
 				window_Level_Three.clear();
@@ -1703,7 +1651,7 @@ void part_level_Custom(int &level_number, string* name) {
 						}
 
 						//choice level
-						if (event2.key.code == Keyboard::Return)   // Return == I pressed enter
+						if (event2.key.code == Keyboard::Enter)   // Return == I pressed enter
 						{
 							for (int i = 0; i < 3; i++)
 							{
@@ -1785,7 +1733,7 @@ void part_level_Custom(int &level_number, string* name) {
 									level_play = false;
 									end_levels = false;
 								}
-								if (event2.type == Event::KeyReleased)
+								if (event2.type == Event::KeyPressed)
 								{
 									if (event2.key.code == Keyboard::Up)
 									{
@@ -1797,29 +1745,30 @@ void part_level_Custom(int &level_number, string* name) {
 										Levels.moveDown(1);
 										break;
 									}
+									if (event2.key.code == Keyboard::Enter)   // Return == I pressed enter
+									{
+										for (int i = 0; i < 10; i++)
+										{
+
+
+											if (Levels.mainClevelsPressed() == i)    //  level 1
+											{
+												if (i == 9)
+												{
+													//level_number = 3;
+													page_number = 9;
+												}
+												window_Levels.close();				//close the main window and open window.1
+												Clevel_number = i;
+												break;
+
+											}
+
+										}
 								}
 
 								//choice level
-								if (event2.key.code == Keyboard::Space)   // Return == I pressed enter
-								{
-									for (int i = 0; i < 10; i++)
-									{
-
-
-										if (Levels.mainClevelsPressed() == i)    //  level 1
-										{
-											if (i == 9)
-											{
-												//level_number = 3;
-												page_number = 9;
-											}
-											window_Levels.close();				//close the main window and open window.1
-											Clevel_number = i;
-											break;
-
-										}
-
-									}
+								
 
 								}
 								if (end_levels == false)
@@ -1874,11 +1823,14 @@ void part_level_Custom(int &level_number, string* name) {
 
 void part_play(int page_number)
 {
+
 	FilesHandler scores;
 	FilesHandler standardLevels;
 	if (page_number == 0)
 	{
-		
+		//score system
+	
+
 
 		bool level_play = true, end_levels_2 = true, end_levels = true;
 		while (level_play)   //this move on all levels
@@ -1903,7 +1855,7 @@ void part_play(int page_number)
 						level_play = false;
 						end_levels = false;
 					}
-					if (event2.type == Event::KeyReleased)
+					if (event2.type == Event::KeyPressed)
 					{
 						if (event2.key.code == Keyboard::Up)
 						{
@@ -1915,30 +1867,31 @@ void part_play(int page_number)
 							Levels.moveDown();
 							break;
 						}
-					}
-
-					//choice level
-					if (event2.key.code == Keyboard::Space)   // Return == I pressed enter
-					{
-						for (int i = 0; i < 10; i++)
+						//choice level
+						if (event2.key.code == Keyboard::Enter)   // Return == I pressed enter
 						{
-
-
-							if (Levels.mainlevelsPressed() == i)    //  level 1
+							for (int i = 0; i < 10; i++)
 							{
-								if (i == 9)
+
+
+								if (Levels.mainlevelsPressed() == i)    //  level 1
 								{
-									//level_number = 3;
-									page_number = 9;
+									if (i == 9)
+									{
+										//level_number = 3;
+										page_number = 9;
+									}
+									window_Levels.close();				//close the main window and open window.1
+									level_number = i;
+
 								}
-								window_Levels.close();				//close the main window and open window.1
-								level_number = i;
 
 							}
 
 						}
-
 					}
+
+					
 					if (end_levels == false)
 						break;
 				}
