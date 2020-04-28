@@ -299,7 +299,7 @@ int main()
 		menu menuu(ScreenWidth, ScreenHeight);  //to take object from class 
 		// background of game 
 		Texture background;
-		if (!background.loadFromFile("Data/14.jpg"))
+		if (!background.loadFromFile("Data/jump.jpg"))
 			cout << "error in load photo of shape" << endl;
 		RectangleShape photo;
 		photo.setSize(Vector2f(820, 680));
@@ -542,16 +542,46 @@ labelscore.setString(sscore.str());
 				{
 					if (grid[enemies_struct[i].expostion / 10][enemies_struct[i].eypostion / 10] == 2)
 					{
+						heart--;
 						collisionSound.play();
 						//this_thread::sleep_for(.2s);
 					/*	for (int i = 0; i < 82; i++)
 							for (int j = 0; j < 62; j++)
 								if (grid[i][j] == 2)
 									grid[i][j] = 0;*/
-						heart--;
+						
 						//play = false;
 					}
 				}
+
+				
+				//moveEnemy(nEnemy);
+
+			/*	for (int i = 0; i < 82; i++)
+				{
+					for (int j = 0; j < 62; j++)
+					{
+						if (player.getPosition().x == grid[i][j] == 2 || player.getPosition().y == grid[i][j] == 2)
+							play = false;
+					}
+				}*/
+				setsBrush(xpos, ypos);
+
+				//draw 
+
+				window_Level_one.clear();
+				drawArea(Sgrid, window_Level_one, image, image2);
+				window_Level_one.draw(player);
+				window_Level_one.draw(sprite3);
+				window_Level_one.draw(bound);
+				for (int i = 0; i < nEnemy; i++) {
+					window_Level_one.draw(enemies_shapes[i]);
+				}
+				window_Level_one.draw(time_text);
+				window_Level_one.draw(heartText);
+				window_Level_one.draw(PercentText);
+				window_Level_one.display();
+				///////////////////////
 				if (heart == 0)
 				{
 					//scores.writeScore(score, highscore, "Level one : ");
@@ -586,10 +616,10 @@ labelscore.setString(sscore.str());
 									message.close();//close the main window and open window.play
 									window_Level_one.close();
 									music.stop();                //closing window level to open new one
-									play = false;
+									play = true;
 									replay = true;
 									break;
-										
+
 								}
 								if (Message.messagePressed() == 1)    //  no
 								{
@@ -604,40 +634,16 @@ labelscore.setString(sscore.str());
 						message.display();
 					}
 				}
-				//moveEnemy(nEnemy);
-
-			/*	for (int i = 0; i < 82; i++)
-				{
-					for (int j = 0; j < 62; j++)
-					{
-						if (player.getPosition().x == grid[i][j] == 2 || player.getPosition().y == grid[i][j] == 2)
-							play = false;
-					}
-				}*/
-				setsBrush(xpos, ypos);
-
-				//draw 
-
-				window_Level_one.clear();
-				drawArea(Sgrid, window_Level_one, image, image2);
-				window_Level_one.draw(player);
-				window_Level_one.draw(sprite3);
-				window_Level_one.draw(bound);
-				for (int i = 0; i < nEnemy; i++) {
-					window_Level_one.draw(enemies_shapes[i]);
-				}
-				window_Level_one.draw(time_text);
-				window_Level_one.draw(heartText);
-				window_Level_one.draw(PercentText);
-				window_Level_one.display();
 				if (replay == true)
 					break;
 			}
 			if (replay == true)
 			{
+				replay = false;
 				set_grid_0();    
-				heart = 3;    ///needs more expermenting now it has been fixed :) 
+				   ///needs more expermenting now it has been fixed :) 
 				part_level_one(level_number);
+
 			}
 	}
 }
@@ -758,7 +764,7 @@ void part_level_two(int number_level)
 					collisionSound.play();
 					//this_thread::sleep_for(.2s);
 					FilesHandler scores;
-					scores.writeScore(score, score, "Level two : ");
+					scores.writeScore(score, score, "Level 8 : ");
 
 					play = false;
 
@@ -935,7 +941,7 @@ void part_level_four(int level_number) {
 			//level one  
 				string levelgrid = "$";
 			FilesHandler level4_grid;
-			levelgrid = level4_grid.load_level("level 6", "standardLevels.txt");
+			levelgrid = level4_grid.load_level("level 99", "standardLevels.txt");
 			cout << "levelgrid:" << levelgrid;
 			cout << "THe grid  : ";
 			int k = 0;
@@ -1869,9 +1875,10 @@ void part_level_Custom(int &level_number, string* name) {
 void part_play(int page_number)
 {
 	FilesHandler scores;
+	FilesHandler standardLevels;
 	if (page_number == 0)
 	{
-		FilesHandler standardLevels;
+		
 
 		bool level_play = true, end_levels_2 = true, end_levels = true;
 		while (level_play)   //this move on all levels
@@ -1958,16 +1965,20 @@ void part_play(int page_number)
 			switch (level_number)
 			{
 			case 0:
+				set_grid_0();
 				name=standardLevels.check_levels("standardLevels.txt");
 				standardLevels.load_level("level 1", "standardLevels.txt");
 				part_level_one(level_number);
 				break;
 			case 1 : 
+				set_grid_0();
 				name = standardLevels.check_levels("standardLevels.txt");
 				standardLevels.load_level("level 2", "standardLevels.txt");
 				part_level_two(level_number);
 				break;
 			case 2:
+				set_grid_0();
+
 				name = standardLevels.check_levels("standardLevels.txt");
 
 				standardLevels.load_level("level 3", "standardLevels.txt");
@@ -2007,12 +2018,7 @@ void part_play(int page_number)
 			default:
 				break;
 			}
-		/*	part_level_three(level_number);
-			part_level_four(level_number);
-			part_level_five(level_number);
-			part_level_six(level_number);
-			part_level_seven(level_number);
-			part_level_eight(level_number);     garbish                   */
+
 			if (level_number == 8)
 			{
 				window_Levels.close();

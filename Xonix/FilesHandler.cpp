@@ -107,38 +107,39 @@ void FilesHandler::write_custom_Level(string grid, string levelName,string fileN
 
 void FilesHandler::writeScore(int &score,int &highscore,string levelName)
 {
-	int position = 0; string line,data="",targetLine; bool isFound = false;
+	short position = 0; string line,data="",targetLine;
 	fstream scoreFile;
 	scoreFile.open("Data/ScoreSaving.txt");
 	if (scoreFile.is_open())
 	{
 		while (getline(scoreFile,line))
 		{
+			data += line +'\n';
 			
-			if (line.find(levelName)!=-1)
-			{
-				position = line.find("L");
-				targetLine=line.replace(position, line.length(),levelName+to_string(score));
-				cout << targetLine;
-				cout << line;
-				isFound = true;
-				//break;
-			}
-			data += line;
+			
 			/*if (isFound)
 				break;*/
-
+			if (line.find(levelName)!=-1)
+				targetLine = line;
 		}
+		position = data.find(levelName);
+		if (position != -1)
+			data = data.replace(position,targetLine.length(), levelName + to_string(highscore));
+		
+
 	}
 	scoreFile.close();
-	scoreFile.open("Data/ScoreSaving.txt",ios::out);
+	scoreFile.open("Data/ScoreSaving.txt", ios::out);
+	scoreFile << data;
+	/*
+	
 	if (isFound)
 	{
 		scoreFile.seekp(position);
 		scoreFile << targetLine<<'\n' << data.substr(targetLine.length(),string::npos)<<'\n';
 	}
 	else
-		scoreFile << levelName << highscore <<'\n';
+		scoreFile << levelName << highscore <<'\n';*/
 	
 }
 
@@ -181,3 +182,14 @@ void FilesHandler::checkScores()
 //}
 //else
 //scoreFile << levelName << highscore;
+
+
+//if (line.find(levelName) != -1)
+//{
+//	position = data.find("Level 2 :");
+//	targetLine = line.replace(0, line.length(), levelName + to_string(score));
+//	cout << targetLine;
+//	cout << line;
+//	isFound = true;
+//	//break;
+//}
