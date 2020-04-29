@@ -33,6 +33,7 @@ using namespace sf;
 //tell me i did selelction to which window
 //global varibles
 // window scale  
+stringstream sscore; Text labelscore;
 struct enemy {
 	//e=enemy
 	// we put the function in the struct to make varibles of struct idientfied in the functions
@@ -103,7 +104,122 @@ void setTime(time_t &this_second,int &second,int &minute,time_t &first_second,st
 		}
 	}
 }
+void setTimeText(Font &number_font,Text &time_text)
+{
+	time_text.setFont(number_font);
+	time_text.setFillColor(Color::Red);
+	time_text.setPosition(0, 640);
+	time_text.setCharacterSize(20);
+}
+void setHeartText(Font &Arial_font, Text &heartText)
+{
+	heartText.setFont(Arial_font);
+	heartText.setFillColor(Color::Green);
+	heartText.setPosition((ScreenWidth / 3), 633);
+	heartText.setCharacterSize(30);
+}
+void setPercentText(Font &Arial_font, Text &PercentText)
+{
+	PercentText.setFont(Arial_font);
+	PercentText.setFillColor(Color::Green);
+	PercentText.setPosition(500, 630);
+	PercentText.setCharacterSize(30);
+}
+void setEnemiesShapes(short &nEnemy,RectangleShape enemies_shapes[])
+{
+	for (int i = 0; i < nEnemy; i++) {
+		enemies_shapes[i].setSize(Vector2f(10, 10));
+		enemies_shapes[i].setPosition(enemies_struct[i].expostion, enemies_struct[i].eypostion);
+		enemies_shapes[i].setFillColor(Color::Red);
+	}
+}
+void set_grid_0();
+void setScoreText(Font &Arial_font)
+{
+	score = 0;
+	sscore << "Score : " << score;
+	labelscore.setCharacterSize(20);
+	labelscore.setPosition({30 ,50 });
+	labelscore.setFont(Arial_font);
+	labelscore.setString(sscore.str());
+	labelscore.setFillColor(Color::Green);
+
+
+}
+void updateScore()
+{
+	score = score / 44;
+	sscore.str("");
+	sscore << "Score:" << score;
+	labelscore.setString(sscore.str());
+}
 void player_rectangle(RectangleShape& player);
+void reply_level(bool play, Music& music, int& xpos, int& ypos)
+{
+	if (heart == 0)
+	{
+		//scores.writeScore(score, highscore, "Level one : ");
+		FilesHandler scores;
+		scores.writeScore(score, score, "Level 1 : ");
+		RenderWindow message(VideoMode(messageWidth, messageHeight), "message", Style::Close);
+		messagebox  Message(messageWidth, messageHeight);
+		while (message.isOpen())
+		{
+			Event event;
+			while (message.pollEvent(event))
+			{
+				if (event.type == Event::Closed)
+					message.close();
+				if (event.type == Event::KeyReleased)
+				{
+					if (event.key.code == Keyboard::Left)
+					{
+						Message.moveLeft();
+						break;
+					}
+					if (event.key.code == Keyboard::Right)
+					{
+						Message.moveRight();
+						break;
+					}
+				}
+				//choose decision
+				if (event.key.code == Keyboard::Return)   // Return == I pressed enter
+				{
+					if (Message.messagePressed() == 0)    //  yes
+					{
+						message.close();//close the main window and open window.play
+						//window_Level_one.close();
+						music.stop();                //closing window level to open new one
+						play = true;
+						replay = true;
+						break;
+
+					}
+					if (Message.messagePressed() == 1)    //  no
+					{
+						message.close();				//close the main window and open window.credits
+						play = false;
+						replay = false;
+					}
+				}
+			}
+			message.clear();
+			Message.draw(message);
+			message.display();
+		}
+		if (replay == true)
+		{
+			heart = 3;
+			xpos, ypos = 0;
+			message.close();
+			replay = false;
+			set_grid_0();
+			music.play();
+			//break;
+		}
+	}
+}
 void checkCollision(short nEnemy,RectangleShape enemies_shapes [],Sound collisionSound)
 {
 	for (int i = 0; i < nEnemy; i++)
@@ -116,12 +232,12 @@ void checkCollision(short nEnemy,RectangleShape enemies_shapes [],Sound collisio
 			heart--;
 			collisionSound.play();
 			//make the enemy destroy your line "Nice"
-			grid[enemies_struct[i].expostion / 10][enemies_struct[i].eypostion / 10] = -1;
+			//grid[enemies_struct[i].expostion / 10][enemies_struct[i].eypostion / 10] = -1;
 			//this_thread::sleep_for(.2s);
-		/*	for (int i = 0; i < 82; i++)
+			for (int i = 0; i < 82; i++)
 				for (int j = 0; j < 62; j++)
 					if (grid[i][j] == 2)
-						grid[i][j] = 0;*/
+						grid[i][j] = -1;
 
 						//play = false;
 		}
@@ -235,7 +351,7 @@ void setsBrush(int& xpos, int& ypos)
 }
 void drawArea(Sprite& Sgrid, RenderWindow& window, Texture& image, Texture& image2)
 {
-	
+	Sgrid.setOrigin(5,5);
 	for (int i = 0; i < 82; i++)
 		for (int j = 0; j < 62; j++)
 		{
@@ -262,7 +378,9 @@ void drawArea(Sprite& Sgrid, RenderWindow& window, Texture& image, Texture& imag
 				Sgrid.setTexture(image);
 			}
 			Sgrid.setPosition(i * 10, j * 10);
+		
 			window.draw(Sgrid);
+			
 		}
 }
 int checkBoundaries()
@@ -289,7 +407,7 @@ int checkBoundaries()
 void check_images_borders_load(Texture& image, Texture& image2, Texture& image3);
 
 void check_font_load(Font& number_font, Font& Arial_font);
-void set_grid_0();
+
 
 void part_level_one(int number_level);
 
@@ -426,21 +544,11 @@ void part_level_one(int number_level)
 {
 	if (level_number == 0)
 	{
-		score = 0;
+		
 		heart = 3;
  //score system
 int highscore=20;
-
-Font arial;
-arial.loadFromFile("Data/arial.ttf");
-
-ostringstream sscore;
-sscore << "Score : " << score;
-Text labelscore;
-labelscore.setCharacterSize(20);
-labelscore.setPosition({ 30, 20 });
-labelscore.setFont(arial);
-labelscore.setString(sscore.str());        
+        
 		//level one  --- 
 		//set_grid_0();
 		short nEnemy = 4;//number of enemy of selected level
@@ -460,32 +568,21 @@ labelscore.setString(sscore.str());
 		//font 
 		Font number_font, Arial_font;
 		check_font_load(number_font, Arial_font);
+		setScoreText(Arial_font);
+	
 		RectangleShape enemies_shapes[10];
-		for (int i = 0; i < nEnemy; i++) {
-			enemies_shapes[i].setSize(Vector2f(10, 10));
-			enemies_shapes[i].setPosition(enemies_struct[i].expostion, enemies_struct[i].eypostion);
-			enemies_shapes[i].setFillColor(Color::Red);//Se7aaaaaaaaaa
-		}
+		setEnemiesShapes(nEnemy, enemies_shapes);
 		// time 
 		time_t first_second, this_second;
 		time(&first_second);
 		int second = 0, minute = 0;
 		//time text
 		Text time_text, PercentText, heartText;
-		time_text.setFont(number_font);
-		time_text.setFillColor(Color::Red);
-		time_text.setPosition(0, 640);
-		time_text.setCharacterSize(20);
+		setTimeText(number_font, time_text);
 		//Percent Text
-		PercentText.setFont(Arial_font);
-		PercentText.setFillColor(Color::Green);
-		PercentText.setPosition(500, 630);
-		PercentText.setCharacterSize(30);
+		setPercentText(Arial_font, PercentText);
 		//heart Text
-		heartText.setFont(Arial_font);
-		heartText.setFillColor(Color::Green);
-		heartText.setPosition((ScreenWidth / 3), 633);
-		heartText.setCharacterSize(30);
+		setHeartText(Arial_font, heartText);
 		//player rectangle
 		RectangleShape player;
 		player_rectangle(player);
@@ -513,10 +610,8 @@ labelscore.setString(sscore.str());
 				Sprite Sgrid;
 				int percent = 0;
 				percent = checkBoundaries() / (44);
-				score = score / (44);
-				sscore.str("");
-				sscore <<"Score:"<< score;
-				labelscore.setString(sscore.str());
+				updateScore();
+				
 				// time string 
 				stringstream time_string, areaString, heartString;
 				heartString << heart;
@@ -592,72 +687,12 @@ labelscore.setString(sscore.str());
 				window_Level_one.draw(heartText);
 				window_Level_one.draw(PercentText);
 				window_Level_one.draw(labelscore);
+				
+				
 
 				window_Level_one.display();
 				///////////////////////
-				if (heart == 0)
-				{
-					//scores.writeScore(score, highscore, "Level one : ");
-					FilesHandler scores;
-					scores.writeScore(score, score, "Level 1 : ");
-					RenderWindow message(VideoMode(messageWidth, messageHeight), "message", Style::Close);
-					messagebox  Message(messageWidth, messageHeight);
-					while (message.isOpen())
-					{
-						Event event;
-						while (message.pollEvent(event))
-						{
-							if (event.type == Event::Closed)
-								message.close();
-							if (event.type == Event::KeyReleased)
-							{
-								if (event.key.code == Keyboard::Left)
-								{
-									Message.moveLeft();
-									break;
-								}
-								if (event.key.code == Keyboard::Right)
-								{
-									Message.moveRight();
-									break;
-								}
-							}
-							//choose decision
-							if (event.key.code == Keyboard::Return)   // Return == I pressed enter
-							{
-								if (Message.messagePressed() == 0)    //  yes
-								{
-									message.close();//close the main window and open window.play
-									//window_Level_one.close();
-									music.stop();                //closing window level to open new one
-									play = true;
-									replay = true;
-									break;
-
-								}
-								if (Message.messagePressed() == 1)    //  no
-								{
-									message.close();				//close the main window and open window.credits
-									play = false;
-									replay = false;
-								}
-							}
-						}
-						message.clear();
-						Message.draw(message);
-						message.display();
-					}
-					if (replay == true)
-					{
-						heart = 3;
-						xpos, ypos = 0;
-						message.close();
-						replay = false;
-						set_grid_0();
-						music.play();
-						//break;
-					}
-				}
+				reply_level(play, music, xpos, ypos);
 				
 					
 			}
@@ -689,42 +724,29 @@ void part_level_two(int number_level)
 		//images 
 		Texture image, image2, image3;
 		check_images_borders_load(image, image2, image3);
-
-		//font
+		Sprite  sprite3(image3);
+		sprite3.setPosition(Vector2f((ScreenWidth / 3 - 50), 633));
+		//font 
 		Font number_font, Arial_font;
 		check_font_load(number_font, Arial_font);
+		setScoreText(Arial_font);
 
 		Texture texture;
 		if (!texture.loadFromFile("Data/enemy.png"))
 			cout << "error in load photo of enemy ";
 		RectangleShape enemies_shapes[10];
-		for (int i = 0; i < nEnemy; i++) {
-			enemies_shapes[i].setSize(Vector2f(20, 20));
-			enemies_shapes[i].setPosition(enemies_struct[i].expostion, enemies_struct[i].eypostion);
-			//enemies_shapes[i].setFillColor(Color::Yellow);//Se7aaaaaaaaaa
-			enemies_shapes[i].setTexture(&texture);
-
-		}
+		setEnemiesShapes(nEnemy, enemies_shapes);
 		// time 
 		time_t first_second, this_second;
 		time(&first_second);
 		int second = 0, minute = 0;
 		//time text
-		Text time_text, PercentText,heartText;
-		time_text.setFont(number_font);
-		time_text.setFillColor(Color::Red);
-		time_text.setPosition(0, 640);
-		time_text.setCharacterSize(20);
+		Text time_text, PercentText, heartText;
+		setTimeText(number_font, time_text);
 		//Percent Text
-		PercentText.setFont(Arial_font);
-		PercentText.setFillColor(Color::Green);
-		PercentText.setPosition(500, 630);
-		PercentText.setCharacterSize(30);
+		setPercentText(Arial_font, PercentText);
 		//heart Text
-		heartText.setFont(Arial_font);
-		heartText.setFillColor(Color::Green);
-		heartText.setPosition((ScreenWidth / 3), 633);
-		heartText.setCharacterSize(30);
+		setHeartText(Arial_font, heartText);
 		//player rectangle 
 		RectangleShape player;
 		player_rectangle(player);
@@ -751,15 +773,17 @@ void part_level_two(int number_level)
 			Sprite Sgrid;
 			int percent = 0;
 			percent = checkBoundaries() / (44);
+			updateScore();
 			// time string 
-			stringstream time_string, areaString,heartString;
-			areaString << "You Finished " << percent << "%";
-			PercentText.setString(areaString.str());
+			stringstream time_string, areaString, heartString;
 			heartString << heart;
 			heartText.setString(heartString.str());
+			areaString << "You Finished " << percent << "%";
+			PercentText.setString(areaString.str());
+			//setting time 
 			setTime(this_second, second, minute, first_second, time_string);
 
-			
+
 			while (window_Level_two.pollEvent(event))
 			{
 				if (event.type == Event::Closed)
@@ -794,82 +818,27 @@ void part_level_two(int number_level)
 							play = false;
 					}
 				}*/
-			
+
 			setsBrush(xpos, ypos);
 			//draw 
 			window_Level_two.clear();
 			drawArea(Sgrid, window_Level_two, image, image2);
 			window_Level_two.draw(player);
+			window_Level_two.draw(sprite3);
 			window_Level_two.draw(bound);
 			for (int i = 0; i < nEnemy; i++) {
 				window_Level_two.draw(enemies_shapes[i]);
 			}
 			window_Level_two.draw(time_text);
 			window_Level_two.draw(PercentText);
+			window_Level_two.draw(heartText);
+
+			window_Level_two.draw(labelscore);
+
 			window_Level_two.display();
 			/////////////////////
-			if (heart == 0)
-			{
-				RenderWindow message(VideoMode(messageWidth, messageHeight), "message", Style::Close);
-				messagebox  Message(messageWidth, messageHeight);
-				while (message.isOpen())
-				{
-					Event event;
-					while (message.pollEvent(event))
-					{
-						if (event.type == Event::Closed)
-							message.close();
-						if (event.type == Event::KeyReleased)
-						{
-							if (event.key.code == Keyboard::Left)
-							{
-								Message.moveLeft();
-								break;
-							}
-							if (event.key.code == Keyboard::Right)
-							{
-								Message.moveRight();
-								break;
-							}
-						}
-						//choose decision
-						if (event.key.code == Keyboard::Return)   // Return == I pressed enter
-						{
-							if (Message.messagePressed() == 0)    //  yes
-							{
-								message.close();//close the main window and open window.play
-								window_Level_two.close();
-								music.stop();                //closing window level to open new one
-								play = true;
-								replay = true;
-								break;
-
-							}
-							if (Message.messagePressed() == 1)    //  no
-							{
-								message.close();				//close the main window and open window.credits
-								play = false;
-								replay = false;
-							}
-						}
-					}
-					message.clear();
-					Message.draw(message);
-					message.display();
-				}
-			}
-			if (replay == true)
-				break;
+			reply_level(play, music, xpos, ypos);
 		}
-		if (replay == true)
-		{
-			replay = false;
-			set_grid_0();
-			///needs more expermenting now it has been fixed :) 
-			part_level_two(level_number);
-
-		}
-		
 	}
 }
 
@@ -886,32 +855,29 @@ void part_level_three(int number_level)
 		int xpos = 0, ypos = 0; //playes position
 		short dir = -1;//direction of the player  -1 means no direction in the start it can be anything
 		//images 
+		//images 
 		Texture image, image2, image3;
 		check_images_borders_load(image, image2, image3);
+		Sprite  sprite3(image3);
+		sprite3.setPosition(Vector2f((ScreenWidth / 3 - 50), 633));
 		//font 
 		Font number_font, Arial_font;
 		check_font_load(number_font, Arial_font);
+		setScoreText(Arial_font);
+
 		RectangleShape enemies_shapes[10];
-		for (int i = 0; i < nEnemy; i++) {
-			enemies_shapes[i].setSize(Vector2f(20, 20));
-			enemies_shapes[i].setPosition(enemies_struct[i].expostion, enemies_struct[i].eypostion);
-			enemies_shapes[i].setFillColor(Color::Yellow);//Se7aaaaaaaaaa
-		}
+		setEnemiesShapes(nEnemy, enemies_shapes);
 		// time 
 		time_t first_second, this_second;
 		time(&first_second);
 		int second = 0, minute = 0;
 		//time text
-		Text time_text, PercentText;
-		time_text.setFont(number_font);
-		time_text.setFillColor(Color::Red);
-		time_text.setPosition(0, 640);
-		time_text.setCharacterSize(20);
+		Text time_text, PercentText, heartText;
+		setTimeText(number_font, time_text);
 		//Percent Text
-		PercentText.setFont(Arial_font);
-		PercentText.setFillColor(Color::Green);
-		PercentText.setPosition(500, 630);
-		PercentText.setCharacterSize(30);
+		setPercentText(Arial_font, PercentText);
+		//heart Text
+		setHeartText(Arial_font, heartText);
 		//player rectangle 
 		RectangleShape player;
 		player_rectangle(player);
@@ -938,10 +904,14 @@ void part_level_three(int number_level)
 			Sprite Sgrid;
 			int percent = 0;
 			percent = checkBoundaries() / (44);
+			updateScore();
 			// time string 
-			stringstream time_string, areaString;
+			stringstream time_string, areaString, heartString;
+			heartString << heart;
+			heartText.setString(heartString.str());
 			areaString << "You Finished " << percent << "%";
 			PercentText.setString(areaString.str());
+			//setting time 
 			setTime(this_second, second, minute, first_second, time_string);
 
 			while (window_Level_Three.pollEvent(event))
@@ -977,12 +947,18 @@ void part_level_three(int number_level)
 			window_Level_Three.clear();
 			drawArea(Sgrid, window_Level_Three, image, image2);
 			window_Level_Three.draw(player);
+			window_Level_Three.draw(sprite3);
+
 			window_Level_Three.draw(bound);
 			for (int i = 0; i < nEnemy; i++) {
 				window_Level_Three.draw(enemies_shapes[i]);
 			}
 			window_Level_Three.draw(time_text);
 			window_Level_Three.draw(PercentText);
+			window_Level_Three.draw(heartText);
+
+			window_Level_Three.draw(labelscore);
+
 			window_Level_Three.display();
 		}
 	}
@@ -990,7 +966,7 @@ void part_level_three(int number_level)
 void part_level_four(int level_number) {
 
 	{
-		
+		heart = 3;
 		if (level_number == 3)
 		{//level three
 			set_grid_0();
@@ -1036,30 +1012,25 @@ void part_level_four(int level_number) {
 			//images 
 			Texture image, image2, image3;
 			check_images_borders_load(image, image2, image3);
+			Sprite  sprite3(image3);
+			sprite3.setPosition(Vector2f((ScreenWidth / 3 - 50), 633));
 			//font 
 			Font number_font, Arial_font;
 			check_font_load(number_font, Arial_font);
+			setScoreText(Arial_font);
 			RectangleShape enemies_shapes[10];
-			for (int i = 0; i < nEnemy; i++) {
-				enemies_shapes[i].setSize(Vector2f(20, 20));
-				enemies_shapes[i].setPosition(enemies_struct[i].expostion, enemies_struct[i].eypostion);
-				enemies_shapes[i].setFillColor(Color::Yellow);//Se7aaaaaaaaaa
-			}
+			setEnemiesShapes(nEnemy, enemies_shapes);
 			// time 
 			time_t first_second, this_second;
 			time(&first_second);
 			int second = 0, minute = 0;
 			//time text
-			Text time_text, PercentText;
-			time_text.setFont(number_font);
-			time_text.setFillColor(Color::Red);
-			time_text.setPosition(0, 640);
-			time_text.setCharacterSize(20);
+			Text time_text, PercentText, heartText;
+			setTimeText(number_font, time_text);
 			//Percent Text
-			PercentText.setFont(Arial_font);
-			PercentText.setFillColor(Color::Green);
-			PercentText.setPosition(500, 630);
-			PercentText.setCharacterSize(30);
+			setPercentText(Arial_font, PercentText);
+			//heart Text
+			setHeartText(Arial_font, heartText);
 			//player rectangle 
 			RectangleShape player;
 			player_rectangle(player);
@@ -1086,10 +1057,14 @@ void part_level_four(int level_number) {
 				Sprite Sgrid;
 				int percent = 0;
 				percent = checkBoundaries() / (44);
+				updateScore();
 				// time string 
-				stringstream time_string, areaString;
+				stringstream time_string, areaString, heartString;
+				heartString << heart;
+				heartText.setString(heartString.str());
 				areaString << "You Finished " << percent << "%";
 				PercentText.setString(areaString.str());
+				//setting time 
 				setTime(this_second, second, minute, first_second, time_string);
 
 				while (window_Level_Three.pollEvent(event))
@@ -1124,20 +1099,23 @@ void part_level_four(int level_number) {
 				moveEnemy(nEnemy);
 				setsBrush(xpos, ypos);
 				//draw 
-				
-			
-			
 				window_Level_Three.clear();
 				drawArea(Sgrid, window_Level_Three, image, image2);
 
 				window_Level_Three.draw(player);
+				window_Level_Three.draw(sprite3);
 				window_Level_Three.draw(bound);
 				for (int i = 0; i < nEnemy; i++) {
 					window_Level_Three.draw(enemies_shapes[i]);
 				}
 				window_Level_Three.draw(time_text);
 				window_Level_Three.draw(PercentText);
+				window_Level_Three.draw(labelscore);
+
 				window_Level_Three.display();
+				///////////////////
+				reply_level(play, music, xpos, ypos);
+
 			}
 		}
 	}
@@ -1158,30 +1136,25 @@ void part_level_five(int level_number) {
 			//images 
 			Texture image, image2, image3;
 			check_images_borders_load(image, image2, image3);
+			Sprite  sprite3(image3);
+			sprite3.setPosition(Vector2f((ScreenWidth / 3 - 50), 633));
 			//font 
 			Font number_font, Arial_font;
 			check_font_load(number_font, Arial_font);
+			setScoreText(Arial_font);
 			RectangleShape enemies_shapes[10];
-			for (int i = 0; i < nEnemy; i++) {
-				enemies_shapes[i].setSize(Vector2f(20, 20));
-				enemies_shapes[i].setPosition(enemies_struct[i].expostion, enemies_struct[i].eypostion);
-				enemies_shapes[i].setFillColor(Color::Yellow);//Se7aaaaaaaaaa
-			}
+			setEnemiesShapes(nEnemy, enemies_shapes);
 			// time 
 			time_t first_second, this_second;
 			time(&first_second);
 			int second = 0, minute = 0;
 			//time text
-			Text time_text, PercentText;
-			time_text.setFont(number_font);
-			time_text.setFillColor(Color::Red);
-			time_text.setPosition(0, 640);
-			time_text.setCharacterSize(20);
+			Text time_text, PercentText, heartText;
+			setTimeText(number_font, time_text);
 			//Percent Text
-			PercentText.setFont(Arial_font);
-			PercentText.setFillColor(Color::Green);
-			PercentText.setPosition(500, 630);
-			PercentText.setCharacterSize(30);
+			setPercentText(Arial_font, PercentText);
+			//heart Text
+			setHeartText(Arial_font, heartText);
 			//player rectangle 
 			RectangleShape player;
 			player_rectangle(player);
@@ -1208,10 +1181,14 @@ void part_level_five(int level_number) {
 				Sprite Sgrid;
 				int percent = 0;
 				percent = checkBoundaries() / (44);
+				updateScore();
 				// time string 
-				stringstream time_string, areaString;
+				stringstream time_string, areaString, heartString;
+				heartString << heart;
+				heartText.setString(heartString.str());
 				areaString << "You Finished " << percent << "%";
 				PercentText.setString(areaString.str());
+				//setting time 
 				setTime(this_second, second, minute, first_second, time_string);
 
 				while (window_Level_Three.pollEvent(event))
@@ -1247,13 +1224,19 @@ void part_level_five(int level_number) {
 				window_Level_Three.clear();
 				drawArea(Sgrid, window_Level_Three, image, image2);
 				window_Level_Three.draw(player);
+				window_Level_Three.draw(sprite3);
 				window_Level_Three.draw(bound);
 				for (int i = 0; i < nEnemy; i++) {
 					window_Level_Three.draw(enemies_shapes[i]);
 				}
 				window_Level_Three.draw(time_text);
 				window_Level_Three.draw(PercentText);
+				window_Level_Three.draw(labelscore);
+
 				window_Level_Three.display();
+				///////////////////
+				reply_level(play, music, xpos, ypos);
+
 			}
 		}
 	}
@@ -1272,32 +1255,28 @@ void part_level_six(int level_number) {
 			int xpos = 0, ypos = 0; //playes position
 			short dir = -1;//direction of the player  -1 means no direction in the start it can be anything
 			//images 
+			//images 
 			Texture image, image2, image3;
 			check_images_borders_load(image, image2, image3);
+			Sprite  sprite3(image3);
+			sprite3.setPosition(Vector2f((ScreenWidth / 3 - 50), 633));
 			//font 
 			Font number_font, Arial_font;
 			check_font_load(number_font, Arial_font);
+			setScoreText(Arial_font);
 			RectangleShape enemies_shapes[10];
-			for (int i = 0; i < nEnemy; i++) {
-				enemies_shapes[i].setSize(Vector2f(20, 20));
-				enemies_shapes[i].setPosition(enemies_struct[i].expostion, enemies_struct[i].eypostion);
-				enemies_shapes[i].setFillColor(Color::Yellow);//Se7aaaaaaaaaa
-			}
+			setEnemiesShapes(nEnemy, enemies_shapes);
 			// time 
 			time_t first_second, this_second;
 			time(&first_second);
 			int second = 0, minute = 0;
 			//time text
-			Text time_text, PercentText;
-			time_text.setFont(number_font);
-			time_text.setFillColor(Color::Red);
-			time_text.setPosition(0, 640);
-			time_text.setCharacterSize(20);
+			Text time_text, PercentText, heartText;
+			setTimeText(number_font, time_text);
 			//Percent Text
-			PercentText.setFont(Arial_font);
-			PercentText.setFillColor(Color::Green);
-			PercentText.setPosition(500, 630);
-			PercentText.setCharacterSize(30);
+			setPercentText(Arial_font, PercentText);
+			//heart Text
+			setHeartText(Arial_font, heartText);
 			//player rectangle 
 			RectangleShape player;
 			player_rectangle(player);
@@ -1324,10 +1303,14 @@ void part_level_six(int level_number) {
 				Sprite Sgrid;
 				int percent = 0;
 				percent = checkBoundaries() / (44);
+				updateScore();
 				// time string 
-				stringstream time_string, areaString;
+				stringstream time_string, areaString, heartString;
+				heartString << heart;
+				heartText.setString(heartString.str());
 				areaString << "You Finished " << percent << "%";
 				PercentText.setString(areaString.str());
+				//setting time 
 				setTime(this_second, second, minute, first_second, time_string);
 
 				while (window_Level_Three.pollEvent(event))
@@ -1363,13 +1346,19 @@ void part_level_six(int level_number) {
 				window_Level_Three.clear();
 				drawArea(Sgrid, window_Level_Three, image, image2);
 				window_Level_Three.draw(player);
+				window_Level_Three.draw(sprite3);
 				window_Level_Three.draw(bound);
 				for (int i = 0; i < nEnemy; i++) {
 					window_Level_Three.draw(enemies_shapes[i]);
 				}
 				window_Level_Three.draw(time_text);
 				window_Level_Three.draw(PercentText);
+				window_Level_Three.draw(labelscore);
+
 				window_Level_Three.display();
+				////////////////////
+				reply_level(play, music, xpos, ypos);
+
 			}
 		}
 	}
@@ -1390,30 +1379,25 @@ void part_level_seven(int level_number) {
 			//images 
 			Texture image, image2, image3;
 			check_images_borders_load(image, image2, image3);
+			Sprite  sprite3(image3);
+			sprite3.setPosition(Vector2f((ScreenWidth / 3 - 50), 633));
 			//font 
 			Font number_font, Arial_font;
 			check_font_load(number_font, Arial_font);
+			setScoreText(Arial_font);
 			RectangleShape enemies_shapes[10];
-			for (int i = 0; i < nEnemy; i++) {
-				enemies_shapes[i].setSize(Vector2f(20, 20));
-				enemies_shapes[i].setPosition(enemies_struct[i].expostion, enemies_struct[i].eypostion);
-				enemies_shapes[i].setFillColor(Color::Yellow);//Se7aaaaaaaaaa
-			}
+			setEnemiesShapes(nEnemy, enemies_shapes);
 			// time 
 			time_t first_second, this_second;
 			time(&first_second);
 			int second = 0, minute = 0;
 			//time text
-			Text time_text, PercentText;
-			time_text.setFont(number_font);
-			time_text.setFillColor(Color::Red);
-			time_text.setPosition(0, 640);
-			time_text.setCharacterSize(20);
+			Text time_text, PercentText, heartText;
+			setTimeText(number_font, time_text);
 			//Percent Text
-			PercentText.setFont(Arial_font);
-			PercentText.setFillColor(Color::Green);
-			PercentText.setPosition(500, 630);
-			PercentText.setCharacterSize(30);
+			setPercentText(Arial_font, PercentText);
+			//heart Text
+			setHeartText(Arial_font, heartText);
 			//player rectangle 
 			RectangleShape player;
 			player_rectangle(player);
@@ -1440,10 +1424,14 @@ void part_level_seven(int level_number) {
 				Sprite Sgrid;
 				int percent = 0;
 				percent = checkBoundaries() / (44);
+				updateScore();
 				// time string 
-				stringstream time_string, areaString;
+				stringstream time_string, areaString, heartString;
+				heartString << heart;
+				heartText.setString(heartString.str());
 				areaString << "You Finished " << percent << "%";
 				PercentText.setString(areaString.str());
+				//setting time 
 				setTime(this_second, second, minute, first_second, time_string);
 
 				while (window_Level_Three.pollEvent(event))
@@ -1479,6 +1467,7 @@ void part_level_seven(int level_number) {
 				window_Level_Three.clear();
 				drawArea(Sgrid, window_Level_Three, image, image2);
 				window_Level_Three.draw(player);
+				window_Level_Three.draw(sprite3);
 				window_Level_Three.draw(bound);
 				for (int i = 0; i < nEnemy; i++) 
 				{
@@ -1486,7 +1475,12 @@ void part_level_seven(int level_number) {
 				}
 				window_Level_Three.draw(time_text);
 				window_Level_Three.draw(PercentText);
+				window_Level_Three.draw(labelscore);
+
 				window_Level_Three.display();
+				/////////////////////
+				reply_level(play, music, xpos, ypos);
+
 			}
 		}
 	}
@@ -1504,33 +1498,28 @@ void part_level_eight(int level_number) {
 			bool play = true, endgame = false;; // play variable 
 			int xpos = 0, ypos = 0; //playes position
 			short dir = -1;//direction of the player  -1 means no direction in the start it can be anything
-			//images 
+		//images 
 			Texture image, image2, image3;
 			check_images_borders_load(image, image2, image3);
+			Sprite  sprite3(image3);
+			sprite3.setPosition(Vector2f((ScreenWidth / 3 - 50), 633));
 			//font 
 			Font number_font, Arial_font;
 			check_font_load(number_font, Arial_font);
+			setScoreText(Arial_font);
 			RectangleShape enemies_shapes[10];
-			for (int i = 0; i < nEnemy; i++) {
-				enemies_shapes[i].setSize(Vector2f(20, 20));
-				enemies_shapes[i].setPosition(enemies_struct[i].expostion, enemies_struct[i].eypostion);
-				enemies_shapes[i].setFillColor(Color::Yellow);//Se7aaaaaaaaaa
-			}
+			setEnemiesShapes(nEnemy, enemies_shapes);
 			// time 
 			time_t first_second, this_second;
 			time(&first_second);
 			int second = 0, minute = 0;
 			//time text
-			Text time_text, PercentText;
-			time_text.setFont(number_font);
-			time_text.setFillColor(Color::Red);
-			time_text.setPosition(0, 640);
-			time_text.setCharacterSize(20);
+			Text time_text, PercentText, heartText;
+			setTimeText(number_font, time_text);
 			//Percent Text
-			PercentText.setFont(Arial_font);
-			PercentText.setFillColor(Color::Green);
-			PercentText.setPosition(500, 630);
-			PercentText.setCharacterSize(30);
+			setPercentText(Arial_font, PercentText);
+			//heart Text
+			setHeartText(Arial_font, heartText);
 			//player rectangle 
 			RectangleShape player;
 			player_rectangle(player);
@@ -1557,10 +1546,14 @@ void part_level_eight(int level_number) {
 				Sprite Sgrid;
 				int percent = 0;
 				percent = checkBoundaries() / (44);
+				updateScore();
 				// time string 
-				stringstream time_string, areaString;
+				stringstream time_string, areaString, heartString;
+				heartString << heart;
+				heartText.setString(heartString.str());
 				areaString << "You Finished " << percent << "%";
 				PercentText.setString(areaString.str());
+				//setting time 
 				setTime(this_second, second, minute, first_second, time_string);
 
 				while (window_Level_Three.pollEvent(event))
@@ -1596,13 +1589,19 @@ void part_level_eight(int level_number) {
 				window_Level_Three.clear();
 				drawArea(Sgrid, window_Level_Three, image, image2);
 				window_Level_Three.draw(player);
+				window_Level_Three.draw(sprite3);
 				window_Level_Three.draw(bound);
 				for (int i = 0; i < nEnemy; i++) {
 					window_Level_Three.draw(enemies_shapes[i]);
 				}
 				window_Level_Three.draw(time_text);
 				window_Level_Three.draw(PercentText);
+				window_Level_Three.draw(labelscore);
+
 				window_Level_Three.display();
+				///////////////////// 
+				reply_level(play, music, xpos, ypos);
+
 			}
 		}
 	}
@@ -2107,7 +2106,7 @@ void check_font_load(Font& number_font, Font& Arial_font) {
 	if (number_font.loadFromFile("Data/numbers_font.ttf") == false)
 		cout << "font is not here";
 	if (Arial_font.loadFromFile("Data/arial.ttf") == false)
-		cout << "font is not here";
+		exit(1);
 
 }
 void player_rectangle(RectangleShape& player) {
@@ -2116,6 +2115,8 @@ void player_rectangle(RectangleShape& player) {
 	player.setFillColor(Color::Magenta);
 	player.setPosition(0, 0);
 	player.setSize(Vector2f(10, 10));
+	player.setOrigin(5, 5);
+	
 }
 
 void Custom_make_level(int page_Custom) {
