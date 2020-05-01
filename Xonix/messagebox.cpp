@@ -12,21 +12,23 @@ messagebox::messagebox(float  messageWidth, float  massegeHeight)
 	mainmessage[0].setFillColor(Color::Magenta);
 	mainmessage[0].setString("YES");
 	mainmessage[0].setCharacterSize(40);
-	mainmessage[0].setPosition(Vector2f(100, 150));
+	mainmessage[0].setPosition(Vector2f(100, 250));
 	//no
 	mainmessage[1].setFont(font);
 	mainmessage[1].setFillColor(Color::White);
 	mainmessage[1].setString("NO");
 	mainmessage[1].setCharacterSize(40);
-	mainmessage[1].setPosition(Vector2f(200, 150));
+	mainmessage[1].setPosition(Vector2f(200, 250));
 
 	mainmessage[2].setFont(font);
 	mainmessage[2].setFillColor(Color::White);
 	mainmessage[2].setString("Do you want to replay?");
 	mainmessage[2].setCharacterSize(25);
-	mainmessage[2].setPosition(Vector2f(10, 30));
+	mainmessage[2].setPosition(Vector2f(10, 130));
 
 	messageSelected = 0;
+
+
 }
 
 
@@ -38,6 +40,7 @@ messagebox::~messagebox()
 //Function of drawing message
 void messagebox::draw(RenderWindow& message)
 {
+
 	for (int i = 0; i < 3; i++)
 	{
 		message.draw(mainmessage[i]);
@@ -76,3 +79,4 @@ void messagebox::moveLeft()
 		mainmessage[messageSelected].setFillColor(Color::Magenta); //change the new item's color
 	}
 }
+

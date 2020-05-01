@@ -98,7 +98,7 @@ levels::levels(float width, float hight, int mode,RenderWindow &CustomWindow,std
 			}
 			CustomLevels[i].setFont(font2);
 			CustomLevels[i].setString(name[i]);
-			CustomLevels[i].setPosition(Vector2f(ScreenWidth / 4 - 150, ScreenHeight / (Max_main_levels + 1) * (1 + 2 * i)));
+			CustomLevels[i].setPosition(Vector2f(ScreenWidth / 4 - 150, ScreenHeight / (Max_main_levels + 1) * (1 + 2 * i/2)));
 			CustomLevels[i].setCharacterSize(50);
 			//displaying Them to screen
 		}
@@ -191,7 +191,7 @@ void levels::moveDown(int mode)
 		CustomLevels[mainClevelsSelected].setFillColor(Color::White);			// áæ Ýí ÈÚÏíåÇ æÇäÇ ÏæÓÊ Úáí Ïæä íÈÞí Çááí ÇäÇ æÇÞÝ ÚáíåÇ ÇÈíÖ ææåíÍÑßäí Úáí Çááí ÈÚÏí
 
 		mainClevelsSelected++; //move to the lower item 
-		if (mainClevelsSelected == 4)  //=3 == level 4 and it not found
+		if (mainClevelsSelected == 5)  //=3 == level 4 and it not found
 		{
 			mainClevelsSelected = 0;
 		}

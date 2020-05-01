@@ -79,9 +79,12 @@ string* FilesHandler::check_levels(string fileName)
 
 			else
 			{
+				levelName[i] = "";
 				continue;
 			}
+			
 		}
+		cout << "level: " << i  <<  levelName[i-1];
 	}
 
 	inputFile.close();
