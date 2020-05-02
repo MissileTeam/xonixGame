@@ -183,7 +183,7 @@ void levels::moveup()
 
 
 
-void levels::moveDown(int mode)
+void levels::moveDown(int mode,std::string* name)
 {
 	if (mainClevelsSelected + 1 <= nCustom_level) //check if not on the last item (level3)    
 	{
@@ -191,7 +191,7 @@ void levels::moveDown(int mode)
 		CustomLevels[mainClevelsSelected].setFillColor(Color::White);			// áæ Ýí ÈÚÏíåÇ æÇäÇ ÏæÓÊ Úáí Ïæä íÈÞí Çááí ÇäÇ æÇÞÝ ÚáíåÇ ÇÈíÖ ææåíÍÑßäí Úáí Çááí ÈÚÏí
 
 		mainClevelsSelected++; //move to the lower item 
-		if (mainClevelsSelected == 5)  //=3 == level 4 and it not found
+		if (mainClevelsSelected == name->size()+1)  //=3 == level 4 and it not found
 		{
 			mainClevelsSelected = 0;
 		}
@@ -201,7 +201,7 @@ void levels::moveDown(int mode)
 
 
 
-void levels::moveUp(int mode)
+void levels::moveUp(int mode,std::string*name)
 {
 	if (mainClevelsSelected - 1 >= -1) //check if not on the first item (level 1)
 	{
@@ -210,7 +210,7 @@ void levels::moveUp(int mode)
 		mainClevelsSelected--;        //move to the upper item 
 		if (mainClevelsSelected == -1)
 		{
-			mainClevelsSelected = 0;
+			mainClevelsSelected = name->size();
 		}
 
 		CustomLevels[mainClevelsSelected].setFillColor(Color::Green); //change the new item's color

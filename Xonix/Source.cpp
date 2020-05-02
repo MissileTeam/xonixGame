@@ -26,8 +26,9 @@ std::string playername = "Player'sName: ";
 int score = 0; short heart = 3;
 int page_Custom = 0;
 short grid[Rows][Coulmns] = {};
-bool start = 0;
-int bonus = 0;
+bool start = 0, enemy_show = 1;
+int highscore = 0;
+bool scoreChecked = false;
 enum { Down, Up, Left, Right };
 using namespace std;
 using namespace sf;
@@ -65,7 +66,20 @@ struct enemy {
 
 	}
 }enemies_struct[10];
-
+void win(int arr[82][62], int percent)
+{
+	if (percent >= 92)
+	{
+		for (int i = 0; i <= 82; i++)
+		{
+			for (int j = 0; j <= 62; j++)
+			{
+				arr[i][j] = 1;
+				enemy_show = false;
+			}
+		}
+	}
+}
 // Function to check the area around enemies and set it to (-1) and check the area to be  filled which is (0) bounded by (2) in the matrix which is player lines
 void calculateScore(int& bonus, int& seconds, int& percent)
 {
@@ -79,7 +93,7 @@ void calculateScore(int& bonus, int& seconds, int& percent)
 
 			bonus = (score * 25 / 100);
 			score = score + bonus;
-			scores.writeScore(score, score, "Level 1 : ");
+			scores.writeScore(score, highscore, "Level 1 : ");
 			cout << "You hit new score" << endl;
 			break;
 		}
@@ -206,21 +220,19 @@ void scorecalc(int &score,int time) {
 			score = score + 100;
 		if (time < 20 && time >10)
 			score = score + 80;*/
-		if (time < 40 && time>30)
+		if (time <= 40 && time>39)
 			score = score + 60;
 	/*	else
 			score = score + 30;*/
 	}
 	else if (heart == 2) {
 		
-		if (time < 40 && time >30)
+		if (time < 40 && time >38)
 			score = score + 50;
-		if (time < 30 && time>20)
-			score = score + 30;
-		else if (heart == 1)
+		
+		else if (heart == 1 && (time<45 && time>43))
 			score = score + 20;
-		else
-			score = score + 20;
+		
 		
 	}
 	sscore.str("");
@@ -273,69 +285,84 @@ void checkCompletion(int& percent, short& oldpercent)
 	{
 		oldpercent = percent;
 		completion.play();
-		score++;
+		score+=10;
 	}
 }
-void win(RenderWindow& window,Font font,int &score,bool &play,Event & event,FilesHandler &scores)
+void WinWindow(RenderWindow& window,Font &font,int &score,bool &play,Event & event,FilesHandler &scores,int &percent)
 {
-	scores.writeScore(score, score, "Level 1 : ");
-
-	Text wintext, scoretext, nametext ,BackText;
-	
-		wintext.setFont(font);
-	wintext.setFillColor(Color::Green);
-	wintext.setPosition(300, 250);
-	wintext.setCharacterSize(60);
-	
-		scoretext.setFont(font);
-	scoretext.setFillColor(Color::Green);
-	scoretext.setPosition(400, 400);
-	scoretext.setCharacterSize(40);
-	
-	//	nametext.setFont(font);
-	//nametext.setFillColor(Color::Green);
-	//nametext.setPosition(400, 470);
-	//nametext.setCharacterSize(60);
-
-	BackText.setFont(font);
-	BackText.setFillColor(Color::Red);
-	BackText.setPosition(100, 500);
-	BackText.setCharacterSize(45);
-	BackText.setString("Press Enter to go to the next");
-	
-	stringstream  winString, scoreString, nameString;
-	nameString << playername;
-	nametext.setString(nameString.str());
-	scoreString << "your score is :: "<<score;
-	scoretext.setString(scoreString.str());
-	winString << "You won !! ";
-	wintext.setString(winString.str());
-	//window.clear();
-	window.draw(wintext);
-	window.draw(scoretext);
-	window.draw(nametext);
-	window.draw(BackText);
-	//window.display();
-	while (window.pollEvent(event))
+	if (percent >= 85)
 	{
-		if (Keyboard::isKeyPressed(Keyboard::Enter))
-			play = false;
+		
+		
+		Text wintext, scoretext, nametext, BackText;
+
+		wintext.setFont(font);
+		wintext.setFillColor(Color::Green);
+		wintext.setPosition(300, 250);
+		wintext.setCharacterSize(60);
+
+		scoretext.setFont(font);
+		scoretext.setFillColor(Color::Green);
+		scoretext.setPosition(300, 400);
+		scoretext.setCharacterSize(40);
+
+		//	nametext.setFont(font);
+		//nametext.setFillColor(Color::Green);
+		//nametext.setPosition(400, 470);
+		//nametext.setCharacterSize(60);
+
+		BackText.setFont(font);
+		BackText.setFillColor(Color::Red);
+		BackText.setPosition(100, 500);
+		BackText.setCharacterSize(45);
+		BackText.setString("Press Enter to go to the next");
+
+		stringstream  winString, scoreString, nameString;
+		nameString << playername;
+		nametext.setString(nameString.str());
+		if(scoreChecked==false)
+		{
+			scores.writeScore(score, highscore, "Level 1 : ");
+			scoreChecked = true;
+		}
+		
+
+		scoreString << "your score is :: " << score <<'\n' <<"Highest Score is :" <<highscore;
+		scoretext.setString(scoreString.str());
+		winString << "You won !! ";
+		wintext.setString(winString.str());
+		//window.clear();
+		window.draw(wintext);
+		window.draw(scoretext);
+		window.draw(nametext);
+		window.draw(BackText);
+		//window.display();
+		while (window.pollEvent(event))
+		{
+			if (Keyboard::isKeyPressed(Keyboard::Enter))
+			{
+				play = false;
+				
+			}
+				
+		}
 	}
+	
 	
 
 }
 void player_rectangle(RectangleShape& player);
-void reply_level(bool &play, Music& music, int& xpos, int& ypos)
+void reply_level(bool &play, Music& music, int& xpos, int& ypos,string levelName)
 {
-	
+
 	if (heart == 0)
 	{
 		music.stop();
 		losing.play();
 		//scores.writeScore(score, highscore, "Level one : ");
 		FilesHandler scores;
-		score = score + bonus;
-		scores.writeScore(score, score, "Level 1 : ");
+		//score = score + bonus;
+		scores.writeScore(score, highscore, "Level 1 : ");
 		RenderWindow message(VideoMode(messageWidth, messageHeight), "message", Style::Close);
 		messagebox  Message(messageWidth, messageHeight);
 		Texture background;
@@ -393,18 +420,22 @@ void reply_level(bool &play, Music& music, int& xpos, int& ypos)
 		}
 		if (replay == true)
 		{
+			if (Clevel_number == -1)
+				IntialiseLevel("standardLevels.txt", levelName);
+			else
+				set_grid_0();
 			heart = 3;
 			xpos, ypos = 0;
 			message.close();
 			replay = false;
-			set_grid_0();
+			
 			music.play();
 			//break;
 		}
 
 	}
 }
-void checkCollision(short nEnemy, RectangleShape enemies_shapes[], Sound &collisionSound)
+void checkCollision(short nEnemy, RectangleShape enemies_shapes[], Sound &collisionSound,int &xpos, int &ypos,bool &play)
 {
 	for (int i = 0; i < nEnemy; i++)
 	{
@@ -425,6 +456,13 @@ void checkCollision(short nEnemy, RectangleShape enemies_shapes[], Sound &collis
 
 			//play = false;
 		}
+		if (grid[xpos][ypos] == 3)
+		{
+			heart = 0;
+			//play = false;
+		
+		}
+			
 	}
 }
 void movePlayer(int& xpos, int& ypos, int dir)
@@ -772,8 +810,12 @@ void part_level_one(int number_level)
 		//score system
 		FilesHandler scores;
 		int highscore = 20;
-		if(Clevel_number==-1)
-		IntialiseLevel("standardLevels.txt", "two");
+		if (Clevel_number == -1)
+		{
+			IntialiseLevel("standardLevels.txt", "two");
+			//Clevel_number
+		}
+		
 		//level one  ---
 		//set_grid_0();
 		short nEnemy = 4;//number of enemy of selected level
@@ -851,7 +893,7 @@ void part_level_one(int number_level)
 				
 			scorecalc(score,second);
 			//calculateScore(score, second, percent);
-			cout << bonus;
+		
 			// time string 
 			stringstream time_string, areaString, heartString, nameString;
 			nameString << playername;
@@ -899,7 +941,7 @@ void part_level_one(int number_level)
 			player.setPosition(xpos * 10, ypos * 10);
 			time_text.setString(time_string.str());
 			//check player-enemy collision
-			checkCollision(nEnemy, enemies_shapes, collisionSound);
+			/****** was here before/
 			//moveEnemy(nEnemy);
 
 			/*	for (int i = 0; i < 82; i++)
@@ -951,12 +993,14 @@ void part_level_one(int number_level)
 			window_Level_one.draw(PercentText);
 			window_Level_one.draw(labelscore);
 
-			if (percent >= 10)
-				win(window_Level_one, Arial_font,score,play,event,scores);
+			
+				WinWindow(window_Level_one, Arial_font,score,play,event,scores,percent);
 		
 			window_Level_one.display();
 			///////////////////////
-			reply_level(play, music, xpos, ypos);
+			checkCollision(nEnemy, enemies_shapes, collisionSound, xpos, ypos, play);
+
+			reply_level(play, music, xpos, ypos,"two");
 		
 		}
 		//win(window_Level_one);
@@ -979,6 +1023,7 @@ void part_level_two(int number_level)
 		set_grid_0();
 		short nEnemy = 6;//number of enemy of selected level
 		//level one  
+		FilesHandler scores;
 		IntialiseLevel("standardLevels.txt", "two");
 		RenderWindow window_Level_two(VideoMode(ScreenWidth, ScreenHeight), "level two", Style::Close);//render window_play 
 		window_Level_two.setFramerateLimit(30);//set frames to 60 per second 
@@ -1075,7 +1120,7 @@ void part_level_two(int number_level)
 			movePlayer(xpos, ypos, dir);
 			player.setPosition(xpos * 10, ypos * 10);
 			time_text.setString(time_string.str());
-			checkCollision(nEnemy, enemies_shapes, collisionSound);
+			checkCollision(nEnemy, enemies_shapes, collisionSound, xpos, ypos, play);
 			/*	for (int i = 0; i < 82; i++)
 				{
 					for (int j = 0; j < 62; j++)
@@ -1100,10 +1145,11 @@ void part_level_two(int number_level)
 			window_Level_two.draw(heartText);
 
 			window_Level_two.draw(labelscore);
+			WinWindow(window_Level_two, Arial_font, score, play, event, scores, percent);
 
 			window_Level_two.display();
 			/////////////////////
-			reply_level(play, music, xpos, ypos);
+			reply_level(play, music, xpos, ypos,"Dead human");
 		}
 	}
 }
@@ -1116,7 +1162,7 @@ void part_level_three(int number_level)
 		short nEnemy = 4;//number of enemy of selected level
 		//level one  
 		IntialiseLevel("standardLevels.txt", "Dead human");
-
+		FilesHandler scores;
 		RenderWindow window_Level_Three(VideoMode(ScreenWidth, ScreenHeight), "level three", Style::Close);//render window_play 
 		window_Level_Three.setFramerateLimit(30);//set frames to 60 per second 
 		bool play = true, endgame = false;; // play variable 
@@ -1211,7 +1257,7 @@ void part_level_three(int number_level)
 			movePlayer(xpos, ypos, dir);
 			player.setPosition(xpos * 10, ypos * 10);
 			time_text.setString(time_string.str());
-			checkCollision(nEnemy, enemies_shapes, collisionSound);
+			checkCollision(nEnemy, enemies_shapes, collisionSound, xpos, ypos, play);
 
 			setsBrush(xpos, ypos);
 			//draw
@@ -1253,8 +1299,11 @@ void part_level_three(int number_level)
 			window_Level_Three.draw(heartText);
 
 			window_Level_Three.draw(labelscore);
+			WinWindow(window_Level_Three, Arial_font, score, play, event, scores, percent);
 
 			window_Level_Three.display();
+			/////////////////////
+			reply_level(play, music, xpos, ypos, "level 8");
 		}
 	}
 }
@@ -1268,7 +1317,7 @@ void part_level_four(int level_number)
 		short nEnemy = 4;//number of enemy of selected level
 		//level one  
 		IntialiseLevel("standardLevels.txt", "level 4");
-
+		FilesHandler scores;
 		RenderWindow window_Level_Three(VideoMode(ScreenWidth, ScreenHeight), "level three", Style::Close);//render window_play 
 		window_Level_Three.setFramerateLimit(30);//set frames to 60 per second 
 		bool play = true, endgame = false;; // play variable 
@@ -1363,7 +1412,7 @@ void part_level_four(int level_number)
 			movePlayer(xpos, ypos, dir);
 			player.setPosition(xpos * 10, ypos * 10);
 			time_text.setString(time_string.str());
-			checkCollision(nEnemy, enemies_shapes, collisionSound);
+			checkCollision(nEnemy, enemies_shapes, collisionSound, xpos, ypos, play);
 
 			setsBrush(xpos, ypos);
 			//draw
@@ -1406,7 +1455,11 @@ void part_level_four(int level_number)
 
 			window_Level_Three.draw(labelscore);
 
+			WinWindow(window_Level_Three, Arial_font, score, play, event, scores, percent);
+
 			window_Level_Three.display();
+			/////////////////////
+			reply_level(play, music, xpos, ypos, "Dead human");
 		}
 	}
 }
@@ -1420,6 +1473,7 @@ void part_level_five(int level_number) {
 						short nEnemy = 4;//number of enemy of selected level
 						//level one  
 						IntialiseLevel("standardLevels.txt", "level 5");
+						FilesHandler scores;
 						sf::View view1(sf::FloatRect(0, 0, ScreenWidth, ScreenHeight));
 						view1.setCenter(ScreenWidth / 2, ScreenHeight / 2);
 						view1.zoom(1.2);
@@ -1518,8 +1572,8 @@ void part_level_five(int level_number) {
 							movePlayer(xpos, ypos, dir);
 							player.setPosition(xpos * 10, ypos * 10);
 							time_text.setString(time_string.str());
-							checkCollision(nEnemy, enemies_shapes, collisionSound);
-			
+							checkCollision(nEnemy, enemies_shapes, collisionSound, xpos, ypos, play);
+
 							setsBrush(xpos, ypos);
 							//draw 
 							window_Level_Three.clear();
@@ -1536,9 +1590,11 @@ void part_level_five(int level_number) {
 							window_Level_Three.draw(heartText);
 
 			
+							WinWindow(window_Level_Three, Arial_font, score, play, event, scores, percent);
+
 							window_Level_Three.display();
-							///////////////////
-							reply_level(play, music, xpos, ypos);
+							/////////////////////
+							reply_level(play, music, xpos, ypos, "level 5");
 						
 						
 			
@@ -1555,7 +1611,7 @@ void part_level_six(int level_number) {
 						short nEnemy = 4;//number of enemy of selected level
 						//level one  
 						IntialiseLevel("standardLevels.txt", "level 6");
-			
+						FilesHandler scores;
 						RenderWindow window_Level_Three(VideoMode(ScreenWidth, ScreenHeight), "level three", Style::Close);//render window_play 
 						window_Level_Three.setFramerateLimit(30);//set frames to 60 per second 
 						bool play = true, endgame = false;; // play variable 
@@ -1648,8 +1704,8 @@ void part_level_six(int level_number) {
 							movePlayer(xpos, ypos, dir);
 							player.setPosition(xpos * 10, ypos * 10);
 							time_text.setString(time_string.str());
-							checkCollision(nEnemy, enemies_shapes, collisionSound);
-			
+							checkCollision(nEnemy, enemies_shapes, collisionSound, xpos, ypos, play);
+
 							setsBrush(xpos, ypos);
 							//draw 
 							window_Level_Three.clear();
@@ -1664,10 +1720,11 @@ void part_level_six(int level_number) {
 							window_Level_Three.draw(PercentText);
 							window_Level_Three.draw(labelscore);
 			
+							WinWindow(window_Level_Three, Arial_font, score, play, event, scores, percent);
+
 							window_Level_Three.display();
-							////////////////////
-							reply_level(play, music, xpos, ypos);
-			
+							/////////////////////
+							reply_level(play, music, xpos, ypos, "level 4");
 						}
 					}
 				}
@@ -1681,7 +1738,7 @@ void part_level_seven(int level_number) {
 						short nEnemy = 4;//number of enemy of selected level
 						//level one  
 						IntialiseLevel("standardLevels.txt", "level 7");
-			
+						FilesHandler scores;
 						RenderWindow window_Level_Three(VideoMode(ScreenWidth, ScreenHeight), "level three", Style::Close);//render window_play 
 						window_Level_Three.setFramerateLimit(30);//set frames to 60 per second 
 						bool play = true, endgame = false;; // play variable 
@@ -1774,8 +1831,8 @@ void part_level_seven(int level_number) {
 							movePlayer(xpos, ypos, dir);
 							player.setPosition(xpos * 10, ypos * 10);
 							time_text.setString(time_string.str());
-							checkCollision(nEnemy, enemies_shapes, collisionSound);
-			
+							checkCollision(nEnemy, enemies_shapes, collisionSound, xpos, ypos, play);
+
 							setsBrush(xpos, ypos);
 							//draw 
 							window_Level_Three.clear();
@@ -1791,9 +1848,11 @@ void part_level_seven(int level_number) {
 							window_Level_Three.draw(PercentText);
 							window_Level_Three.draw(labelscore);
 			
+							WinWindow(window_Level_Three, Arial_font, score, play, event, scores, percent);
+
 							window_Level_Three.display();
 							/////////////////////
-							reply_level(play, music, xpos, ypos);
+							reply_level(play, music, xpos, ypos, "level 6");
 			
 						}
 					}
@@ -1808,7 +1867,7 @@ void part_level_eight(int level_number) {
 						short nEnemy = 4;//number of enemy of selected level
 						//level one  
 						IntialiseLevel("standardLevels.txt", "level 8");
-			
+						FilesHandler scores;
 						RenderWindow window_Level_Three(VideoMode(ScreenWidth, ScreenHeight), "level three", Style::Close);//render window_play 
 						window_Level_Three.setFramerateLimit(30);//set frames to 60 per second 
 						bool play = true, endgame = false;; // play variable 
@@ -1901,8 +1960,8 @@ void part_level_eight(int level_number) {
 							movePlayer(xpos, ypos, dir);
 							player.setPosition(xpos * 10, ypos * 10);
 							time_text.setString(time_string.str());
-							checkCollision(nEnemy, enemies_shapes, collisionSound);
-			
+							checkCollision(nEnemy, enemies_shapes, collisionSound, xpos, ypos, play);
+
 							setsBrush(xpos, ypos);
 							//draw 
 							window_Level_Three.clear();
@@ -1917,9 +1976,11 @@ void part_level_eight(int level_number) {
 							window_Level_Three.draw(PercentText);
 							window_Level_Three.draw(labelscore);
 			
+							WinWindow(window_Level_Three, Arial_font, score, play, event, scores, percent);
+
 							window_Level_Three.display();
-							///////////////////// 
-							reply_level(play, music, xpos, ypos);
+							/////////////////////
+							reply_level(play, music, xpos, ypos, "level 7");
 			
 						}
 					}
@@ -2038,8 +2099,10 @@ void part_level_Custom(int& level_number, string* name) {
 				FilesHandler levelsFile;
 				bool level_play = true, end_levels_2 = true, end_levels = true;
 				name = levelsFile.check_levels("levels.txt");
-				name[0] = "";
-				name[5] = "";
+				/*name[0] = "";
+				name[5] = "";*/
+				for (int i = 0; i < name->size(); i++)
+					cout << name[i];
 				while (level_play)   //this move on all levels
 				{
 					//play levels
@@ -2071,14 +2134,14 @@ void part_level_Custom(int& level_number, string* name) {
 								{
 									windowPressed.play();
 
-									Levels.moveUp(1);
+									Levels.moveUp(1,name);
 									break;
 								}
 								if (event2.key.code == Keyboard::Down)
 								{
 									windowPressed.play();
 
-									Levels.moveDown(1);
+									Levels.moveDown(1,name);
 									break;
 								}
 								if (event2.key.code == Keyboard::Enter)   // Return == I pressed enter
@@ -2669,7 +2732,7 @@ void Custom_make_level(int page_Custom) {
 					clear = false;
 				}
 			}
-			string levelname = "";
+			char levelname[50] = "";
 
 			if (event.type == sf::Event::KeyReleased && event.key.code == sf::Keyboard::P)
 			{
@@ -2686,7 +2749,7 @@ void Custom_make_level(int page_Custom) {
 				cout << levelgrid;
 				levelgrid += "$";
 				cout << "Enter level name here : ";
-				cin >> levelname;
+				gets_s(levelname);
 				levelsFile.write_custom_Level(levelgrid, levelname, "Levels.txt");
 			}
 			if (event.type == sf::Event::KeyReleased && event.key.code == sf::Keyboard::D)

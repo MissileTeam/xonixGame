@@ -15,8 +15,8 @@ public:
 	void draw(RenderWindow& window_Levels);
 	void moveup();
 	void moveDown();
-	void moveUp(int mode);
-	void moveDown(int mode);
+	void moveUp(int mode,std::string* name);
+	void moveDown(int mode,std::string* name);
 	int mainlevelsPressed()
 	{
 		return mainlevelsSelected;
