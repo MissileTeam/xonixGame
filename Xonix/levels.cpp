@@ -185,13 +185,13 @@ void levels::moveup()
 
 void levels::moveDown(int mode,std::string* name)
 {
-	if (mainClevelsSelected + 1 <= nCustom_level) //check if not on the last item (level3)    
+	if (mainClevelsSelected + 1 <= name->size()+1) //check if not on the last item (level3)    
 	{
 
 		CustomLevels[mainClevelsSelected].setFillColor(Color::White);			// áæ Ýí ÈÚÏíåÇ æÇäÇ ÏæÓÊ Úáí Ïæä íÈÞí Çááí ÇäÇ æÇÞÝ ÚáíåÇ ÇÈíÖ ææåíÍÑßäí Úáí Çááí ÈÚÏí
 
 		mainClevelsSelected++; //move to the lower item 
-		if (mainClevelsSelected == name->size()+1)  //=3 == level 4 and it not found
+		if (mainClevelsSelected == name->length()+2)  //=3 == level 4 and it not found
 		{
 			mainClevelsSelected = 0;
 		}

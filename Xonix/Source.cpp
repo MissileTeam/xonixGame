@@ -640,6 +640,7 @@ int main()
 	completionbuf.loadFromFile("Extra_images/CompleteDraw.ogg");
 	completion.setBuffer(completionbuf);
 	completion.setVolume(50);
+	completion.setPitch(3.0f);
 	//loading window sound when it's clicked
 	window_click.loadFromFile("Extra_images/windowClick.ogg");
 	windowPressed.setBuffer(window_click);
@@ -666,24 +667,27 @@ int main()
 		t.setFont(font);
 
 		t.setString(playername);
-
-
+		Text PhotoMode;
+		PhotoMode.setString("Photo mode 'ON'");
+		PhotoMode.setPosition(570, 470);
+		PhotoMode.setFillColor(Color::Green);
+		PhotoMode.setFont(font);
 		//background of game 
 		Texture background;
-		if (!background.loadFromFile("Data/picture6.png"))
+		if (!background.loadFromFile("Data/Background.jpg"))
 			cout << "error in load photo of shape" << endl;
 		RectangleShape photo;
 		photo.setSize(Vector2f(820, 680));
 		photo.setPosition(0, 0);
 		photo.setTexture(&background);
 		Texture ON,OFF;
-		if (!ON.loadFromFile("Data/ON.png"))
+		if (!ON.loadFromFile("Data/ONN.png"))
 			cout << "error in load photo of shape" << endl;
 		if (!OFF.loadFromFile("Data/OFF.png"))
 			cout << "error in load photo of shape" << endl;
 		RectangleShape photo2;
-		photo2.setSize(Vector2f(50, 50));
-		photo2.setPosition(760, 580);
+		photo2.setSize(Vector2f(100, 100));
+		photo2.setPosition(700, 580);
 		photo2.setTexture(&ON);
 		while (window.isOpen())
 		{
@@ -761,22 +765,41 @@ int main()
 				case Mouse::Button::Left:
 					if (event.mouseButton.x >= 760 && event.mouseButton.x <= 805 && event.mouseButton.y >= 580 && event.mouseButton.y <= 626)
 					{
-						defaultmode = true;
-						photo2.setTexture(&OFF);
+						if(defaultmode!=true)
+						{
+							defaultmode = true;
+							photo2.setTexture(&OFF);
+							PhotoMode.setString("Photo mode 'OFF'");
+							PhotoMode.setFillColor(Color::Red);
+							break;
+						}
+						else
+						{
+							//sleep(milliseconds(500));
+							defaultmode = false;
+							photo2.setTexture(&ON);
+							PhotoMode.setString("Photo mode 'ON'");
+							PhotoMode.setFillColor(Color::Green);
+							break;
+						}
+
 						
+
+						//window.draw(photo2);
 					}
 					break;
 				}
 				break;
 			}
 
-			t.setString(playername);
+			//t.setString(playername);
 			window.clear();
-
 			window.draw(photo);
 			window.draw(photo2);
 			menuu.draw(window);
-			window.draw(t);
+		//	window.draw(t);
+			window.draw(PhotoMode);
+
 			window.display();
 			//entername();
 		}
@@ -872,7 +895,7 @@ void part_level_one(int number_level)
 		Music music;
 		if (!music.openFromFile("Data/soundtrack.ogg"))
 			cout << "error in load sound";
-		music.setVolume(50);
+		music.setVolume(70);
 		music.setLoop(true);
 		music.play();
 		SoundBuffer sound;

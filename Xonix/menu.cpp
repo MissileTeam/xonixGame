@@ -4,20 +4,20 @@ using namespace sf;
 menu::menu(float width, float hight)
 {
 	if (!font.loadFromFile("Data/menu.ttf")) {}
-
+	hight += 150;
 	//play
 	mainmenu[0].setFont(font);
 	mainmenu[0].setFillColor(Color::Cyan);
 	mainmenu[0].setString("play");
 	mainmenu[0].setCharacterSize(50);
-	mainmenu[0].setPosition(Vector2f(width / 4 - 150, hight / (Max_main_menu + 1)));
+	mainmenu[0].setPosition(Vector2f(width / 4 - 150, 150));
 
 	//Credits
 	mainmenu[1].setFont(font);
 	mainmenu[1].setFillColor(Color::White);
 	mainmenu[1].setString("Credits");
 	mainmenu[1].setCharacterSize(50);
-	mainmenu[1].setPosition(Vector2f(width / 4 - 150, hight / (Max_main_menu + 1) *3));
+	mainmenu[1].setPosition(Vector2f(width / 4 - 150, 300));
 
 
 	//options
@@ -25,16 +25,17 @@ menu::menu(float width, float hight)
 	mainmenu[2].setFillColor(Color::White);
 	mainmenu[2].setString("options");
 	mainmenu[2].setCharacterSize(50);
-	mainmenu[2].setPosition(Vector2f(width / 4 - 150, hight / (Max_main_menu + 1) * 5));
+	mainmenu[2].setPosition(Vector2f(width / 4 - 150,450));
 
 	//exit
 	mainmenu[3].setFont(font);
 	mainmenu[3].setFillColor(Color::White);
 	mainmenu[3].setString("Exit");
 	mainmenu[3].setCharacterSize(50);
-	mainmenu[3].setPosition(Vector2f(width / 4 - 150, hight / (Max_main_menu + 1) * 7));
+	mainmenu[3].setPosition(Vector2f(width / 4 - 150,600));
 
 	mainmenuSelected = 0;
+	
 }
 
 
