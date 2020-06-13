@@ -21,7 +21,7 @@ string FilesHandler::load_level(string levelName,string fileName)
 				{
 					if (data.find_first_of("$") == -1)
 					{
-						inputFile.seekg((int)inputFile.tellg());
+						//inputFile.seekg((int)inputFile.tellg());
 						inputFile >> data;
 						if (data.find_first_of("$") >= 0)
 						{

@@ -5,11 +5,11 @@ using namespace sf;
 #define Max_main_levels 10 
 #define ScreenWidth 680
 #define ScreenHeight 820
-class levels
+class Levels_menu
 {
 public:
 	int nCustom_level = 9;
-	levels(float width, float hight, int mode,RenderWindow& CustomWindow,std:: string * name);
+	Levels_menu(float width, float hight, int mode,RenderWindow& CustomWindow,std:: string * name);
 
 
 	void draw(RenderWindow& window_Levels);
@@ -29,7 +29,7 @@ public:
 
 
 
-	~levels();
+	~Levels_menu();
 private:
 	int mainlevelsSelected=0;
 	int mainClevelsSelected=1;

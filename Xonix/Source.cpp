@@ -10,6 +10,7 @@
 #include "messagebox.h"
 #include "Custom.h"
 #include "FilesHandler.h"
+#include "Level.h"
 #include <string>
 #define ScreenWidth 820
 #define ScreenHeight 680
@@ -37,6 +38,7 @@ using namespace sf;
 // window scale 
 stringstream sscore; Text labelscore;
 Sound completion, losing, windowPressed;
+
 struct enemy {
 	//e=enemy
 	// we put the function in the struct to make varibles of struct idientfied in the functions
@@ -44,7 +46,7 @@ struct enemy {
 	enemy() {
 		expostion = 400 - rand() % 50;
 		eypostion = 400 - rand() % 50;
-
+		
 		exvelocity = 1 - rand() % 10;
 		if (exvelocity == 0)
 			exvelocity = 1 - rand() % 10;
@@ -147,6 +149,48 @@ void setTime(time_t& this_second, int& second, int& minute, time_t& first_second
 			time_string << "Time " << minute << " : " << second;
 		}
 	}
+}
+
+void setTimenew(Clock clock,stringstream &time_string,int &second,int &minute)
+{
+	//works great
+	second = (int)clock.getElapsedTime().asSeconds();
+	/*time_string.clear();
+	time_string << "Time " << "0" << minute << " :0 " << second;*/
+	 if ( second >= 60 )
+	{
+	minute++;
+	second = clock.restart().asSeconds() - second;
+	
+	}
+	if (minute < 10)
+	{
+		if ( (second) < 10 )
+		{
+			time_string.clear();
+			time_string << "Time " << "0" << minute << " : " << "0" << second;
+		}
+		else
+		{
+			time_string.clear();
+			time_string << "Time " << "0" << minute << " : " << second;
+		}
+	}
+	else
+	{
+		if (clock.getElapsedTime().asSeconds() < 10)
+		{
+			time_string.clear();
+			time_string << "Time " << minute << " : " << "0" << second;
+		}
+		else
+		{
+			time_string.clear();
+			time_string << "Time " << minute << " : " << second;
+		}
+	}
+	/*time_string.clear();
+	time_string << "Time " << "0" << minute << " : " << "0" << second;*/
 }
 void setTimeText(Font& number_font, Text& time_text)
 {
@@ -255,9 +299,10 @@ void updateScore()
 {
 
 }
+
 int checkBoundaries()
 {
-	int percent = 0;
+	int percent = 0; 
 	for (int i = 0; i < 82; i++)
 	{
 		for (int j = 0; j < 62; j++)
@@ -269,8 +314,10 @@ int checkBoundaries()
 			else if (grid[i][j] == 1)
 			{
 				percent++;
-				
+
 			}
+			
+		
 
 		}
 	}
@@ -327,7 +374,7 @@ void WinWindow(RenderWindow& window,Font &font,int &score,bool &play,Event & eve
 		}
 		
 
-		scoreString << "your score is :: " << score <<'\n' <<"Highest Score is :" <<highscore;
+		scoreString << "your score is :: " << score <<'\n' <<"last High Score is :" <<highscore;
 		scoretext.setString(scoreString.str());
 		winString << "You won !! ";
 		wintext.setString(winString.str());
@@ -357,6 +404,7 @@ void reply_level(bool &play, Music& music, int& xpos, int& ypos,string levelName
 
 	if (heart == 0)
 	{
+		score = 0;
 		music.stop();
 		losing.play();
 		//scores.writeScore(score, highscore, "Level one : ");
@@ -420,6 +468,7 @@ void reply_level(bool &play, Music& music, int& xpos, int& ypos,string levelName
 		}
 		if (replay == true)
 		{
+			score = 0;
 			if (Clevel_number == -1)
 				IntialiseLevel("standardLevels.txt", levelName);
 			else
@@ -505,10 +554,39 @@ void movePlayer(int& xpos, int& ypos, int dir)
 }
 void rules_of_draw(int x, int y)
 {
+	/*short row =1 ,coulmns=1;
+	for (int i = 0; i < 82; i++)
+	{
+		for (int j = 0; j < 62; j++)
+		{
+			
 
+			
+			if (grid[x-1][y] == 0)
+
+				grid[i][j] = -1;
+
+			if (grid[x + 1][y] == 0)
+
+				grid[i][j] = -1;
+
+			if (grid[x ][y-1] == 0)
+
+				grid[i][j] = -1;
+
+			if (grid[x][y+1] == 0)
+
+				grid[i][j] = -1;
+		}
+		if(i==row)
+		x -= 1;
+		y -= 1;
+	}
+	*/
 	if (grid[x][y] == 0)
 
-		grid[x][y] = -1; //strange error happens here becuase the random position of the enemy  y =- number;
+				grid[x][y] = -1;
+		// strange error happens here becuase the random position of the enemy  y =- number;
 
 	if (grid[x - 1][y] == 0)
 
@@ -628,7 +706,6 @@ void part_level_Custom(int& level_number, string* name);
 void part_play(int page_number);
 
 void part_Credits(int page_number);
-void part_option(int page_number);
 void load_custom_level(int& CLevelnumber, string& levelgrid, FilesHandler& levelsFile);
 
 
@@ -640,7 +717,7 @@ int main()
 	completionbuf.loadFromFile("Extra_images/CompleteDraw.ogg");
 	completion.setBuffer(completionbuf);
 	completion.setVolume(50);
-	completion.setPitch(3.0f);
+	//completion.setPitch(3.0f);
 	//loading window sound when it's clicked
 	window_click.loadFromFile("Extra_images/windowClick.ogg");
 	windowPressed.setBuffer(window_click);
@@ -668,9 +745,9 @@ int main()
 
 		t.setString(playername);
 		Text PhotoMode;
-		PhotoMode.setString("Photo mode 'ON'");
+		PhotoMode.setString("Photo mode 'OFF'");
 		PhotoMode.setPosition(570, 470);
-		PhotoMode.setFillColor(Color::Green);
+		PhotoMode.setFillColor(Color::Red);
 		PhotoMode.setFont(font);
 		//background of game 
 		Texture background;
@@ -688,7 +765,7 @@ int main()
 		RectangleShape photo2;
 		photo2.setSize(Vector2f(100, 100));
 		photo2.setPosition(700, 580);
-		photo2.setTexture(&ON);
+		photo2.setTexture(&OFF);
 		while (window.isOpen())
 		{
 			Event event;
@@ -741,13 +818,7 @@ int main()
 						windowPressed.play();
 
 					}
-					if (menuu.mainmenuPressed() == 2)    //  options
-					{
-						window.close();				//close the main window and open window.option
-						page_number = 2;
-						windowPressed.play();
-
-					}
+					
 					if (menuu.mainmenuPressed() == 3)    //  exit
 					{
 						window.close();				//close the main window and open window.exit
@@ -765,9 +836,11 @@ int main()
 				case Mouse::Button::Left:
 					if (event.mouseButton.x >= 760 && event.mouseButton.x <= 805 && event.mouseButton.y >= 580 && event.mouseButton.y <= 626)
 					{
-						if(defaultmode!=true)
+						//defaultmode = true;
+						photo2.setTexture(&OFF);
+						if (defaultmode == true)
 						{
-							defaultmode = true;
+							defaultmode = false;
 							photo2.setTexture(&OFF);
 							PhotoMode.setString("Photo mode 'OFF'");
 							PhotoMode.setFillColor(Color::Red);
@@ -776,7 +849,7 @@ int main()
 						else
 						{
 							//sleep(milliseconds(500));
-							defaultmode = false;
+							defaultmode = true;
 							photo2.setTexture(&ON);
 							PhotoMode.setString("Photo mode 'ON'");
 							PhotoMode.setFillColor(Color::Green);
@@ -805,12 +878,13 @@ int main()
 		}
 
 		part_play(page_number);
+		if (page_Custom == -1)
+			part_play(0);
 		if (end_levels == false)
 			continue;
 		if (end_levels_2 == false)
 			continue;
 		part_Credits(page_number);
-		part_option(page_number);
 		if (page_number == 3)
 			break; // exit
 
@@ -828,212 +902,8 @@ void part_level_one(int number_level)
 {
 	if (level_number == 0)
 	{
-		score = 0;
-		heart = 3;
-		//score system
-		FilesHandler scores;
-		int highscore = 20;
-		if (Clevel_number == -1)
-		{
-			IntialiseLevel("standardLevels.txt", "two");
-			//Clevel_number
-		}
-		
-		//level one  ---
-		//set_grid_0();
-		short nEnemy = 4;//number of enemy of selected level
-		//level one  
-		RenderWindow window_Level_one(VideoMode(ScreenWidth, ScreenHeight), "level one", Style::Close);//render window_play 
-		window_Level_one.setFramerateLimit(30);//set frames to 60 per second 
-		bool play = true;// play variable 
-
-		int xpos = 0, ypos = 0; //playes position
-		short dir = -1;//direction of the player  -1 means no direction in the start it can be anything
-
-		//images 
-		Texture image, image2, image3;
-		check_images_borders_load(image, image2, image3);
-		Sprite  sprite3(image3);
-		sprite3.setPosition(Vector2f((ScreenWidth / 3 - 50), 633));
-		//font 
-		Font number_font, Arial_font;
-		check_font_load(number_font, Arial_font);
-		setScoreText(Arial_font);
-		stringstream Playername; 
-		Playername << "Ahmed";
-		RectangleShape enemies_shapes[10];
-		setEnemiesShapes(nEnemy, enemies_shapes,10);
-		// time 
-		time_t first_second, this_second;
-		time(&first_second);
-		int second = 0, minute = 0;
-		//time text
-		Text time_text, PercentText, heartText, nametext;
-		if (Arial_font.loadFromFile("Data/arial.ttf") == false)
-			std::cout << "erorr in loading Font";
-		nametext.setFont(Arial_font);
-		nametext.setFillColor(Color::Green);
-		nametext.setPosition(570, 630);
-		nametext.setCharacterSize(30);
-		setTimeText(number_font, time_text);
-		//Percent Text
-		setPercentText(Arial_font, PercentText);
-		//heart Text
-		setHeartText(Arial_font, heartText);
-		//player rectangle
-		RectangleShape player;
-		player_rectangle(player);
-		//under bound rectangle 
-		RectangleShape bound;
-		bound.setFillColor(Color::Red);
-		bound.setPosition(0, 620);
-		bound.setSize(Vector2f(820, 5));
-		// event
-		Event event;
-		//sound
-		// sound track while the game is playing
-		Music music;
-		if (!music.openFromFile("Data/soundtrack.ogg"))
-			cout << "error in load sound";
-		music.setVolume(70);
-		music.setLoop(true);
-		music.play();
-		SoundBuffer sound;
-		Sound collisionSound;
-		if (sound.loadFromFile("Data/impact.wav"))
-			cout << "collision done " << endl;
-		collisionSound.setBuffer(sound);
-		collisionSound.setPitch(1.1f);
-		short oldpercent=0; int percent = 0;
-		while (play)     //this move one page
-		{
-
-			Sprite Sgrid;
-			//making sounds every new increase in percent %
-			
-			checkCompletion(percent, oldpercent);
-			
-				
-			scorecalc(score,second);
-			//calculateScore(score, second, percent);
-		
-			// time string 
-			stringstream time_string, areaString, heartString, nameString;
-			nameString << playername;
-			nametext.setString(nameString.str());
-			heartString << heart;
-			heartText.setString(heartString.str());
-			areaString << "You Finished " << percent << "%";
-			PercentText.setString(areaString.str());
-			//setting time 
-			setTime(this_second, second, minute, first_second, time_string);
-
-			while (window_Level_one.pollEvent(event))
-			{
-				if (event.type == Event::Closed)
-				{
-					window_Level_one.close();
-					start = 0;
-					play = false;
-				}
-				if (Keyboard::isKeyPressed(Keyboard::Escape))
-				{
-					play = false;
-				}
-				if (Keyboard::isKeyPressed(Keyboard::Up)) 		dir = Up;
-				else if (Keyboard::isKeyPressed(Keyboard::Down))	dir = Down;
-				else if (Keyboard::isKeyPressed(Keyboard::Right))	dir = Right;
-				else if (Keyboard::isKeyPressed(Keyboard::Left))	dir = Left;
-				/*	for (int l = 0; l < nEnemy; l++)
-				{
-				for (int k = 1; k < nEnemy; k++)
-				if (enemies_shapes[l].getGlobalBounds().intersects(enemies_shapes[k].getGlobalBounds()))
-				{
-				enemies_struct[l].expostion = -enemies_struct[l].expostion;
-				enemies_struct[l].eypostion = -enemies_struct[l].eypostion;
-				enemies_struct[k].expostion = -enemies_struct[k].expostion;
-				enemies_struct[k].eypostion = -enemies_struct[k].eypostion;
-				}
-				}*/
-			}
-			//enemy move
-			moveEnemy(nEnemy);// activate it when you want to cut pieces of the pink line and remove it below :)
-			// boundaries that anything can't go after it like player
-			//player movement in the Grid 
-			movePlayer(xpos, ypos, dir);
-			player.setPosition(xpos * 10, ypos * 10);
-			time_text.setString(time_string.str());
-			//check player-enemy collision
-			/****** was here before/
-			//moveEnemy(nEnemy);
-
-			/*	for (int i = 0; i < 82; i++)
-			{
-			for (int j = 0; j < 62; j++)
-			{
-			if (player.getPosition().x == grid[i][j] == 2 || player.getPosition().y == grid[i][j] == 2)
-			play = false;
-			}
-			}*/
-			setsBrush(xpos, ypos);
-			//draw
-			Texture image1;
-			if (image1.loadFromFile("Data/picture1.png") == false)
-			{
-				cout << "image is not here";
-			}
-			Sprite picture1(image1);
-			window_Level_one.clear();
-			if (defaultmode == true)
-			{
-				for (int i = 0; i <= 82; i++)
-				{
-					for (int j = 0; j <= 62; j++)
-					{
-						if (grid[i][j] == 1 || grid[i][j] == 2||grid[i][j]==3)
-						{
-							picture1.setTextureRect(IntRect(i * 10, j * 10, 10, 10));
-							picture1.setPosition(i * 10, j * 10);
-							window_Level_one.draw(picture1);
-						}
-					}
-				}
-			}
-			else
-			{
-				drawArea(Sgrid, window_Level_one, image, image2);
-			}
-
-			window_Level_one.draw(player);
-			window_Level_one.draw(sprite3);
-			window_Level_one.draw(bound);
-			for (int i = 0; i < nEnemy; i++) {
-				window_Level_one.draw(enemies_shapes[i]);
-			}
-			window_Level_one.draw(time_text);
-			window_Level_one.draw(heartText);
-			//window_Level_one.draw(nametext);
-			window_Level_one.draw(PercentText);
-			window_Level_one.draw(labelscore);
-
-			
-				WinWindow(window_Level_one, Arial_font,score,play,event,scores,percent);
-		
-			window_Level_one.display();
-			///////////////////////
-			checkCollision(nEnemy, enemies_shapes, collisionSound, xpos, ypos, play);
-
-			reply_level(play, music, xpos, ypos,"two");
-		
-		}
-		//win(window_Level_one);
-		/*	if (replay == true)
-		{
-		replay = false;
-		set_grid_0();
-		///needs more expermenting now it has been fixed :)
-		part_level_one(level_number);
-		}*/
+		Level lev(5);
+	
 	}
 }
 
@@ -1044,10 +914,10 @@ void part_level_two(int number_level)
 		heart = 3;
 		//level two  
 		set_grid_0();
-		short nEnemy = 6;//number of enemy of selected level
+		short nEnemy = 1;//number of enemy of selected level
 		//level one  
 		FilesHandler scores;
-		IntialiseLevel("standardLevels.txt", "two");
+		IntialiseLevel("standardLevels.txt", "level 3");
 		RenderWindow window_Level_two(VideoMode(ScreenWidth, ScreenHeight), "level two", Style::Close);//render window_play 
 		window_Level_two.setFramerateLimit(30);//set frames to 60 per second 
 		bool play = true; // play variable 
@@ -1066,7 +936,7 @@ void part_level_two(int number_level)
 		Texture texture;
 		if (!texture.loadFromFile("Data/enemy.png"))
 			cout << "error in load photo of enemy ";
-		RectangleShape enemies_shapes[10];
+		RectangleShape enemies_shapes[1];
 		setEnemiesShapes(nEnemy, enemies_shapes,20);
 		// time 
 		time_t first_second, this_second;
@@ -1100,15 +970,16 @@ void part_level_two(int number_level)
 		if (sound.loadFromFile("Data/impact.wav"))
 			cout << "collision done " << endl;
 		collisionSound.setBuffer(sound); int percent = 0; short oldpercent=0;
+		Sprite Sgrid;
 		while (play)     //this move one page
 		{
-			Sprite Sgrid;
+			
 			
 			//percent = checkBoundaries() / (44);
 			checkCompletion(percent, oldpercent);
 			// time string 
 			scorecalc(score, second);
-
+			
 			stringstream time_string, areaString, heartString;
 			heartString << heart;
 			heartText.setString(heartString.str());
@@ -1172,7 +1043,7 @@ void part_level_two(int number_level)
 
 			window_Level_two.display();
 			/////////////////////
-			reply_level(play, music, xpos, ypos,"Dead human");
+			reply_level(play, music, xpos, ypos,"level 3");
 		}
 	}
 }
@@ -1240,8 +1111,6 @@ void part_level_three(int number_level)
 		while (play)     //this move one page
 		{
 			Sprite Sgrid;
-		
-			
 			checkCompletion(percent, oldpercent);
 			// time string 
 			scorecalc(score, second);
@@ -1275,6 +1144,7 @@ void part_level_three(int number_level)
 			}
 			//enemy move
 			moveEnemy(nEnemy);
+
 			// boundaries that anything can't go after it like player
 			//player movement in the Grid 
 			movePlayer(xpos, ypos, dir);
@@ -1293,8 +1163,16 @@ void part_level_three(int number_level)
 			window_Level_Three.clear();
 			if (defaultmode == true)
 			{
+				if (percent >= 10)
+				{
+					picture3.setTexture(image3);
+					window_Level_Three.draw(picture3);
+
+				}
 				for (int i = 0; i <= 82; i++)
 				{
+					if (percent >= 10)
+						break;
 					for (int j = 0; j <= 62; j++)
 					{
 						if (grid[i][j] == 1 || grid[i][j] == 2)
@@ -1305,6 +1183,7 @@ void part_level_three(int number_level)
 						}
 					}
 				}
+
 			}
 			else
 			{
@@ -1326,7 +1205,7 @@ void part_level_three(int number_level)
 
 			window_Level_Three.display();
 			/////////////////////
-			reply_level(play, music, xpos, ypos, "level 8");
+			reply_level(play, music, xpos, ypos, "Dead human");
 		}
 	}
 }
@@ -1341,8 +1220,9 @@ void part_level_four(int level_number)
 		//level one  
 		IntialiseLevel("standardLevels.txt", "level 4");
 		FilesHandler scores;
-		RenderWindow window_Level_Three(VideoMode(ScreenWidth, ScreenHeight), "level three", Style::Close);//render window_play 
+		RenderWindow window_Level_Three(VideoMode(ScreenWidth, ScreenHeight), "level three", Style::Default);//render window_play 
 		window_Level_Three.setFramerateLimit(30);//set frames to 60 per second 
+		
 		bool play = true, endgame = false;; // play variable 
 		int xpos = 0, ypos = 0; //playes position
 		short dir = -1;//direction of the player  -1 means no direction in the start it can be anything
@@ -1448,11 +1328,19 @@ void part_level_four(int level_number)
 			window_Level_Three.clear();
 			if (defaultmode == true)
 			{
+				if (percent >= 50 )
+				{
+					picture3.setTexture(image3);
+					window_Level_Three.draw(picture3);
+					
+				}
 				for (int i = 0; i <= 82; i++)
 				{
+					if(percent>=10)
+						break;
 					for (int j = 0; j <= 62; j++)
 					{
-						if (grid[i][j] == 1 || grid[i][j] == 2)
+						if (grid[i][j] == 1 || grid[i][j] == 2|| grid[i][j]==3)
 						{
 							picture3.setTextureRect(IntRect(i * 10, j * 10, 10, 10));
 							picture3.setPosition(i * 10, j * 10);
@@ -1460,6 +1348,7 @@ void part_level_four(int level_number)
 						}
 					}
 				}
+				
 			}
 			else
 			{
@@ -1482,7 +1371,7 @@ void part_level_four(int level_number)
 
 			window_Level_Three.display();
 			/////////////////////
-			reply_level(play, music, xpos, ypos, "Dead human");
+			reply_level(play, music, xpos, ypos, "level 4");
 		}
 	}
 }
@@ -1590,6 +1479,7 @@ void part_level_five(int level_number) {
 							}
 							//enemy move
 							moveEnemy(nEnemy);
+
 							// boundaries that anything can't go after it like player
 							//player movement in the Grid 
 							movePlayer(xpos, ypos, dir);
@@ -1722,6 +1612,7 @@ void part_level_six(int level_number) {
 							}
 							//enemy move
 							moveEnemy(nEnemy);
+
 							// boundaries that anything can't go after it like player
 							//player movement in the Grid 
 							movePlayer(xpos, ypos, dir);
@@ -1747,7 +1638,7 @@ void part_level_six(int level_number) {
 
 							window_Level_Three.display();
 							/////////////////////
-							reply_level(play, music, xpos, ypos, "level 4");
+							reply_level(play, music, xpos, ypos, "level 6");
 						}
 					}
 				}
@@ -1849,6 +1740,7 @@ void part_level_seven(int level_number) {
 							}
 							//enemy move
 							moveEnemy(nEnemy);
+
 							// boundaries that anything can't go after it like player
 							//player movement in the Grid 
 							movePlayer(xpos, ypos, dir);
@@ -1875,7 +1767,7 @@ void part_level_seven(int level_number) {
 
 							window_Level_Three.display();
 							/////////////////////
-							reply_level(play, music, xpos, ypos, "level 6");
+							reply_level(play, music, xpos, ypos, "level 7");
 			
 						}
 					}
@@ -1978,6 +1870,7 @@ void part_level_eight(int level_number) {
 							}
 							//enemy move
 							moveEnemy(nEnemy);
+
 							// boundaries that anything can't go after it like player
 							//player movement in the Grid 
 							movePlayer(xpos, ypos, dir);
@@ -2003,7 +1896,7 @@ void part_level_eight(int level_number) {
 
 							window_Level_Three.display();
 							/////////////////////
-							reply_level(play, music, xpos, ypos, "level 7");
+							reply_level(play, music, xpos, ypos, "level 8");
 			
 						}
 					}
@@ -2130,7 +2023,7 @@ void part_level_Custom(int& level_number, string* name) {
 				{
 					//play levels
 					RenderWindow window_Levels(VideoMode(ScreenWidth, ScreenHeight), " Custom Levels", Style::Close);//render window_play 
-					levels Levels(ScreenWidth, ScreenHeight, 1, window_Levels, name);  //to take object from class  
+					Levels_menu Levels(ScreenWidth, ScreenHeight, 1, window_Levels, name);  //to take object from class  
 
 					while (window_Levels.isOpen())
 					{
@@ -2200,13 +2093,7 @@ void part_level_Custom(int& level_number, string* name) {
 						}
 
 						window_Levels.clear();
-						//if (page_number == 9)
-						//{
-						//	//main menu
-						//	end_levels_2 = false;
-						//	end_levels = false;
-						//	break;
-						//}
+				
 						Levels.display_customLevels(name, window_Levels);
 
 						window_Levels.display();
@@ -2220,15 +2107,7 @@ void part_level_Custom(int& level_number, string* name) {
 						break;
 					if (Clevel_number != -1)
 						break;
-					/*part_level_one(level_number);
-					part_level_two(level_number);
-					part_level_three(level_number);
-					part_level_four(level_number);
-					part_level_five(level_number);
-					part_level_six(level_number);
-					part_level_seven(level_number);
-					part_level_eight(level_number);
-					part_level_Custom(level_number, name);*/
+			
 
 
 				}
@@ -2255,13 +2134,15 @@ void part_play(int page_number)
 		//score system
 
 
-
+		float seconds = 1.0; 
+	
 		bool level_play = true, end_levels_2 = true, end_levels = true;
 		while (level_play)   //this move on all levels
 		{
+			
 			//play levels
 			RenderWindow window_Levels(VideoMode(ScreenWidth, ScreenHeight), "Levels", Style::Close);//render window_play 
-			levels Levels(ScreenWidth, ScreenHeight, 0, window_Levels, name);  //to take object from class  
+			Levels_menu Levels(ScreenWidth, ScreenHeight, 0, window_Levels, name);  //to take object from class  
 			while (window_Levels.isOpen())
 			{
 				Event event2;
@@ -2278,6 +2159,7 @@ void part_play(int page_number)
 					{
 						level_play = false;
 						end_levels = false;
+						window_Levels.close();
 						windowPressed.play();
 
 					}
@@ -2312,6 +2194,7 @@ void part_play(int page_number)
 									{
 										//level_number = 3;
 										page_number = 9;
+										
 									}
 									window_Levels.close();				//close the main window and open window.1
 									level_number = i;
@@ -2334,6 +2217,8 @@ void part_play(int page_number)
 					//main menu
 					end_levels_2 = false;
 					end_levels = false;
+					level_play = false;
+					window_Levels.close();
 					break;
 				}
 				else {
@@ -2371,9 +2256,7 @@ void part_play(int page_number)
 
 				break;
 			case 3:
-				//name = standardLevels.check_levels("standardLevels.txt");
-
-				//standardLevels.load_level("level 4", "standardLevels.txt");
+				
 				part_level_four(level_number);
 				break;
 			case 4:
@@ -2398,12 +2281,17 @@ void part_play(int page_number)
 				name = standardLevels.check_levels("standardLevels.txt");
 				standardLevels.load_level("level 8", "standardLevels.txt");
 				part_level_eight(level_number);
+
 				break;
 
 			/*default:
 				break;*/
 			}
-
+			if (page_number == 8)
+			{
+				window_Levels.close();
+				break;
+			}
 			if (level_number == 8)
 			{
 				window_Levels.close();
@@ -2411,10 +2299,16 @@ void part_play(int page_number)
 			}
 
 		}
+	
 		if (level_number == 8)
+		{
 			part_level_Custom(level_number, name);
+			
+		}
+			
 
 	}
+
 }
 
 
@@ -2497,32 +2391,8 @@ void part_Credits(int page_number)
 	}
 }
 
-void part_option(int page_number)
-{
-	if (page_number == 2)
-	{
-		//option
-		sf::RenderWindow window_option(VideoMode(ScreenWidth, ScreenHeight), "option", sf::Style::Close);
-		bool play = true;
-		while (play)
-		{
-			while (window_option.isOpen())
-			{
-				sf::Event event;
-				while (window_option.pollEvent(event))
-				{
-					if (event.type == sf::Event::Closed)
-						window_option.close();
-					if (Keyboard::isKeyPressed(Keyboard::Escape))
-						play = false;
-				}
-				window_option.clear();
 
-				window_option.display();
-			}
-		}
-	}
-}
+	
 
 void load_custom_level(int& CLevelnumber, string& levelgrid, FilesHandler& levelsFile)
 {
@@ -2874,7 +2744,3 @@ void Custom_make_level(int page_Custom) {
 		window.display();
 	}
 }
-
-
-
-

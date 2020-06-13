@@ -23,14 +23,14 @@ menu::menu(float width, float hight)
 	//options
 	mainmenu[2].setFont(font);
 	mainmenu[2].setFillColor(Color::White);
-	mainmenu[2].setString("options");
+	mainmenu[2].setString("Exit");
 	mainmenu[2].setCharacterSize(50);
 	mainmenu[2].setPosition(Vector2f(width / 4 - 150,450));
 
 	//exit
 	mainmenu[3].setFont(font);
 	mainmenu[3].setFillColor(Color::White);
-	mainmenu[3].setString("Exit");
+	mainmenu[3].setString("");
 	mainmenu[3].setCharacterSize(50);
 	mainmenu[3].setPosition(Vector2f(width / 4 - 150,600));
 

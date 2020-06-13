@@ -3,7 +3,7 @@ using namespace sf;
 
 
 
-levels::levels(float width, float hight, int mode,RenderWindow &CustomWindow,std:: string*name)
+Levels_menu::Levels_menu(float width, float hight, int mode,RenderWindow &CustomWindow,std:: string*name)
 {
 	if (mode == 0)
 	{
@@ -108,7 +108,7 @@ levels::levels(float width, float hight, int mode,RenderWindow &CustomWindow,std
 }
 
 
-void levels::display_customLevels(std::string* levelnames, RenderWindow& window)
+void Levels_menu::display_customLevels(std::string* levelnames, RenderWindow& window)
 {
 
 	// set Text elements
@@ -123,13 +123,13 @@ void levels::display_customLevels(std::string* levelnames, RenderWindow& window)
 
 
 
-levels::~levels()
+Levels_menu::~Levels_menu()
 {
 
 }
 
 //Function of drawing levels 
-void levels::draw(RenderWindow& window_Levels)
+void Levels_menu:: draw(RenderWindow& window_Levels)
 {
 	for (int i = 0; i < 10; i++)
 	{
@@ -145,7 +145,7 @@ void levels::draw(RenderWindow& window_Levels)
 //	}
 //}
 //move down 
-void levels::moveDown()
+void Levels_menu::moveDown()
 {
 	if (mainlevelsSelected + 1 <= Max_main_levels) //check if not on the last item (level3)    
 	{
@@ -161,7 +161,7 @@ void levels::moveDown()
 	}
 }
 //move up 
-void levels::moveup()
+void Levels_menu::moveup()
 {
 	if (mainlevelsSelected - 1 >= -1) //check if not on the first item (level 1)
 	{
@@ -183,7 +183,7 @@ void levels::moveup()
 
 
 
-void levels::moveDown(int mode,std::string* name)
+void Levels_menu::moveDown(int mode,std::string* name)
 {
 	if (mainClevelsSelected + 1 <= name->size()+1) //check if not on the last item (level3)    
 	{
@@ -191,7 +191,7 @@ void levels::moveDown(int mode,std::string* name)
 		CustomLevels[mainClevelsSelected].setFillColor(Color::White);			// áæ Ýí ÈÚÏíåÇ æÇäÇ ÏæÓÊ Úáí Ïæä íÈÞí Çááí ÇäÇ æÇÞÝ ÚáíåÇ ÇÈíÖ ææåíÍÑßäí Úáí Çááí ÈÚÏí
 
 		mainClevelsSelected++; //move to the lower item 
-		if (mainClevelsSelected == name->length()+2)  //=3 == level 4 and it not found
+		if (mainClevelsSelected == name->length()+1)  //=3 == level 4 and it not found
 		{
 			mainClevelsSelected = 0;
 		}
@@ -201,7 +201,7 @@ void levels::moveDown(int mode,std::string* name)
 
 
 
-void levels::moveUp(int mode,std::string*name)
+void Levels_menu::moveUp(int mode,std::string*name)
 {
 	if (mainClevelsSelected - 1 >= -1) //check if not on the first item (level 1)
 	{
