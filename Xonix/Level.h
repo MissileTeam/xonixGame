@@ -1,9 +1,9 @@
 #pragma once
 #include <SFML\Graphics.hpp>
 #include <string>
-#include <SFML\Audio\Music.hpp>
+#include<SFML/Audio.hpp> 
 #include "FilesHandler.h"
-#include <SFML\Audio\Sound.hpp>
+
 
 #define ScreenWidth 820
 #define screenHeight 680
@@ -44,27 +44,31 @@ public :
 
 	void load_images();
 	void load_fonts();
+	void load_sounds();
 	void setTimer( int& second, int& minute, stringstream& time_string);
 	void setLives(short &hearts);
 	void setBoundaries();
 	int	 getLives();
-	void setTimeText(Font& number_font, Text& time_text);
+	void setTimeText();
+	void setScoreText(Font& Arial_font);
 	void setHeartText(Font& Arial_font, Text& heartText);
 	void setPercentText(Font& Arial_font, Text& PercentText);
+	void updatePercenetText();
+	void updateHeartText();
 	void setPercent();
 	void setDifficulty();
 	void moveEnemy(short nEnemy);
 	void rules_of_draw(int ex,int ey);
 	void setBrush(int& xpos, int& ypos);
-	void checkCompletion(int percent);
-	//void setEnemiesShapes(short& nEnemy, RectangleShape enemies_shapes[], short scale, enemy enmies_struct[]);
+	void setEnemiesShapes(short& nEnemy, RectangleShape enemies_shapes[], short scale);
 	void movePlayer(int& xpos, int& ypos, char& dir);
-	void CalculateScore(int& score, int& percent);
+	void CalculateScore();
+	void scorecalc(int& score, int time);
 	void drawArea(Sprite& Sgrid, RenderWindow& window, Texture& image, Texture& image2, int grid[][62]);
-	void setPlayerShape(RectangleShape& player);
+	void setPlayerShape();
 	//void setEnemiesShapes(short& nEnemy, RectangleShape enemies_shapes[], short scale);
 	void IntialiseLevel(string levelsFile, string levelName);
-	void checkCollision(short nEnemy, RectangleShape enemies_shapes[], Sound& collisionSound, int& xpos, int& ypos, bool& play);
+	void checkCollision(short nEnemy, RectangleShape enemies_shapes[], int& xpos, int& ypos, bool& play);
 	int* getGrid();
 
 	int  grid[82][62] = {0};
@@ -105,21 +109,28 @@ public :
 		}
 	}
 private:
+	char search = 'u';
+
 	Texture image1, image2, image3,Enemy;
 	Sprite sprite3,Sgrid;
-	short heart = 3; 
-	int xpos = 0, ypos = 0,score,highscore;
+	short heart = 3, old_percent;
+	int xpos = 0, ypos = 0, seconds=0,minutes=0,score,highscore,bonus,percent;
 	bool play = true,defaultmode=false,replay=false;
 	char dir = '5';
 	Clock clock;
 	
 	Event event;
 	Music music;
-	
+	SoundBuffer collisionBuf, losingBuf, completionBuf, windowPressBuf;
+	Sound completion, losing, windowPressed, collisionSound;
+
 	Font arial, number_font,menu;
 	FilesHandler textFile;
 	RectangleShape player, enemies_shapes[10],bound;
-	Sound completion, losing, windowPressed;
+
+	
+	
+	
 	Text time_text, PercentText, heartText,labelscore;
 	stringstream scoreString, time_string, areaString, heartString, nameString;
 	

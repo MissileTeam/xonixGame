@@ -971,6 +971,7 @@ void part_level_two(int number_level)
 			cout << "collision done " << endl;
 		collisionSound.setBuffer(sound); int percent = 0; short oldpercent=0;
 		Sprite Sgrid;
+		stringstream time_string, areaString, heartString;
 		while (play)     //this move one page
 		{
 			
@@ -980,7 +981,7 @@ void part_level_two(int number_level)
 			// time string 
 			scorecalc(score, second);
 			
-			stringstream time_string, areaString, heartString;
+			
 			heartString << heart;
 			heartText.setString(heartString.str());
 			areaString << "You Finished " << percent << "%";
